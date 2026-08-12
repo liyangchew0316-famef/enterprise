@@ -1,0 +1,6 @@
+{
+  "name": "CABAI ENTERPRISE™",
+  "description": "3D Printing & Custom Maker Studio in Malaysia - 3D Printed Keychains, Organizers, Custom STL Printing & Orders Management",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
