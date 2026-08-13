@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { OrderStatus, MaterialSpool, Product } from '../types';
+import { generateExecutiveReportPDF, generateOrderInvoicePDF } from '../utils/pdfGenerator';
 import { 
   ShieldCheck, 
   TrendingUp, 
@@ -14,7 +15,8 @@ import {
   AlertTriangle,
   RefreshCw,
   Edit,
-  Eye
+  Eye,
+  FileText
 } from 'lucide-react';
 
 export const BossAdminView: React.FC = () => {
@@ -120,32 +122,15 @@ export const BossAdminView: React.FC = () => {
   });
 
   const handleExportReport = () => {
-    const reportData = {
+    generateExecutiveReportPDF({
       generatedAt: new Date().toISOString(),
-      studioName: 'CABAI ENTERPRISE™',
-      totalRevenueRM: totalRevenue.toFixed(2),
+      totalRevenue,
       totalOrders: orders.length,
-      orders: orders.map(o => ({
-        id: o.id,
-        customer: o.customer.fullName,
-        total: o.total,
-        status: o.status,
-        date: o.date
-      })),
-      filamentInventory: spools.map(s => ({
-        name: s.name,
-        stockKg: s.stockKg,
-        isLow: s.isLow
-      }))
-    };
-
-    const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `Cabai_Enterprise_Admin_Report_${Date.now()}.json`;
-    a.click();
-    showToast('Executive Admin Report downloaded successfully!', 'success');
+      activeJobs,
+      orders,
+      spools
+    });
+    showToast('Executive Admin PDF Report generated & downloaded!', 'success');
   };
 
   const handleAddProductSubmit = (e: React.FormEvent) => {
@@ -543,12 +528,21 @@ export const BossAdminView: React.FC = () => {
               </div>
             </div>
 
-            <button
-              onClick={() => setSelectedOrder(null)}
-              className="w-full py-2.5 bg-[#1a1c1c] text-white font-bold rounded-xl text-xs"
-            >
-              Close Details
-            </button>
+            <div className="flex gap-2 pt-2">
+              <button
+                onClick={() => generateOrderInvoicePDF(selectedOrder)}
+                className="flex-1 py-2.5 bg-red-50 hover:bg-red-100 text-[#af101a] font-bold rounded-xl text-xs border border-red-200 transition-colors flex items-center justify-center gap-1.5"
+              >
+                <FileText className="w-4 h-4" />
+                <span>Download Invoice PDF</span>
+              </button>
+              <button
+                onClick={() => setSelectedOrder(null)}
+                className="px-5 py-2.5 bg-[#1a1c1c] text-white font-bold rounded-xl text-xs"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}

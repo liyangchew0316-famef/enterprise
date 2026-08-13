@@ -1,0 +1,59 @@
+{
+  "entities": {
+    "products": {
+      "title": "products",
+      "description": "3D printed products offered by CABAI ENTERPRISE",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "subtitle": { "type": "string" },
+        "price": { "type": "number" },
+        "originalPrice": { "type": "number" },
+        "rating": { "type": "number" },
+        "reviewsCount": { "type": "number" },
+        "category": { "type": "string" },
+        "description": { "type": "string" },
+        "images": { "type": "array", "items": { "type": "string" } },
+        "inStock": { "type": "boolean" },
+        "stockQuantity": { "type": "number" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "name", "price"]
+    },
+    "orders": {
+      "title": "orders",
+      "description": "Customer e-commerce orders and status tracking",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "date": { "type": "string" },
+        "customer": { "type": "object" },
+        "items": { "type": "array" },
+        "subtotal": { "type": "number" },
+        "shipping": { "type": "number" },
+        "total": { "type": "number" },
+        "paymentMethod": { "type": "string" },
+        "status": { "type": "string" },
+        "trackingNumber": { "type": "string" }
+      },
+      "required": ["id", "date", "customer", "items", "total", "status"]
+    },
+    "spools": {
+      "title": "spools",
+      "description": "Filament material spool inventory for 3D printers",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "material": { "type": "string" },
+        "colorName": { "type": "string" },
+        "colorHex": { "type": "string" },
+        "stockKg": { "type": "number" },
+        "maxCapacityKg": { "type": "number" },
+        "isLow": { "type": "boolean" }
+      },
+      "required": ["id", "name", "material", "stockKg"]
+    }
+  }
+}

@@ -13,6 +13,14 @@ import {
   CustomerInfo
 } from '../types';
 import { INITIAL_PRODUCTS, INITIAL_ORDERS, INITIAL_SPOOLS, DEFAULT_COLORS } from '../data/mockData';
+import {
+  saveOrderToFirestore,
+  updateOrderStatusInFirestore,
+  saveSpoolToFirestore,
+  updateSpoolStockInFirestore,
+  saveProductToFirestore,
+  seedFirestoreInitialData
+} from '../lib/firestoreService';
 
 interface ToastState {
   message: string;
@@ -101,14 +109,40 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setToast({ message, type, id: Date.now() });
   };
 
+  // Fetch initial data from Firestore database & Express API
   useEffect(() => {
-    if (toast) {
-      const timer = setTimeout(() => {
-        setToast(null);
-      }, 3500);
-      return () => clearTimeout(timer);
-    }
-  }, [toast]);
+    const fetchData = async () => {
+      try {
+        const [prodRes, ordRes, spoolRes] = await Promise.all([
+          fetch('/api/products').then(res => res.ok ? res.json() : null),
+          fetch('/api/orders').then(res => res.ok ? res.json() : null),
+          fetch('/api/spools').then(res => res.ok ? res.json() : null)
+        ]);
+
+        const defaultProds = (prodRes && prodRes.length > 0) ? prodRes : INITIAL_PRODUCTS;
+        const defaultOrds = (ordRes && ordRes.length > 0) ? ordRes : INITIAL_ORDERS;
+        const defaultSps = (spoolRes && spoolRes.length > 0) ? spoolRes : INITIAL_SPOOLS;
+
+        // Seed or load from Firestore database
+        const fsData = await seedFirestoreInitialData(defaultProds, defaultOrds, defaultSps);
+
+        if (fsData.products && fsData.products.length > 0) {
+          setProducts(fsData.products);
+          setSelectedProduct(fsData.products[0]);
+        }
+        if (fsData.orders && fsData.orders.length > 0) {
+          setOrders(fsData.orders);
+        }
+        if (fsData.spools && fsData.spools.length > 0) {
+          setSpools(fsData.spools);
+        }
+      } catch (err) {
+        console.warn('Backend API or Firestore database connection note:', err);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const openProductDetail = (product: Product) => {
     setSelectedProduct(product);
@@ -292,6 +326,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       estimatedDelivery: '1-3 Business Days'
     };
 
+    // Post to backend API & Firestore database
+    fetch('/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newOrder)
+    }).catch(err => console.warn('Order API sync error:', err));
+    saveOrderToFirestore(newOrder);
+
     setOrders(prev => [newOrder, ...prev]);
     setTrackedOrderId(newOrder.id);
     clearCart();
@@ -300,6 +342,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const updateOrderStatus = (orderId: string, newStatus: OrderStatus, note?: string) => {
+    fetch(`/api/orders/${orderId}/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: newStatus, note })
+    }).catch(err => console.warn('Order status API update error:', err));
+    updateOrderStatusInFirestore(orderId, newStatus, note);
+
     setOrders(prev => prev.map(ord => {
       if (ord.id === orderId) {
         const updatedHistory = [...ord.statusHistory, { status: newStatus, timestamp: new Date().toISOString(), note }];
@@ -315,6 +364,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const updateSpoolStock = (spoolId: string, newStockKg: number) => {
+    fetch(`/api/spools/${spoolId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ stockKg: newStockKg })
+    }).catch(err => console.warn('Spool stock API update error:', err));
+    updateSpoolStockInFirestore(spoolId, newStockKg);
+
     setSpools(prev => prev.map(s => {
       if (s.id === spoolId) {
         return { ...s, stockKg: newStockKg, isLow: newStockKg <= 3.0 };
@@ -325,11 +381,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const addSpool = (spool: MaterialSpool) => {
+    fetch('/api/spools', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(spool)
+    }).catch(err => console.warn('Add spool API error:', err));
+    saveSpoolToFirestore(spool);
+
     setSpools(prev => [spool, ...prev]);
     showToast(`Added new filament spool: ${spool.name}`, 'success');
   };
 
   const addNewProduct = (newProd: Product) => {
+    fetch('/api/products', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newProd)
+    }).catch(err => console.warn('Add product API error:', err));
+    saveProductToFirestore(newProd);
+
     setProducts(prev => [newProd, ...prev]);
     showToast(`Added new product "${newProd.name}" to catalog!`, 'success');
   };

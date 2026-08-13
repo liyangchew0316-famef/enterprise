@@ -12,7 +12,7 @@ import {
   Flame,
   ChevronDown
 } from 'lucide-react';
-import cabaiLogo from '../assets/images/cabai_logo_1786531721720.jpg';
+import cabaiLogo from '../assets/images/cabai_official_logo_1786624077846.jpg';
 
 export const Header: React.FC = () => {
   const { 

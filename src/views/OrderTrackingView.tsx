@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { OrderStatus } from '../types';
+import { generateOrderInvoicePDF } from '../utils/pdfGenerator';
 import { 
   Search, 
   Truck, 
@@ -10,7 +11,8 @@ import {
   MapPin, 
   PackageCheck, 
   Copy,
-  Printer
+  Printer,
+  FileText
 } from 'lucide-react';
 
 export const OrderTrackingView: React.FC = () => {
@@ -104,7 +106,7 @@ export const OrderTrackingView: React.FC = () => {
                 <span className="font-heading font-extrabold text-2xl text-[#1a1c1c]">#{matchedOrder.id}</span>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <span className="text-xs font-bold px-3 py-1 bg-red-100 text-[#af101a] rounded-full">
                   Status: {matchedOrder.status}
                 </span>
@@ -117,6 +119,13 @@ export const OrderTrackingView: React.FC = () => {
                     <span>{matchedOrder.trackingNumber}</span>
                   </button>
                 )}
+                <button
+                  onClick={() => generateOrderInvoicePDF(matchedOrder)}
+                  className="flex items-center gap-1.5 text-xs font-bold bg-[#1a1c1c] hover:bg-[#af101a] text-white px-3.5 py-1 rounded-full transition-colors shadow-2xs"
+                >
+                  <FileText className="w-3.5 h-3.5" />
+                  <span>Invoice PDF</span>
+                </button>
               </div>
             </div>
 

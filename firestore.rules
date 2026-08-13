@@ -1,0 +1,30 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Products collection: public read, write allowed
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Orders collection: public read (for order tracking) and create/update
+    match /orders/{orderId} {
+      allow read: if true;
+      allow create: if true;
+      allow update: if true;
+      allow delete: if true;
+    }
+
+    // Spools (filament inventory) collection: public read, write allowed
+    match /spools/{spoolId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Custom quotes collection
+    match /custom_quotes/{quoteId} {
+      allow read: if true;
+      allow write: if true;
+    }
+  }
+}
