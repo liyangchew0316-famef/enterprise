@@ -1,7 +1,7 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
 import { Flame, ArrowRight } from 'lucide-react';
-import cabaiLogo from '../assets/images/cabai_logo_1786531721720.jpg';
+import cabaiLogo from '../assets/images/regenerated_image_1786627761972.png';
 
 export const AboutView: React.FC = () => {
   const { setCurrentView } = useApp();
