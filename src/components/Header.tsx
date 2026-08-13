@@ -10,9 +10,10 @@ import {
   X, 
   Layers, 
   Flame,
-  ChevronDown
+  ChevronDown,
+  PackageCheck
 } from 'lucide-react';
-import cabaiLogo from '../assets/images/cabai_official_logo_1786624077846.jpg';
+import cabaiLogo from '../assets/images/regenerated_image_1786627761972.png';
 
 export const Header: React.FC = () => {
   const { 
@@ -104,6 +105,16 @@ export const Header: React.FC = () => {
             >
               <Layers className="w-4 h-4 text-[#af101a] group-hover:text-white" />
               <span>Custom 3D Print</span>
+            </button>
+
+            <button
+              onClick={() => handleNav('order_tracking')}
+              className={`px-3 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1.5 ${
+                currentView === 'order_tracking' ? 'text-[#af101a] bg-red-50' : 'text-gray-700 hover:text-[#af101a] hover:bg-gray-50'
+              }`}
+            >
+              <PackageCheck className="w-4 h-4 text-[#af101a]" />
+              <span>My Purchases</span>
             </button>
 
             <button
@@ -208,6 +219,13 @@ export const Header: React.FC = () => {
           >
             <Layers className="w-5 h-5" />
             <span>Custom 3D Printing (Upload STL)</span>
+          </button>
+          <button
+            onClick={() => handleNav('order_tracking')}
+            className="w-full text-left px-3 py-2.5 rounded-lg text-base font-semibold text-gray-800 hover:bg-gray-50 flex items-center gap-2"
+          >
+            <PackageCheck className="w-5 h-5 text-[#af101a]" />
+            <span>My Purchases & Orders</span>
           </button>
           <button
             onClick={() => handleNav('order_tracking')}

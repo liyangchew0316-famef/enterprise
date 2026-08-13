@@ -1,5 +1,5 @@
 import { Product, MaterialSpool, Order, ColorOption } from '../types';
-import imgCabaiKeychain from '../assets/images/regenerated_image_1786532907101.png';
+import imgCabaiKeychain from '../assets/images/regenerated_image_1786627928894.png';
 import imgFlexiBuddy from '../assets/images/regenerated_image_1786532910610.png';
 import imgDeskDock from '../assets/images/regenerated_image_1786532916408.png';
 import imgCableClip from '../assets/images/regenerated_image_1786532913898.png';

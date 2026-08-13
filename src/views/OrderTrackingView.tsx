@@ -224,6 +224,53 @@ export const OrderTrackingView: React.FC = () => {
         </div>
       )}
 
+      {/* All Purchases Quick Selector */}
+      {orders.length > 0 && (
+        <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-xs space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="font-heading font-extrabold text-lg text-[#1a1c1c] flex items-center gap-2">
+              <PackageCheck className="w-5 h-5 text-[#af101a]" />
+              <span>Your Purchases & Order History ({orders.length})</span>
+            </h3>
+            <span className="text-xs text-gray-400">Click any order to track or view items</span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+            {orders.map((ord) => {
+              const isSelected = matchedOrder?.id === ord.id;
+              return (
+                <button
+                  key={ord.id}
+                  onClick={() => {
+                    setTrackedOrderId(ord.id);
+                    setInputSearchId(ord.id);
+                  }}
+                  className={`p-4 rounded-2xl border text-left transition-all ${
+                    isSelected
+                      ? 'border-[#af101a] bg-red-50/60 shadow-xs'
+                      : 'border-gray-200 bg-gray-50 hover:bg-white hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex justify-between items-start mb-1">
+                    <span className="font-bold text-sm font-mono text-[#1a1c1c]">#{ord.id}</span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 bg-white border border-gray-200 rounded text-gray-700">
+                      {ord.status}
+                    </span>
+                  </div>
+                  <div className="text-xs text-gray-600 truncate">
+                    {ord.items.map(i => i.name).join(', ')}
+                  </div>
+                  <div className="flex justify-between items-center mt-2 pt-2 border-t border-gray-200/60 text-xs">
+                    <span className="text-gray-400">{new Date(ord.date).toLocaleDateString('en-MY')}</span>
+                    <strong className="text-[#af101a] font-bold">RM {ord.total.toFixed(2)}</strong>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

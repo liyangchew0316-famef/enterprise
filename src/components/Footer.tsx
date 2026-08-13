@@ -1,7 +1,7 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
 import { Flame, MapPin, Mail, Phone, ShieldCheck, Heart, ArrowRight } from 'lucide-react';
-import cabaiLogo from '../assets/images/cabai_official_logo_1786624077846.jpg';
+import cabaiLogo from '../assets/images/regenerated_image_1786627764275.png';
 
 export const Footer: React.FC = () => {
   const { setCurrentView, setActiveCategory } = useApp();
