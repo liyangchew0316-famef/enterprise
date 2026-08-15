@@ -68,11 +68,11 @@ export const ContactView: React.FC = () => {
             </div>
 
             <div className="space-y-1">
-              <label className="font-bold text-gray-700 block">Message / STL Inquiry Details</label>
+              <label className="font-bold text-gray-700 block">Message / Custom Print Inquiry Details</label>
               <textarea
                 rows={4}
                 required
-                placeholder="Ask us about custom colors, corporate gifts, or STL print specifications..."
+                placeholder="Ask us about custom colors, corporate gifts, drawing designs, or 3D print specifications..."
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 className="w-full p-3 bg-gray-50 border border-gray-300 rounded-xl focus:outline-hidden focus:border-[#af101a]"

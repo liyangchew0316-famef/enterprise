@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { ProductImage } from './ProductImage';
 import { Search, X, Star, ArrowRight } from 'lucide-react';
 
 export const SearchModal: React.FC = () => {
@@ -25,7 +26,7 @@ export const SearchModal: React.FC = () => {
           <input
             type="text"
             autoFocus
-            placeholder="Search keychains, desk organizers, phone stands, STL models..."
+            placeholder="Search keychains, desk organizers, phone stands, custom chili designs..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="flex-1 bg-transparent text-gray-900 placeholder-gray-400 font-medium text-base focus:outline-hidden"
@@ -83,8 +84,9 @@ export const SearchModal: React.FC = () => {
               }}
               className="flex items-center gap-4 p-3 rounded-xl hover:bg-red-50/50 border border-transparent hover:border-red-100 cursor-pointer transition-all group"
             >
-              <img
+              <ProductImage
                 src={product.images[0]}
+                productId={product.id}
                 alt={product.name}
                 className="w-14 h-14 object-cover rounded-lg border border-gray-200 bg-gray-50 shrink-0"
               />

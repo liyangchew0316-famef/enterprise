@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { ProductImage } from '../components/ProductImage';
 import { ProductCategory, MaterialType } from '../types';
 import { Filter, Star, SlidersHorizontal, ArrowUpDown } from 'lucide-react';
 
@@ -203,8 +204,9 @@ export const ShopView: React.FC = () => {
                     onClick={() => openProductDetail(product)}
                     className="relative h-56 bg-gray-100 overflow-hidden cursor-pointer"
                   >
-                    <img
+                    <ProductImage
                       src={product.images[0]}
+                      productId={product.id}
                       alt={product.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />

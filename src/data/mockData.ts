@@ -1,9 +1,5 @@
 import { Product, MaterialSpool, Order, ColorOption } from '../types';
-import imgCabaiKeychain from '../assets/images/regenerated_image_1786627928894.png';
-import imgFlexiBuddy from '../assets/images/regenerated_image_1786532910610.png';
-import imgDeskDock from '../assets/images/regenerated_image_1786532916408.png';
-import imgCableClip from '../assets/images/regenerated_image_1786532913898.png';
-import imgNameTag from '../assets/images/regenerated_image_1786532918112.png';
+import { imageConfig } from '../config/assets';
 
 export const DEFAULT_COLORS: ColorOption[] = [
   { name: 'Chili Red', hex: '#af101a', bgClass: 'bg-[#af101a]' },
@@ -27,7 +23,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     tags: ['Signature', 'Best Seller', 'Pocket Friendly'],
     description: 'Our signature CABAI 3D printed chili pepper keychain. Lightweight, vibrant red finish, and sturdy key ring loop.',
     images: [
-      imgCabaiKeychain
+      imageConfig.products.cabaiKeychain
     ],
     specifications: {
       material: 'Premium PLA+',
@@ -61,7 +57,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     tags: ['Articulated', 'Fidget Toy', 'Fun'],
     description: 'Fully articulated print-in-place moving toy figure. Flexible joints, zero assembly needed, irresistible desktop fidget fun.',
     images: [
-      imgFlexiBuddy
+      imageConfig.products.flexiBuddy
     ],
     specifications: {
       material: 'Silk PLA',
@@ -94,7 +90,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     tags: ['Workspace', 'Phone Dock', 'Clean Desk'],
     description: 'Compact phone stand combined with pen and card slots. Keeps your essential desk items structured in a small footprint.',
     images: [
-      imgDeskDock
+      imageConfig.products.deskDock
     ],
     specifications: {
       material: 'Tough PETG',
@@ -127,7 +123,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     tags: ['Budget Pick', 'Cable Management', 'Essential'],
     description: 'Sleek desk edge cable clip. Prevents USB-C, Lightning, and charger cables from slipping off your table.',
     images: [
-      imgCableClip
+      imageConfig.products.cableClip
     ],
     specifications: {
       material: 'Flexible TPU',
@@ -159,7 +155,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     tags: ['Customized', 'Personalized', 'Gift Idea'],
     description: 'Personalized 3D printed embossed keyring with your custom text or name (up to 12 characters). High contrast dual-color lettering.',
     images: [
-      imgNameTag
+      imageConfig.products.nameTag
     ],
     specifications: {
       material: 'Tough PLA',

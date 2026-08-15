@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { ProductImage } from '../components/ProductImage';
 import { CustomerInfo } from '../types';
 import { MALAYSIAN_BANKS, MALAYSIAN_STATES } from '../data/mockData';
 import { 
@@ -38,19 +39,27 @@ export const CheckoutView: React.FC = () => {
   const [fpxBank, setFpxBank] = useState<string>(MALAYSIAN_BANKS[0].name);
   const [isOrderComplete, setIsOrderComplete] = useState<boolean>(false);
   const [completedOrderId, setCompletedOrderId] = useState<string>('');
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const shipping = cartSubtotal >= 80 ? 0 : 8.00;
   const taxableAmount = Math.max(0, cartSubtotal - discountAmount);
   const tax = Number((taxableAmount * 0.06).toFixed(2));
   const finalTotal = Number((taxableAmount + shipping + tax).toFixed(2));
 
-  const handleCompleteOrder = (e: React.FormEvent) => {
+  const handleCompleteOrder = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (cart.length === 0) return;
+    if (cart.length === 0 || isSubmitting) return;
 
-    const newOrd = placeOrder(customer, paymentMethod, paymentMethod === 'fpx' ? fpxBank : undefined);
-    setCompletedOrderId(newOrd.id);
-    setIsOrderComplete(true);
+    try {
+      setIsSubmitting(true);
+      const newOrd = await placeOrder(customer, paymentMethod, paymentMethod === 'fpx' ? fpxBank : undefined);
+      setCompletedOrderId(newOrd.id);
+      setIsOrderComplete(true);
+    } catch (err) {
+      console.error('[CheckoutView] Failed to place order:', err);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (isOrderComplete) {
@@ -332,10 +341,11 @@ export const CheckoutView: React.FC = () => {
 
           <button
             type="submit"
-            className="w-full py-4 bg-[#af101a] hover:bg-[#8d0a12] text-white font-extrabold text-base rounded-2xl shadow-lg shadow-red-900/30 transition-all flex items-center justify-center gap-2"
+            disabled={isSubmitting}
+            className="w-full py-4 bg-[#af101a] hover:bg-[#8d0a12] disabled:opacity-60 disabled:cursor-not-allowed text-white font-extrabold text-base rounded-2xl shadow-lg shadow-red-900/30 transition-all flex items-center justify-center gap-2"
           >
             <ShieldCheck className="w-5 h-5" />
-            <span>Complete Order & Pay (RM {finalTotal.toFixed(2)})</span>
+            <span>{isSubmitting ? 'Processing Order...' : `Complete Order & Pay (RM ${finalTotal.toFixed(2)})`}</span>
           </button>
 
         </form>
@@ -351,7 +361,12 @@ export const CheckoutView: React.FC = () => {
             <div className="space-y-3 max-h-80 overflow-y-auto pr-1 divide-y divide-gray-100">
               {cart.map(item => (
                 <div key={item.id} className="pt-3 first:pt-0 flex gap-3 text-xs">
-                  <img src={item.product.images[0]} alt={item.product.name} className="w-14 h-14 object-cover rounded-lg border shrink-0 bg-gray-50" />
+                  <ProductImage 
+                    src={item.product.images[0]} 
+                    productId={item.product.id}
+                    alt={item.product.name} 
+                    className="w-14 h-14 object-cover rounded-lg border shrink-0 bg-gray-50" 
+                  />
                   <div className="flex-1 min-w-0">
                     <div className="font-bold text-gray-900 truncate">{item.product.name}</div>
                     <div className="text-gray-500">{item.selectedColor.name} • {item.selectedMaterial}</div>

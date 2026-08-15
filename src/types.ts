@@ -47,8 +47,10 @@ export interface CartItem {
   unitPrice: number;
   customText?: string;
   isCustomPrint?: boolean;
+  drawingImage?: string;
   customPrintDetails?: {
     fileName: string;
+    designTitle?: string;
     volumeCm3: number;
     infillPercent: number;
     layerHeight: string;
@@ -56,9 +58,28 @@ export interface CartItem {
   };
 }
 
+export interface ChiliDrawing {
+  id: string;
+  title: string;
+  creatorName: string;
+  imageData: string; // Base64 png data URL
+  baseChiliTemplate?: string;
+  material: MaterialType;
+  colorName: string;
+  colorHex: string;
+  scalePercent: number;
+  infillPercent: number;
+  specialInstructions?: string;
+  estimatedPrice: number;
+  createdAt: string;
+  likesCount?: number;
+}
+
 export interface CustomPrintQuote {
   fileName: string;
-  fileSizeMb: number;
+  designTitle?: string;
+  drawingImage?: string;
+  fileSizeMb?: number;
   material: MaterialType;
   color: ColorOption;
   infillPercent: number;

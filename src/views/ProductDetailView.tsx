@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { ProductImage } from '../components/ProductImage';
 import { ColorOption, MaterialType } from '../types';
 import { 
   Star, 
@@ -78,8 +79,9 @@ export const ProductDetailView: React.FC = () => {
           
           {/* Main Large Image */}
           <div className="relative h-96 sm:h-[450px] bg-gray-100 rounded-2xl overflow-hidden border border-gray-200">
-            <img
+            <ProductImage
               src={selectedProduct.images[activeImageIndex] || selectedProduct.images[0]}
+              productId={selectedProduct.id}
               alt={selectedProduct.name}
               className="w-full h-full object-cover transition-all duration-300"
             />
@@ -102,7 +104,7 @@ export const ProductDetailView: React.FC = () => {
                     activeImageIndex === idx ? 'border-[#af101a] ring-2 ring-red-200' : 'border-gray-200 opacity-70 hover:opacity-100'
                   }`}
                 >
-                  <img src={img} alt={`Thumb ${idx}`} className="w-full h-full object-cover" />
+                  <ProductImage src={img} productId={selectedProduct.id} alt={`Thumb ${idx}`} className="w-full h-full object-cover" />
                 </button>
               ))}
             </div>
@@ -318,7 +320,7 @@ export const ProductDetailView: React.FC = () => {
                 onClick={() => openProductDetail(p)}
                 className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-xs hover:shadow-md transition-all cursor-pointer group p-4 flex gap-4 items-center"
               >
-                <img src={p.images[0]} alt={p.name} className="w-20 h-20 object-cover rounded-xl bg-gray-50 shrink-0" />
+                <ProductImage src={p.images[0]} productId={p.id} alt={p.name} className="w-20 h-20 object-cover rounded-xl bg-gray-50 shrink-0" />
                 <div>
                   <h4 className="font-bold text-sm text-gray-900 group-hover:text-[#af101a] transition-colors line-clamp-1">
                     {p.name}

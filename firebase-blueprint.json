@@ -54,6 +54,26 @@
         "isLow": { "type": "boolean" }
       },
       "required": ["id", "name", "material", "stockKg"]
+    },
+    "chili_drawings": {
+      "title": "chili_drawings",
+      "description": "User created custom chili drawings and 3D print designs",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "creatorName": { "type": "string" },
+        "imageData": { "type": "string" },
+        "material": { "type": "string" },
+        "colorName": { "type": "string" },
+        "colorHex": { "type": "string" },
+        "scalePercent": { "type": "number" },
+        "infillPercent": { "type": "number" },
+        "estimatedPrice": { "type": "number" },
+        "createdAt": { "type": "string" },
+        "likesCount": { "type": "number" }
+      },
+      "required": ["id", "title", "imageData", "createdAt"]
     }
   }
 }

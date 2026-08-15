@@ -24,8 +24,7 @@ const DEFAULT_PRODUCTS: Product[] = [
     tags: ['Signature', 'Best Seller', 'Pocket Friendly'],
     description: 'Our signature CABAI 3D printed chili pepper keychain. Lightweight, vibrant red finish, and sturdy key ring loop.',
     images: [
-      '/src/assets/images/regenerated_image_1786532907101.png',
-      'https://images.unsplash.com/photo-1590779033100-9f60a05a013d?auto=format&fit=crop&q=80&w=800'
+      '/regenerated_image_1786627928894.png'
     ],
     specifications: {
       material: 'Premium PLA+',
@@ -59,8 +58,7 @@ const DEFAULT_PRODUCTS: Product[] = [
     tags: ['Articulated', 'Fidget Toy', 'Fun'],
     description: 'Fully articulated print-in-place moving toy figure. Flexible joints, zero assembly needed, irresistible desktop fidget fun.',
     images: [
-      '/src/assets/images/regenerated_image_1786532910610.png',
-      'https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?auto=format&fit=crop&q=80&w=800'
+      '/regenerated_image_1786532910610.png'
     ],
     specifications: {
       material: 'Silk PLA',
@@ -93,8 +91,7 @@ const DEFAULT_PRODUCTS: Product[] = [
     tags: ['Workspace', 'Phone Dock', 'Clean Desk'],
     description: 'Compact phone stand combined with pen and card slots. Keeps your essential desk items structured in a small footprint.',
     images: [
-      '/src/assets/images/regenerated_image_1786532916408.png',
-      'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=80&w=800'
+      '/regenerated_image_1786532916408.png'
     ],
     specifications: {
       material: 'Tough PETG',
@@ -127,8 +124,7 @@ const DEFAULT_PRODUCTS: Product[] = [
     tags: ['Budget Pick', 'Cable Management', 'Essential'],
     description: 'Sleek desk edge cable clip. Prevents USB-C, Lightning, and charger cables from slipping off your table.',
     images: [
-      '/src/assets/images/regenerated_image_1786532913898.png',
-      'https://images.unsplash.com/photo-1586075010923-2dd4570fb338?auto=format&fit=crop&q=80&w=800'
+      '/regenerated_image_1786532913898.png'
     ],
     specifications: {
       material: 'Flexible TPU',
@@ -160,8 +156,7 @@ const DEFAULT_PRODUCTS: Product[] = [
     tags: ['Customized', 'Personalized', 'Gift Idea'],
     description: 'Personalized 3D printed embossed keyring with your custom text or name (up to 12 characters). High contrast dual-color lettering.',
     images: [
-      '/src/assets/images/regenerated_image_1786532918112.png',
-      'https://images.unsplash.com/photo-1588854337236-6889d631faa8?auto=format&fit=crop&q=80&w=800'
+      '/regenerated_image_1786532918112.png'
     ],
     specifications: {
       material: 'Eco PLA+',

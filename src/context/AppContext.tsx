@@ -13,6 +13,7 @@ import {
   CustomerInfo
 } from '../types';
 import { INITIAL_PRODUCTS, INITIAL_ORDERS, INITIAL_SPOOLS, DEFAULT_COLORS } from '../data/mockData';
+import { normalizeProducts, normalizeProduct } from '../utils/imageHelper';
 import {
   saveOrderToFirestore,
   updateOrderStatusInFirestore,
@@ -61,7 +62,7 @@ interface AppContextType {
   
   // Orders
   orders: Order[];
-  placeOrder: (customer: CustomerInfo, paymentMethod: 'fpx' | 'credit_card' | 'ewallet', fpxBank?: string) => Order;
+  placeOrder: (customer: CustomerInfo, paymentMethod: 'fpx' | 'credit_card' | 'ewallet', fpxBank?: string) => Promise<Order>;
   updateOrderStatus: (orderId: string, newStatus: OrderStatus, note?: string) => void;
   trackedOrderId: string;
   setTrackedOrderId: (id: string) => void;
@@ -81,8 +82,8 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentView, setCurrentView] = useState<ViewMode>('home');
-  const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(INITIAL_PRODUCTS[0]);
+  const [products, setProducts] = useState<Product[]>(() => normalizeProducts(INITIAL_PRODUCTS));
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(() => normalizeProduct(INITIAL_PRODUCTS[0]));
   const [activeCategory, setActiveCategory] = useState<ProductCategory>('all');
   
   // Cart state
@@ -119,7 +120,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           fetch('/api/spools').then(res => res.ok ? res.json() : null)
         ]);
 
-        const defaultProds = (prodRes && prodRes.length > 0) ? prodRes : INITIAL_PRODUCTS;
+        const defaultProds = (prodRes && prodRes.length > 0) ? normalizeProducts(prodRes) : normalizeProducts(INITIAL_PRODUCTS);
         const defaultOrds = (ordRes && ordRes.length > 0) ? ordRes : INITIAL_ORDERS;
         const defaultSps = (spoolRes && spoolRes.length > 0) ? spoolRes : INITIAL_SPOOLS;
 
@@ -127,8 +128,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const fsData = await seedFirestoreInitialData(defaultProds, defaultOrds, defaultSps);
 
         if (fsData.products && fsData.products.length > 0) {
-          setProducts(fsData.products);
-          setSelectedProduct(fsData.products[0]);
+          const normalized = normalizeProducts(fsData.products);
+          setProducts(normalized);
+          setSelectedProduct(normalized[0]);
         }
         if (fsData.orders && fsData.orders.length > 0) {
           setOrders(fsData.orders);
@@ -191,20 +193,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const addCustomPrintToCart = (quote: CustomPrintQuote) => {
-    // Create dummy custom product
+    const title = quote.designTitle || `Custom Chili: ${quote.fileName}`;
+    const displayImg = quote.drawingImage || 'https://images.unsplash.com/photo-1590779033100-9f60a05a013d?auto=format&fit=crop&q=80&w=800';
+
+    // Create custom drawing product representation
     const customProduct: Product = {
       id: `custom-prod-${Date.now()}`,
-      name: `Custom 3D Print: ${quote.fileName}`,
-      subtitle: 'Uploaded STL Order',
+      name: title,
+      subtitle: 'Custom Hand-Drawn 3D Chili',
       price: quote.calculatedPrice,
       rating: 5.0,
       reviewsCount: 1,
       category: 'custom',
-      tags: ['Custom STL', 'Maker Service'],
-      description: `Custom model file ${quote.fileName} with ${quote.infillPercent}% infill and ${quote.layerHeight}mm layer height.`,
-      images: [
-        'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=800'
-      ],
+      tags: ['Custom Design', 'Hand Drawn', 'Maker Studio'],
+      description: `Custom designed 3D printed chili "${title}" (${quote.material}, ${quote.color.name}) with ${quote.infillPercent}% infill and ${quote.layerHeight}mm layer precision.`,
+      images: [displayImg],
       specifications: {
         material: quote.material,
         weight: `${quote.weightGrams}g`,
@@ -228,8 +231,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       quantity: quote.quantity,
       unitPrice: quote.calculatedPrice,
       isCustomPrint: true,
+      drawingImage: quote.drawingImage,
       customPrintDetails: {
         fileName: quote.fileName,
+        designTitle: title,
         volumeCm3: quote.volumeCm3,
         infillPercent: quote.infillPercent,
         layerHeight: quote.layerHeight,
@@ -238,7 +243,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
 
     setCart(prev => [...prev, newItem]);
-    showToast(`Custom 3D Print request added to cart! (RM ${quote.calculatedPrice.toFixed(2)})`, 'success');
+    showToast(`Custom Chili "${title}" added to cart! (RM ${quote.calculatedPrice.toFixed(2)})`, 'success');
     setIsCartOpen(true);
   };
 
@@ -282,11 +287,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
-  const placeOrder = (
+  const placeOrder = async (
     customer: CustomerInfo, 
     paymentMethod: 'fpx' | 'credit_card' | 'ewallet', 
     fpxBank?: string
-  ): Order => {
+  ): Promise<Order> => {
     const subtotal = cartSubtotal;
     const shipping = subtotal > 80 ? 0 : 8.00; // Free shipping over RM 80
     const discount = discountAmount;
@@ -296,12 +301,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     const orderItems = cart.map(item => ({
       name: item.product.name,
-      color: item.selectedColor.name,
-      material: item.selectedMaterial,
+      color: item.selectedColor?.name || 'Standard',
+      material: item.selectedMaterial || 'PLA+',
       quantity: item.quantity,
       price: item.unitPrice,
-      isCustomPrint: item.isCustomPrint,
-      customDetails: item.isCustomPrint ? `${item.customPrintDetails?.fileName} (${item.customPrintDetails?.infillPercent}% infill)` : item.customText
+      isCustomPrint: Boolean(item.isCustomPrint),
+      customDetails: item.isCustomPrint 
+        ? `${item.customPrintDetails?.fileName || 'Custom Chili'} (${item.customPrintDetails?.infillPercent || 20}% infill)` 
+        : (item.customText || '')
     }));
 
     const newOrderNumber = `CBI-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -309,7 +316,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const newOrder: Order = {
       id: newOrderNumber,
       date: new Date().toISOString(),
-      customer,
+      customer: {
+        fullName: customer.fullName || '',
+        email: customer.email || '',
+        phone: customer.phone || '',
+        address: customer.address || '',
+        city: customer.city || '',
+        state: customer.state || '',
+        postcode: customer.postcode || '',
+        notes: customer.notes || ''
+      },
       items: orderItems,
       subtotal,
       shipping,
@@ -317,7 +333,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       tax,
       total,
       paymentMethod,
-      fpxBank,
+      ...(fpxBank ? { fpxBank } : {}),
       status: 'Pending',
       statusHistory: [
         { status: 'Pending', timestamp: new Date().toISOString(), note: 'Order placed & payment authorized' }
@@ -326,15 +342,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       estimatedDelivery: '1-3 Business Days'
     };
 
-    // Post to backend API & Firestore database
+    // Save directly to Cloud Firestore (required)
+    try {
+      await saveOrderToFirestore(newOrder);
+    } catch (err: any) {
+      console.error('[AppContext] ❌ Failed to save order to Firestore:', err);
+      showToast(`Database error: ${err?.message || 'Failed to record order in Firestore'}`, 'warning');
+      throw err; // Propagate error so CheckoutView does not transition to success page
+    }
+
+    // Optional sync to backend API if available
     fetch('/api/orders', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newOrder)
     }).catch(err => console.warn('Order API sync error:', err));
-    saveOrderToFirestore(newOrder);
 
-    setOrders(prev => [newOrder, ...prev]);
+    setOrders(prev => [newOrder, ...prev.filter(o => o.id !== newOrder.id)]);
     setTrackedOrderId(newOrder.id);
     clearCart();
     showToast(`Order #${newOrder.id} confirmed! Thank you!`, 'success');
@@ -393,15 +417,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const addNewProduct = (newProd: Product) => {
+    const normalized = normalizeProduct(newProd);
     fetch('/api/products', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newProd)
+      body: JSON.stringify(normalized)
     }).catch(err => console.warn('Add product API error:', err));
-    saveProductToFirestore(newProd);
+    saveProductToFirestore(normalized);
 
-    setProducts(prev => [newProd, ...prev]);
-    showToast(`Added new product "${newProd.name}" to catalog!`, 'success');
+    setProducts(prev => [normalized, ...prev]);
+    showToast(`Added new product "${normalized.name}" to catalog!`, 'success');
   };
 
   return (

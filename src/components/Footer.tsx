@@ -1,7 +1,7 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
 import { Flame, MapPin, Mail, Phone, ShieldCheck, Heart, ArrowRight } from 'lucide-react';
-import cabaiLogo from '../assets/images/regenerated_image_1786627764275.png';
+import { imageConfig } from '../config/assets';
 
 export const Footer: React.FC = () => {
   const { setCurrentView, setActiveCategory } = useApp();
@@ -23,10 +23,13 @@ export const Footer: React.FC = () => {
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-xl bg-black border border-red-900/50 overflow-hidden shadow-lg shadow-red-950/40 flex items-center justify-center shrink-0">
                 <img 
-                  src={cabaiLogo} 
+                  src={imageConfig.logos.footer} 
                   alt="CABAI ENTERPRISE Logo" 
                   className="w-full h-full object-cover"
                   referrerPolicy="no-referrer"
+                  onError={(e) => {
+                    e.currentTarget.src = imageConfig.logos.favicon;
+                  }}
                 />
               </div>
               <div className="font-heading font-extrabold text-xl tracking-tight">
@@ -72,7 +75,7 @@ export const Footer: React.FC = () => {
               </li>
               <li>
                 <button onClick={() => navTo('custom_print')} className="hover:text-[#af101a] transition-colors font-medium text-white flex items-center gap-1">
-                  <span>Upload STL File</span>
+                  <span>Draw Custom Chili 🌶️</span>
                   <ArrowRight className="w-3.5 h-3.5 text-[#af101a]" />
                 </button>
               </li>

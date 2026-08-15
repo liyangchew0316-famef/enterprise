@@ -26,5 +26,13 @@ service cloud.firestore {
       allow read: if true;
       allow write: if true;
     }
+
+    // Chili drawings & custom creations
+    match /chili_drawings/{drawingId} {
+      allow read: if true;
+      allow create: if true;
+      allow update: if true;
+      allow delete: if true;
+    }
   }
 }

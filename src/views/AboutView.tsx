@@ -1,7 +1,7 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
 import { Flame, ArrowRight } from 'lucide-react';
-import cabaiLogo from '../assets/images/regenerated_image_1786627761972.png';
+import { imageConfig } from '../config/assets';
 
 export const AboutView: React.FC = () => {
   const { setCurrentView } = useApp();
@@ -25,10 +25,13 @@ export const AboutView: React.FC = () => {
 
         <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-2xl bg-black border-2 border-red-800/80 overflow-hidden shadow-2xl shadow-red-950/60 shrink-0">
           <img 
-            src={cabaiLogo} 
+            src={imageConfig.logos.official || imageConfig.logos.header} 
             alt="Official CABAI ENTERPRISE Logo" 
             className="w-full h-full object-cover"
             referrerPolicy="no-referrer"
+            onError={(e) => {
+              e.currentTarget.src = imageConfig.logos.favicon;
+            }}
           />
         </div>
       </div>

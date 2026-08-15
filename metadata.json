@@ -1,6 +1,6 @@
 {
   "name": "CABAI ENTERPRISE™",
-  "description": "3D Printing & Custom Maker Studio in Malaysia - 3D Printed Keychains, Organizers, Custom STL Printing & Orders Management",
+  "description": "3D Printing & Custom Maker Studio in Malaysia - 3D Printed Keychains, Custom Chili Drawing Canvas, Organizers & Firebase Cloud Sync",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

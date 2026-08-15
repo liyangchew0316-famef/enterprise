@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { ProductImage } from './ProductImage';
 import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, Tag, Truck, Check } from 'lucide-react';
 
 export const CartDrawer: React.FC = () => {
@@ -111,8 +112,9 @@ export const CartDrawer: React.FC = () => {
               cart.map((item) => (
                 <div key={item.id} className="pt-4 first:pt-0 flex gap-3">
                   {/* Thumbnail */}
-                  <img 
+                  <ProductImage 
                     src={item.product.images[0]} 
+                    productId={item.product.id}
                     alt={item.product.name}
                     className="w-20 h-20 object-cover rounded-lg border border-gray-200 shrink-0 bg-gray-50"
                   />

@@ -11,9 +11,10 @@ import {
   Layers, 
   Flame,
   ChevronDown,
-  PackageCheck
+  PackageCheck,
+  Paintbrush
 } from 'lucide-react';
-import cabaiLogo from '../assets/images/regenerated_image_1786627761972.png';
+import { imageConfig } from '../config/assets';
 
 export const Header: React.FC = () => {
   const { 
@@ -59,10 +60,13 @@ export const Header: React.FC = () => {
           >
             <div className="w-11 h-11 rounded-xl bg-black border border-red-900/40 overflow-hidden shadow-md shadow-red-950/30 group-hover:scale-105 transition-transform flex items-center justify-center">
               <img 
-                src={cabaiLogo} 
+                src={imageConfig.logos.header} 
                 alt="CABAI ENTERPRISE Logo" 
                 className="w-full h-full object-cover"
                 referrerPolicy="no-referrer"
+                onError={(e) => {
+                  e.currentTarget.src = imageConfig.logos.favicon;
+                }}
               />
             </div>
             <div>
@@ -100,11 +104,11 @@ export const Header: React.FC = () => {
               className={`px-3 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1.5 ${
                 currentView === 'custom_print' 
                   ? 'text-white bg-[#af101a] shadow-sm' 
-                  : 'text-[#1a1c1c] bg-gray-100 hover:bg-gray-200'
+                  : 'text-[#1a1c1c] bg-red-50 text-[#af101a] hover:bg-red-100'
               }`}
             >
-              <Layers className="w-4 h-4 text-[#af101a] group-hover:text-white" />
-              <span>Custom 3D Print</span>
+              <Paintbrush className="w-4 h-4 text-[#af101a]" />
+              <span>Draw Custom Chili 🌶️</span>
             </button>
 
             <button
@@ -217,8 +221,8 @@ export const Header: React.FC = () => {
             onClick={() => handleNav('custom_print')}
             className="w-full text-left px-3 py-2.5 rounded-lg text-base font-semibold bg-red-50 text-[#af101a] flex items-center gap-2"
           >
-            <Layers className="w-5 h-5" />
-            <span>Custom 3D Printing (Upload STL)</span>
+            <Paintbrush className="w-5 h-5" />
+            <span>Draw Custom Chili (Firebase Lab) 🌶️</span>
           </button>
           <button
             onClick={() => handleNav('order_tracking')}

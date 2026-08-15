@@ -1,5 +1,6 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
+import { ProductImage } from '../components/ProductImage';
 import { 
   Sparkles, 
   ArrowRight, 
@@ -11,7 +12,9 @@ import {
   Layers, 
   CheckCircle2,
   Flame,
-  ChevronRight
+  ChevronRight,
+  Paintbrush,
+  Cloud
 } from 'lucide-react';
 
 export const HomeView: React.FC = () => {
@@ -55,7 +58,7 @@ export const HomeView: React.FC = () => {
             </h1>
 
             <p className="text-gray-300 text-base sm:text-lg max-w-2xl mx-auto lg:mx-0 font-normal leading-relaxed">
-              Precision 3D printed keychains, modular desk organizers, custom name accessories, and instant STL 3D printing quotes delivered across Malaysia.
+              Precision 3D printed keychains, modular desk organizers, interactive custom chili drawing studio, and instant 3D printing quotes delivered across Malaysia.
             </p>
 
             {/* CTA Buttons */}
@@ -78,8 +81,8 @@ export const HomeView: React.FC = () => {
                 }}
                 className="w-full sm:w-auto px-8 py-4 bg-white/10 hover:bg-white/20 text-white border border-gray-700 hover:border-gray-500 font-extrabold rounded-xl backdrop-blur-xs transition-all flex items-center justify-center gap-2 text-base"
               >
-                <Layers className="w-5 h-5 text-[#af101a]" />
-                <span>Custom 3D Print (Upload STL)</span>
+                <Paintbrush className="w-5 h-5 text-[#af101a]" />
+                <span>Draw Custom Chili 🌶️</span>
               </button>
             </div>
 
@@ -104,8 +107,9 @@ export const HomeView: React.FC = () => {
           {/* Right Visual Banner */}
           <div className="lg:col-span-5 relative">
             <div className="relative mx-auto max-w-md rounded-2xl overflow-hidden shadow-2xl border-2 border-gray-800 bg-gray-900 group">
-              <img
+              <ProductImage
                 src={products[0]?.images[0]}
+                productId={products[0]?.id || 'prod-01'}
                 alt="Cabai 3D Printed Keychain"
                 className="w-full h-96 object-cover group-hover:scale-105 transition-transform duration-500"
               />
@@ -152,11 +156,11 @@ export const HomeView: React.FC = () => {
 
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl bg-red-50 text-[#af101a] flex items-center justify-center shrink-0">
-              <Zap className="w-6 h-6" />
+              <Paintbrush className="w-6 h-6" />
             </div>
             <div>
-              <h4 className="font-bold text-sm text-[#1a1c1c]">Instant STL Calculator</h4>
-              <p className="text-xs text-gray-500">Upload .STL for real-time print pricing</p>
+              <h4 className="font-bold text-sm text-[#1a1c1c]">Custom Chili Drawing Lab</h4>
+              <p className="text-xs text-gray-500">Draw directly on chili & save to Firebase</p>
             </div>
           </div>
 
@@ -216,8 +220,9 @@ export const HomeView: React.FC = () => {
                 className="relative h-60 bg-gray-100 overflow-hidden cursor-pointer"
                 onClick={() => openProductDetail(product)}
               >
-                <img
+                <ProductImage
                   src={product.images[0]}
+                  productId={product.id}
                   alt={product.name}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
@@ -283,18 +288,18 @@ export const HomeView: React.FC = () => {
 
       </section>
 
-      {/* Custom STL Teaser Banner */}
+      {/* Custom Chili Drawing Lab Teaser Banner */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-gradient-to-r from-[#1a1c1c] to-[#2d3032] text-white rounded-3xl p-8 lg:p-12 border-2 border-red-900/50 shadow-xl relative overflow-hidden">
           <div className="relative z-10 max-w-2xl space-y-4">
             <span className="inline-block text-xs font-extrabold bg-[#af101a] text-white px-3 py-1 rounded-full uppercase tracking-wider">
-              MAKER STUDIO SERVICE
+              INTERACTIVE 3D DESIGN STUDIO
             </span>
             <h2 className="font-heading font-extrabold text-2xl sm:text-4xl">
-              HAVE YOUR OWN .STL DESIGN FILE?
+              DRAW YOUR CUSTOM 3D CHILI & SAVE TO FIREBASE 🌶️
             </h2>
             <p className="text-gray-300 text-sm sm:text-base leading-relaxed">
-              Upload your 3D model for instant mesh slicing, volume calculation, and transparent cost estimation. Choose PLA, PETG, or flexible TPU with custom colors.
+              Use our interactive digital canvas to sketch designs, stamp spicy 3D emojis, add embossed names directly onto the Cabai pepper mascot, and save your creations to the Firebase Cloud gallery.
             </p>
             <div className="pt-2">
               <button
@@ -304,8 +309,8 @@ export const HomeView: React.FC = () => {
                 }}
                 className="px-7 py-3.5 bg-[#af101a] hover:bg-[#8d0a12] text-white font-extrabold rounded-xl shadow-md transition-colors inline-flex items-center gap-2"
               >
-                <Layers className="w-5 h-5" />
-                <span>Calculate Print Cost Now</span>
+                <Paintbrush className="w-5 h-5" />
+                <span>Launch Chili Drawing Canvas</span>
               </button>
             </div>
           </div>
