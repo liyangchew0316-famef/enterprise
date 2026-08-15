@@ -16,7 +16,11 @@ import {
   RefreshCw,
   Edit,
   Eye,
-  FileText
+  FileText,
+  Paintbrush,
+  Sparkles,
+  ExternalLink,
+  Sliders
 } from 'lucide-react';
 
 export const BossAdminView: React.FC = () => {
@@ -326,8 +330,23 @@ export const BossAdminView: React.FC = () => {
                     <strong className="text-gray-900 block">{order.customer.fullName}</strong>
                     <span className="text-gray-400">{order.customer.email}</span>
                   </td>
-                  <td className="p-4 max-w-xs truncate">
-                    {order.items.map(i => `${i.name} (x${i.quantity})`).join(', ')}
+                  <td className="p-4 max-w-xs">
+                    <div className="space-y-1">
+                      {order.items.map((i, idx) => (
+                        <div key={idx} className="flex items-center gap-1.5 flex-wrap">
+                          <span className="text-gray-900 font-bold">{i.name} (x{i.quantity})</span>
+                          {i.isCustomPrint ? (
+                            <span className="text-[10px] font-extrabold bg-red-100 text-[#af101a] px-1.5 py-0.5 rounded-sm">
+                              Custom 3D
+                            </span>
+                          ) : (i.customDetails || i.customText) ? (
+                            <span className="text-[10px] font-bold bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded-sm">
+                              Customized
+                            </span>
+                          ) : null}
+                        </div>
+                      ))}
+                    </div>
                   </td>
                   <td className="p-4 font-extrabold text-gray-900">RM {order.total.toFixed(2)}</td>
                   <td className="p-4">
@@ -497,38 +516,256 @@ export const BossAdminView: React.FC = () => {
       {/* View Order Detail Modal */}
       {selectedOrder && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 max-w-lg w-full space-y-4">
-            <div className="flex justify-between items-start border-b pb-3">
+          <div className="bg-white rounded-3xl p-6 max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl space-y-4">
+            <div className="flex justify-between items-start border-b border-gray-100 pb-3 shrink-0">
               <div>
-                <h3 className="font-heading font-extrabold text-lg text-gray-900">Order #{selectedOrder.id}</h3>
-                <p className="text-xs text-gray-500">{selectedOrder.customer.fullName} • {selectedOrder.customer.phone}</p>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-heading font-extrabold text-xl text-gray-900">Order #{selectedOrder.id}</h3>
+                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-red-100 text-[#af101a]">
+                    {selectedOrder.status}
+                  </span>
+                </div>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  Placed on {new Date(selectedOrder.date).toLocaleString('en-MY', { dateStyle: 'medium', timeStyle: 'short' })}
+                </p>
               </div>
-              <button onClick={() => setSelectedOrder(null)} className="font-bold text-gray-500">✕</button>
+              <button 
+                onClick={() => setSelectedOrder(null)} 
+                className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold flex items-center justify-center transition-colors"
+              >
+                ✕
+              </button>
             </div>
 
-            <div className="text-xs space-y-2">
-              <div className="p-3 bg-gray-50 rounded-xl">
-                <strong className="block text-gray-900 font-bold">Shipping Address:</strong>
-                {selectedOrder.customer.address}, {selectedOrder.customer.city}, {selectedOrder.customer.state} {selectedOrder.customer.postcode}
+            <div className="text-xs space-y-4 overflow-y-auto pr-1">
+              
+              {/* Customer & Shipping Summary */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="p-3.5 bg-gray-50 rounded-2xl border border-gray-200/70 space-y-1">
+                  <strong className="block text-gray-900 font-bold uppercase text-[10px] tracking-wider text-gray-400">Customer Details</strong>
+                  <p className="font-bold text-gray-800 text-sm">{selectedOrder.customer.fullName}</p>
+                  <p className="text-gray-600">{selectedOrder.customer.email}</p>
+                  <p className="text-gray-600">{selectedOrder.customer.phone}</p>
+                </div>
+
+                <div className="p-3.5 bg-gray-50 rounded-2xl border border-gray-200/70 space-y-1">
+                  <strong className="block text-gray-900 font-bold uppercase text-[10px] tracking-wider text-gray-400">Shipping Address</strong>
+                  <p className="text-gray-700 font-medium leading-relaxed">
+                    {selectedOrder.customer.address}, {selectedOrder.customer.postcode} {selectedOrder.customer.city}, {selectedOrder.customer.state}
+                  </p>
+                  {selectedOrder.customer.notes && (
+                    <p className="text-[11px] text-amber-800 bg-amber-50 p-1.5 rounded-lg border border-amber-200/60 mt-1">
+                      <strong>Note:</strong> {selectedOrder.customer.notes}
+                    </p>
+                  )}
+                </div>
               </div>
 
-              <div className="space-y-1">
-                <strong className="block text-gray-900 font-bold">Items:</strong>
-                {selectedOrder.items.map((it, idx) => (
-                  <div key={idx} className="flex justify-between text-gray-700">
-                    <span>{it.name} ({it.color}, {it.material}) x{it.quantity}</span>
-                    <span>RM {(it.price * it.quantity).toFixed(2)}</span>
+              {/* Items List with Custom Details */}
+              <div className="space-y-3">
+                <strong className="block text-gray-900 font-bold uppercase text-[10px] tracking-wider text-gray-400">
+                  Ordered Items ({selectedOrder.items.length})
+                </strong>
+
+                {selectedOrder.items.map((it, idx) => {
+                  const hasCustomization = Boolean(
+                    it.isCustomPrint || 
+                    it.customDetails || 
+                    it.customText || 
+                    it.drawingImage || 
+                    it.customImageUrl || 
+                    it.fileUrl ||
+                    it.imageUrl ||
+                    it.customPrintDetails
+                  );
+
+                  const customImageRef = it.drawingImage || it.customImageUrl || it.fileUrl || (it.imageUrl && it.isCustomPrint ? it.imageUrl : undefined);
+                  const specs = it.customPrintDetails || {};
+                  const infill = it.infillPercent || specs.infillPercent;
+                  const layerH = it.layerHeight || specs.layerHeight;
+                  const scale = it.scalePercent || specs.scalePercent;
+                  const fileName = it.fileName || specs.fileName || specs.designTitle;
+                  const instructions = it.specialInstructions || specs.specialInstructions;
+                  const customTextDesc = it.customDetails || it.customText;
+
+                  return (
+                    <div key={idx} className="p-4 bg-white rounded-2xl border border-gray-200 shadow-2xs space-y-3">
+                      
+                      {/* Item Main Row */}
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-100 pb-2.5">
+                        <div>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h4 className="font-heading font-extrabold text-sm text-gray-900">{it.name}</h4>
+                            <span className="px-2 py-0.5 bg-gray-100 text-gray-800 font-bold rounded-md text-[11px]">
+                              Qty: {it.quantity}
+                            </span>
+                            {it.isCustomPrint ? (
+                              <span className="px-2 py-0.5 bg-red-100 text-[#af101a] font-extrabold rounded-md text-[10px] uppercase">
+                                Custom 3D Print
+                              </span>
+                            ) : (customTextDesc || hasCustomization) ? (
+                              <span className="px-2 py-0.5 bg-amber-100 text-amber-800 font-extrabold rounded-md text-[10px] uppercase">
+                                Customized
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 bg-gray-100 text-gray-600 font-medium rounded-md text-[10px]">
+                                Standard Product
+                              </span>
+                            )}
+                          </div>
+                          
+                          <div className="flex items-center gap-3 text-xs text-gray-500 mt-1">
+                            {it.color && (
+                              <span>Color: <strong className="text-gray-800">{it.color}</strong></span>
+                            )}
+                            {it.material && (
+                              <span>Material: <strong className="text-gray-800">{it.material}</strong></span>
+                            )}
+                            <span>Unit Price: <strong className="text-gray-800">RM {it.price.toFixed(2)}</strong></span>
+                          </div>
+                        </div>
+
+                        <div className="text-right sm:self-center">
+                          <span className="text-xs text-gray-400 block sm:inline mr-1">Subtotal:</span>
+                          <span className="font-extrabold text-sm text-gray-900">
+                            RM {(it.price * it.quantity).toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Custom Print / Customization Section */}
+                      {hasCustomization && (
+                        <div className="p-3 bg-red-50/40 rounded-xl border border-red-100/80 space-y-2.5">
+                          <div className="flex items-center gap-1.5 text-[#af101a] font-bold text-xs">
+                            <Sparkles className="w-3.5 h-3.5 text-[#af101a]" />
+                            <span>Custom Print / Customization Details:</span>
+                          </div>
+
+                          {/* Full Un-truncated Customer Custom Text / Description */}
+                          {customTextDesc && (
+                            <div className="bg-white p-3 rounded-lg border border-gray-200/80">
+                              <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-1">
+                                Customer Specification / Instructions:
+                              </span>
+                              <p className="text-xs text-gray-800 font-medium whitespace-pre-wrap break-words leading-relaxed">
+                                {customTextDesc}
+                              </p>
+                            </div>
+                          )}
+
+                          {/* Slicing & Engineering Attributes */}
+                          {(fileName || infill || layerH || scale || instructions) && (
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+                              {fileName && (
+                                <div className="bg-white p-2 rounded-lg border border-gray-200/70">
+                                  <span className="text-[10px] text-gray-400 font-bold block uppercase">Design / File</span>
+                                  <span className="font-bold text-gray-800 truncate block text-[11px]">{fileName}</span>
+                                </div>
+                              )}
+                              {infill && (
+                                <div className="bg-white p-2 rounded-lg border border-gray-200/70">
+                                  <span className="text-[10px] text-gray-400 font-bold block uppercase">Infill Density</span>
+                                  <span className="font-bold text-gray-800 block text-[11px]">{infill}%</span>
+                                </div>
+                              )}
+                              {layerH && (
+                                <div className="bg-white p-2 rounded-lg border border-gray-200/70">
+                                  <span className="text-[10px] text-gray-400 font-bold block uppercase">Layer Height</span>
+                                  <span className="font-bold text-gray-800 block text-[11px]">{layerH}mm</span>
+                                </div>
+                              )}
+                              {scale && (
+                                <div className="bg-white p-2 rounded-lg border border-gray-200/70">
+                                  <span className="text-[10px] text-gray-400 font-bold block uppercase">Scale</span>
+                                  <span className="font-bold text-gray-800 block text-[11px]">{scale}%</span>
+                                </div>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Special instructions if separated */}
+                          {instructions && instructions !== customTextDesc && (
+                            <div className="bg-white p-2.5 rounded-lg border border-gray-200/80">
+                              <span className="text-[10px] font-bold uppercase text-gray-400 block mb-0.5">
+                                Additional Notes:
+                              </span>
+                              <p className="text-xs text-gray-800 whitespace-pre-wrap break-words">
+                                {instructions}
+                              </p>
+                            </div>
+                          )}
+
+                          {/* Uploaded / Drawn Image Reference */}
+                          {customImageRef && (
+                            <div className="bg-white p-3 rounded-lg border border-gray-200/80 space-y-2">
+                              <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">
+                                Custom Upload / Artwork Reference:
+                              </span>
+                              <div className="flex items-center gap-3">
+                                <div className="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden border border-gray-200 shrink-0 flex items-center justify-center">
+                                  <img 
+                                    src={customImageRef} 
+                                    alt="Custom 3D Print Design" 
+                                    className="w-full h-full object-contain"
+                                    referrerPolicy="no-referrer"
+                                  />
+                                </div>
+                                <div className="space-y-1 text-xs">
+                                  <span className="font-bold text-gray-800 block">Custom Drawing / Model Visual</span>
+                                  <p className="text-[11px] text-gray-500">Design captured from customer custom creator.</p>
+                                  {customImageRef.startsWith('http') && (
+                                    <a
+                                      href={customImageRef}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="inline-flex items-center gap-1 text-[11px] font-bold text-[#af101a] hover:underline"
+                                    >
+                                      <span>Open full-resolution file</span>
+                                      <ExternalLink className="w-3 h-3" />
+                                    </a>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                        </div>
+                      )}
+
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Order Financials Breakdown */}
+              <div className="p-3.5 bg-gray-50 rounded-2xl border border-gray-200 space-y-1.5">
+                <div className="flex justify-between text-gray-600">
+                  <span>Subtotal:</span>
+                  <span>RM {selectedOrder.subtotal.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-gray-600">
+                  <span>Shipping Fee:</span>
+                  <span>{selectedOrder.shipping === 0 ? 'FREE (RM 0.00)' : `RM ${selectedOrder.shipping.toFixed(2)}`}</span>
+                </div>
+                {selectedOrder.discount > 0 && (
+                  <div className="flex justify-between text-emerald-600 font-bold">
+                    <span>Discount:</span>
+                    <span>-RM {selectedOrder.discount.toFixed(2)}</span>
                   </div>
-                ))}
+                )}
+                <div className="flex justify-between text-gray-600">
+                  <span>SST (6%):</span>
+                  <span>RM {selectedOrder.tax.toFixed(2)}</span>
+                </div>
+                <div className="pt-2 border-t border-gray-200 flex justify-between font-extrabold text-sm">
+                  <span className="text-gray-900">Total Amount Paid ({selectedOrder.paymentMethod.toUpperCase()}):</span>
+                  <span className="text-[#af101a]">RM {selectedOrder.total.toFixed(2)}</span>
+                </div>
               </div>
 
-              <div className="pt-2 border-t flex justify-between font-bold text-sm">
-                <span>Total Amount Paid:</span>
-                <span className="text-[#af101a]">RM {selectedOrder.total.toFixed(2)}</span>
-              </div>
             </div>
 
-            <div className="flex gap-2 pt-2">
+            <div className="flex gap-2 pt-2 border-t border-gray-100 shrink-0">
               <button
                 onClick={() => generateOrderInvoicePDF(selectedOrder)}
                 className="flex-1 py-2.5 bg-red-50 hover:bg-red-100 text-[#af101a] font-bold rounded-xl text-xs border border-red-200 transition-colors flex items-center justify-center gap-1.5"
@@ -538,7 +775,7 @@ export const BossAdminView: React.FC = () => {
               </button>
               <button
                 onClick={() => setSelectedOrder(null)}
-                className="px-5 py-2.5 bg-[#1a1c1c] text-white font-bold rounded-xl text-xs"
+                className="px-6 py-2.5 bg-[#1a1c1c] hover:bg-gray-800 text-white font-bold rounded-xl text-xs transition-colors"
               >
                 Close
               </button>

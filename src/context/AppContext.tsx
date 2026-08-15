@@ -3,6 +3,7 @@ import {
   Product, 
   CartItem, 
   Order, 
+  OrderItem,
   OrderStatus, 
   MaterialSpool, 
   ViewMode, 
@@ -22,6 +23,7 @@ import {
   saveProductToFirestore,
   seedFirestoreInitialData
 } from '../lib/firestoreService';
+import { uploadCustomDesignToStorage } from '../lib/storageService';
 
 interface ToastState {
   message: string;
@@ -232,13 +234,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       unitPrice: quote.calculatedPrice,
       isCustomPrint: true,
       drawingImage: quote.drawingImage,
+      customDesignUrl: quote.customDesignUrl,
       customPrintDetails: {
         fileName: quote.fileName,
         designTitle: title,
         volumeCm3: quote.volumeCm3,
         infillPercent: quote.infillPercent,
         layerHeight: quote.layerHeight,
-        estimatedTimeHours: quote.estimatedHours
+        estimatedTimeHours: quote.estimatedHours,
+        customDesignUrl: quote.customDesignUrl
       }
     };
 
@@ -299,16 +303,50 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const tax = Number((taxableAmount * 0.06).toFixed(2)); // 6% SST
     const total = Number((taxableAmount + shipping + tax).toFixed(2));
 
-    const orderItems = cart.map(item => ({
-      name: item.product.name,
-      color: item.selectedColor?.name || 'Standard',
-      material: item.selectedMaterial || 'PLA+',
-      quantity: item.quantity,
-      price: item.unitPrice,
-      isCustomPrint: Boolean(item.isCustomPrint),
-      customDetails: item.isCustomPrint 
-        ? `${item.customPrintDetails?.fileName || 'Custom Chili'} (${item.customPrintDetails?.infillPercent || 20}% infill)` 
-        : (item.customText || '')
+    const orderItems: OrderItem[] = await Promise.all(cart.map(async (item) => {
+      const isCustomPrint = Boolean(item.isCustomPrint);
+      const customDetails = isCustomPrint 
+        ? `${item.customPrintDetails?.fileName || item.product.name} (${item.customPrintDetails?.infillPercent || 20}% infill, ${item.customPrintDetails?.layerHeight || '0.20'}mm layer)` 
+        : (item.customText || '');
+
+      let finalDesignUrl = item.customDesignUrl || item.customPrintDetails?.customDesignUrl;
+
+      // If customDesignUrl is not yet a Firebase Storage download URL and item has drawingImage, upload it now
+      if (!finalDesignUrl && item.drawingImage) {
+        try {
+          if (item.drawingImage.startsWith('http://') || item.drawingImage.startsWith('https://')) {
+            finalDesignUrl = item.drawingImage;
+          } else if (item.drawingImage.startsWith('data:')) {
+            finalDesignUrl = await uploadCustomDesignToStorage(item.drawingImage, `order_item_${item.id}`);
+          }
+        } catch (uploadErr) {
+          console.warn('[AppContext] Storage upload during placeOrder warning:', uploadErr);
+        }
+      }
+
+      return {
+        name: item.product.name,
+        color: item.selectedColor?.name || 'Standard',
+        material: item.selectedMaterial || 'PLA+',
+        quantity: item.quantity,
+        price: item.unitPrice,
+        isCustomPrint,
+        customDetails,
+        ...(finalDesignUrl ? { customDesignUrl: finalDesignUrl } : {}),
+        ...(item.customText ? { customText: item.customText } : {}),
+        ...(item.drawingImage ? { drawingImage: finalDesignUrl || item.drawingImage } : {}),
+        ...(item.customPrintDetails ? { 
+          customPrintDetails: {
+            ...item.customPrintDetails,
+            ...(finalDesignUrl ? { customDesignUrl: finalDesignUrl } : {})
+          },
+          fileName: item.customPrintDetails.fileName,
+          infillPercent: item.customPrintDetails.infillPercent,
+          layerHeight: item.customPrintDetails.layerHeight,
+          scalePercent: item.customPrintDetails.scalePercent,
+          specialInstructions: item.customPrintDetails.specialInstructions
+        } : {})
+      };
     }));
 
     const newOrderNumber = `CBI-${Math.floor(1000 + Math.random() * 9000)}`;

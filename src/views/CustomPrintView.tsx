@@ -9,6 +9,7 @@ import {
   deleteChiliDrawingFromFirestore,
   likeChiliDrawingInFirestore 
 } from '../lib/firestoreService';
+import { uploadCustomDesignToStorage } from '../lib/storageService';
 import { 
   Sparkles, 
   Layers, 
@@ -25,7 +26,8 @@ import {
   Cloud,
   RefreshCw,
   ShoppingBag,
-  ExternalLink
+  ExternalLink,
+  Loader2
 } from 'lucide-react';
 
 export const CustomPrintView: React.FC = () => {
@@ -34,6 +36,7 @@ export const CustomPrintView: React.FC = () => {
   // Active Drawing on Stage
   const [currentCanvasImage, setCurrentCanvasImage] = useState<string | null>(null);
   const [designTitle, setDesignTitle] = useState<string>('My Custom Spicy Cabai');
+  const [isUploading, setIsUploading] = useState<boolean>(false);
 
   // 3D Print Slicing & Material Specs
   const [material, setMaterial] = useState<MaterialType>('PLA');
@@ -96,11 +99,23 @@ export const CustomPrintView: React.FC = () => {
     baseTemplate: string;
   }): Promise<boolean> => {
     const drawingId = `chili-${Date.now()}`;
+    
+    // Upload image to Firebase Storage for durable hosting
+    let storageDownloadUrl = drawingData.imageData;
+    try {
+      if (drawingData.imageData.startsWith('data:')) {
+        storageDownloadUrl = await uploadCustomDesignToStorage(drawingData.imageData, 'gallery_chili');
+      }
+    } catch (err) {
+      console.warn('Could not upload to Firebase Storage, saving raw dataURL:', err);
+    }
+
     const newDrawing: ChiliDrawing = {
       id: drawingId,
       title: drawingData.title,
       creatorName: drawingData.creatorName,
-      imageData: drawingData.imageData,
+      imageData: storageDownloadUrl,
+      customDesignUrl: storageDownloadUrl.startsWith('http') ? storageDownloadUrl : undefined,
       baseChiliTemplate: drawingData.baseTemplate,
       material,
       colorName: color.name,
@@ -116,7 +131,7 @@ export const CustomPrintView: React.FC = () => {
     const ok = await saveChiliDrawingToFirestore(newDrawing);
     if (ok) {
       setSavedDrawings(prev => [newDrawing, ...prev]);
-      setCurrentCanvasImage(drawingData.imageData);
+      setCurrentCanvasImage(storageDownloadUrl);
       setDesignTitle(drawingData.title);
       showToast(`Chili "${drawingData.title}" saved to Firebase!`, 'success');
       return true;
@@ -127,11 +142,32 @@ export const CustomPrintView: React.FC = () => {
   };
 
   // Add Custom Print to Cart
-  const handleAddToCart = (imgData?: string, customTitle?: string) => {
+  const handleAddToCart = async (imgData?: string, customTitle?: string) => {
+    const imagePayload = imgData || currentCanvasImage;
+    const finalTitle = customTitle || designTitle;
+
+    let storageDownloadUrl: string | undefined = undefined;
+
+    if (imagePayload) {
+      try {
+        setIsUploading(true);
+        if (imagePayload.startsWith('data:')) {
+          storageDownloadUrl = await uploadCustomDesignToStorage(imagePayload, 'order_chili');
+        } else if (imagePayload.startsWith('http')) {
+          storageDownloadUrl = imagePayload;
+        }
+      } catch (err) {
+        console.warn('Storage upload encountered error, attaching image payload:', err);
+      } finally {
+        setIsUploading(false);
+      }
+    }
+
     const quote: CustomPrintQuote = {
-      fileName: `${(customTitle || designTitle).replace(/\s+/g, '_')}.png`,
-      designTitle: customTitle || designTitle,
-      drawingImage: imgData || currentCanvasImage || undefined,
+      fileName: `${finalTitle.replace(/\s+/g, '_')}.png`,
+      designTitle: finalTitle,
+      drawingImage: storageDownloadUrl || imagePayload || undefined,
+      customDesignUrl: storageDownloadUrl,
       material,
       color,
       infillPercent,
@@ -256,6 +292,7 @@ export const CustomPrintView: React.FC = () => {
               <ChiliDrawCanvas
                 key={currentCanvasImage || 'default-canvas'}
                 initialImageData={currentCanvasImage || undefined}
+                onCanvasChange={(img) => setCurrentCanvasImage(img)}
                 onSaveToFirebase={handleSaveToFirebase}
                 onOrderPrint={(img, title) => {
                   setCurrentCanvasImage(img);
@@ -538,10 +575,20 @@ export const CustomPrintView: React.FC = () => {
 
               <button
                 onClick={() => handleAddToCart()}
-                className="w-full py-4 bg-[#af101a] hover:bg-[#8d0a12] text-white font-extrabold text-sm rounded-2xl shadow-lg shadow-red-950/20 transition-all flex items-center justify-center gap-2 group cursor-pointer"
+                disabled={isUploading}
+                className="w-full py-4 bg-[#af101a] hover:bg-[#8d0a12] disabled:opacity-75 disabled:cursor-not-allowed text-white font-extrabold text-sm rounded-2xl shadow-lg shadow-red-950/20 transition-all flex items-center justify-center gap-2 group cursor-pointer"
               >
-                <span>Add Custom Chili to Cart</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                {isUploading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Uploading Design to Cloud...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Add Custom Chili to Cart</span>
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </>
+                )}
               </button>
 
             </div>

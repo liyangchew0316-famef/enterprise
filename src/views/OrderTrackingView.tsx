@@ -206,14 +206,22 @@ export const OrderTrackingView: React.FC = () => {
 
             <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-xs space-y-3 text-xs">
               <h4 className="font-heading font-bold text-sm text-gray-900 uppercase">Items Ordered</h4>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {matchedOrder.items.map((it, idx) => (
-                  <div key={idx} className="flex justify-between border-b border-gray-100 pb-2 last:border-0">
-                    <div>
-                      <strong className="text-gray-900 block">{it.name}</strong>
-                      <span className="text-gray-500">{it.color} • {it.material} x{it.quantity}</span>
+                  <div key={idx} className="border-b border-gray-100 pb-3 last:border-0 last:pb-0 space-y-1.5">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <strong className="text-gray-900 block font-bold">{it.name}</strong>
+                        <span className="text-gray-500">{it.color} • {it.material} x{it.quantity}</span>
+                      </div>
+                      <span className="font-bold text-gray-900">RM {(it.price * it.quantity).toFixed(2)}</span>
                     </div>
-                    <span className="font-bold text-gray-900">RM {(it.price * it.quantity).toFixed(2)}</span>
+                    {(it.customDetails || it.customText) && (
+                      <div className="p-2.5 bg-red-50/60 rounded-xl text-gray-700 text-xs border border-red-100 space-y-1">
+                        <span className="font-bold text-[#af101a] block text-[11px]">Custom Specifications:</span>
+                        <p className="whitespace-pre-wrap break-words">{it.customDetails || it.customText}</p>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

@@ -48,6 +48,7 @@ export interface CartItem {
   customText?: string;
   isCustomPrint?: boolean;
   drawingImage?: string;
+  customDesignUrl?: string; // Firebase Storage public download URL
   customPrintDetails?: {
     fileName: string;
     designTitle?: string;
@@ -55,6 +56,7 @@ export interface CartItem {
     infillPercent: number;
     layerHeight: string;
     estimatedTimeHours: number;
+    customDesignUrl?: string;
   };
 }
 
@@ -62,7 +64,8 @@ export interface ChiliDrawing {
   id: string;
   title: string;
   creatorName: string;
-  imageData: string; // Base64 png data URL
+  imageData: string; // Base64 png data URL or Firebase Storage URL
+  customDesignUrl?: string;
   baseChiliTemplate?: string;
   material: MaterialType;
   colorName: string;
@@ -79,6 +82,7 @@ export interface CustomPrintQuote {
   fileName: string;
   designTitle?: string;
   drawingImage?: string;
+  customDesignUrl?: string; // Firebase Storage download URL
   fileSizeMb?: number;
   material: MaterialType;
   color: ColorOption;
@@ -104,6 +108,29 @@ export interface OrderItem {
   price: number;
   isCustomPrint?: boolean;
   customDetails?: string;
+  customDesignUrl?: string; // Firebase Storage download URL for drawing
+  customText?: string;
+  drawingImage?: string;
+  customImageUrl?: string;
+  fileUrl?: string;
+  fileName?: string;
+  infillPercent?: number;
+  layerHeight?: string;
+  scalePercent?: number;
+  specialInstructions?: string;
+  customPrintDetails?: {
+    fileName?: string;
+    designTitle?: string;
+    volumeCm3?: number;
+    infillPercent?: number;
+    layerHeight?: string;
+    estimatedTimeHours?: number;
+    scalePercent?: number;
+    specialInstructions?: string;
+    customDesignUrl?: string;
+    [key: string]: any;
+  };
+  [key: string]: any;
 }
 
 export interface CustomerInfo {

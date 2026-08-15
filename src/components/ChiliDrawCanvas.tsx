@@ -30,6 +30,7 @@ interface ChiliDrawCanvasProps {
     baseTemplate: string;
   }) => Promise<boolean>;
   onOrderPrint?: (imageData: string, title: string) => void;
+  onCanvasChange?: (imageData: string) => void;
   initialImageData?: string;
 }
 
@@ -100,6 +101,7 @@ export const BRUSH_SIZES = [
 export const ChiliDrawCanvas: React.FC<ChiliDrawCanvasProps> = ({
   onSaveToFirebase,
   onOrderPrint,
+  onCanvasChange,
   initialImageData
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -279,11 +281,14 @@ export const ChiliDrawCanvas: React.FC<ChiliDrawCanvasProps> = ({
         ctx.drawImage(img, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
         setHistory([initialImageData]);
         setHistoryStep(0);
+        onCanvasChange?.(initialImageData);
       };
     } else {
       drawBaseTemplate(ctx, activeTemplate);
+      const snap = canvas.toDataURL('image/png');
+      onCanvasChange?.(snap);
     }
-  }, [activeTemplate, drawBaseTemplate, initialImageData]);
+  }, [activeTemplate, drawBaseTemplate, initialImageData, onCanvasChange]);
 
   // Save State to History
   const pushHistory = () => {
@@ -294,6 +299,7 @@ export const ChiliDrawCanvas: React.FC<ChiliDrawCanvasProps> = ({
     newHistory.push(snap);
     setHistory(newHistory);
     setHistoryStep(newHistory.length - 1);
+    onCanvasChange?.(snap);
   };
 
   const handleUndo = () => {
@@ -309,6 +315,7 @@ export const ChiliDrawCanvas: React.FC<ChiliDrawCanvasProps> = ({
         ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
         ctx.drawImage(img, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
         setHistoryStep(prevStep);
+        onCanvasChange?.(history[prevStep]);
       };
     }
   };
@@ -326,6 +333,7 @@ export const ChiliDrawCanvas: React.FC<ChiliDrawCanvasProps> = ({
         ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
         ctx.drawImage(img, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
         setHistoryStep(nextStep);
+        onCanvasChange?.(history[nextStep]);
       };
     }
   };
