@@ -64,7 +64,12 @@ interface AppContextType {
   
   // Orders
   orders: Order[];
-  placeOrder: (customer: CustomerInfo, paymentMethod: 'fpx' | 'credit_card' | 'ewallet', fpxBank?: string) => Promise<Order>;
+  placeOrder: (
+    customer: CustomerInfo, 
+    paymentMethod: 'fpx' | 'credit_card' | 'ewallet', 
+    fpxBank?: string,
+    onProgress?: (step: string) => void
+  ) => Promise<Order>;
   updateOrderStatus: (orderId: string, newStatus: OrderStatus, note?: string) => void;
   trackedOrderId: string;
   setTrackedOrderId: (id: string) => void;
@@ -294,7 +299,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const placeOrder = async (
     customer: CustomerInfo, 
     paymentMethod: 'fpx' | 'credit_card' | 'ewallet', 
-    fpxBank?: string
+    fpxBank?: string,
+    onProgress?: (step: string) => void
   ): Promise<Order> => {
     const subtotal = cartSubtotal;
     const shipping = subtotal > 80 ? 0 : 8.00; // Free shipping over RM 80
@@ -302,6 +308,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const taxableAmount = Math.max(0, subtotal - discount);
     const tax = Number((taxableAmount * 0.06).toFixed(2)); // 6% SST
     const total = Number((taxableAmount + shipping + tax).toFixed(2));
+
+    const hasCustomDesigns = cart.some(item => (item.isCustomPrint || item.drawingImage) && !item.customDesignUrl && !item.customPrintDetails?.customDesignUrl);
+    
+    if (hasCustomDesigns) {
+      onProgress?.('Preparing design...');
+    }
 
     const orderItems: OrderItem[] = await Promise.all(cart.map(async (item) => {
       const isCustomPrint = Boolean(item.isCustomPrint);
@@ -311,16 +323,28 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
       let finalDesignUrl = item.customDesignUrl || item.customPrintDetails?.customDesignUrl;
 
-      // If customDesignUrl is not yet a Firebase Storage download URL and item has drawingImage, upload it now
+      // If customDesignUrl is not yet a Firebase Storage download URL and item has drawingImage, upload the optimized Blob now
       if (!finalDesignUrl && item.drawingImage) {
         try {
           if (item.drawingImage.startsWith('http://') || item.drawingImage.startsWith('https://')) {
             finalDesignUrl = item.drawingImage;
-          } else if (item.drawingImage.startsWith('data:')) {
-            finalDesignUrl = await uploadCustomDesignToStorage(item.drawingImage, `order_item_${item.id}`);
+          } else {
+            onProgress?.('Uploading custom design...');
+            finalDesignUrl = await uploadCustomDesignToStorage(
+              item.drawingImage, 
+              `order_chili_${item.id}`,
+              `cart_item_${item.id}`
+            );
+            // Cache back into cart item in state to avoid re-upload if checkout is repeated
+            item.customDesignUrl = finalDesignUrl;
+            if (item.customPrintDetails) {
+              item.customPrintDetails.customDesignUrl = finalDesignUrl;
+            }
           }
-        } catch (uploadErr) {
-          console.warn('[AppContext] Storage upload during placeOrder warning:', uploadErr);
+        } catch (uploadErr: any) {
+          console.error('[AppContext] ❌ Storage upload failed during placeOrder:', uploadErr);
+          // If upload fails, fallback to warning or throw to prevent inconsistent state
+          showToast(`Design upload notice: ${uploadErr?.message || 'Upload timed out. Continuing with order...' }`, 'warning');
         }
       }
 
@@ -348,6 +372,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         } : {})
       };
     }));
+
+    onProgress?.('Creating order...');
 
     const newOrderNumber = `CBI-${Math.floor(1000 + Math.random() * 9000)}`;
     
@@ -399,6 +425,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setOrders(prev => [newOrder, ...prev.filter(o => o.id !== newOrder.id)]);
     setTrackedOrderId(newOrder.id);
     clearCart();
+    onProgress?.('Order confirmed.');
     showToast(`Order #${newOrder.id} confirmed! Thank you!`, 'success');
     return newOrder;
   };

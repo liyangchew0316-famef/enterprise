@@ -36,7 +36,6 @@ export const CustomPrintView: React.FC = () => {
   // Active Drawing on Stage
   const [currentCanvasImage, setCurrentCanvasImage] = useState<string | null>(null);
   const [designTitle, setDesignTitle] = useState<string>('My Custom Spicy Cabai');
-  const [isUploading, setIsUploading] = useState<boolean>(false);
 
   // 3D Print Slicing & Material Specs
   const [material, setMaterial] = useState<MaterialType>('PLA');
@@ -141,33 +140,15 @@ export const CustomPrintView: React.FC = () => {
     }
   };
 
-  // Add Custom Print to Cart
-  const handleAddToCart = async (imgData?: string, customTitle?: string) => {
+  // Add Custom Print to Cart (instant local addition; upload is deferred to Pay / Place Order)
+  const handleAddToCart = (imgData?: string, customTitle?: string) => {
     const imagePayload = imgData || currentCanvasImage;
     const finalTitle = customTitle || designTitle;
-
-    let storageDownloadUrl: string | undefined = undefined;
-
-    if (imagePayload) {
-      try {
-        setIsUploading(true);
-        if (imagePayload.startsWith('data:')) {
-          storageDownloadUrl = await uploadCustomDesignToStorage(imagePayload, 'order_chili');
-        } else if (imagePayload.startsWith('http')) {
-          storageDownloadUrl = imagePayload;
-        }
-      } catch (err) {
-        console.warn('Storage upload encountered error, attaching image payload:', err);
-      } finally {
-        setIsUploading(false);
-      }
-    }
 
     const quote: CustomPrintQuote = {
       fileName: `${finalTitle.replace(/\s+/g, '_')}.png`,
       designTitle: finalTitle,
-      drawingImage: storageDownloadUrl || imagePayload || undefined,
-      customDesignUrl: storageDownloadUrl,
+      drawingImage: imagePayload || undefined,
       material,
       color,
       infillPercent,
@@ -575,20 +556,10 @@ export const CustomPrintView: React.FC = () => {
 
               <button
                 onClick={() => handleAddToCart()}
-                disabled={isUploading}
-                className="w-full py-4 bg-[#af101a] hover:bg-[#8d0a12] disabled:opacity-75 disabled:cursor-not-allowed text-white font-extrabold text-sm rounded-2xl shadow-lg shadow-red-950/20 transition-all flex items-center justify-center gap-2 group cursor-pointer"
+                className="w-full py-4 bg-[#af101a] hover:bg-[#8d0a12] text-white font-extrabold text-sm rounded-2xl shadow-lg shadow-red-950/20 transition-all flex items-center justify-center gap-2 group cursor-pointer"
               >
-                {isUploading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Uploading Design to Cloud...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>Add Custom Chili to Cart</span>
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </>
-                )}
+                <span>Add Custom Chili to Cart</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
 
             </div>

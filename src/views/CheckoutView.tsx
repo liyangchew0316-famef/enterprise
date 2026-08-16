@@ -11,7 +11,9 @@ import {
   Truck, 
   CheckCircle2, 
   ArrowLeft,
-  Lock
+  Lock,
+  Loader2,
+  AlertCircle
 } from 'lucide-react';
 
 export const CheckoutView: React.FC = () => {
@@ -40,6 +42,8 @@ export const CheckoutView: React.FC = () => {
   const [isOrderComplete, setIsOrderComplete] = useState<boolean>(false);
   const [completedOrderId, setCompletedOrderId] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [submitProgressText, setSubmitProgressText] = useState<string>('Processing Order...');
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const shipping = cartSubtotal >= 80 ? 0 : 8.00;
   const taxableAmount = Math.max(0, cartSubtotal - discountAmount);
@@ -50,13 +54,25 @@ export const CheckoutView: React.FC = () => {
     e.preventDefault();
     if (cart.length === 0 || isSubmitting) return;
 
+    setSubmitError(null);
+    setIsSubmitting(true);
+    setSubmitProgressText('Preparing order...');
+
     try {
-      setIsSubmitting(true);
-      const newOrd = await placeOrder(customer, paymentMethod, paymentMethod === 'fpx' ? fpxBank : undefined);
+      const newOrd = await placeOrder(
+        customer, 
+        paymentMethod, 
+        paymentMethod === 'fpx' ? fpxBank : undefined,
+        (progressStep) => {
+          setSubmitProgressText(progressStep);
+        }
+      );
       setCompletedOrderId(newOrd.id);
       setIsOrderComplete(true);
-    } catch (err) {
+    } catch (err: any) {
       console.error('[CheckoutView] Failed to place order:', err);
+      const errorMessage = err?.message || 'An error occurred while finalizing your order. Please try again.';
+      setSubmitError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -339,13 +355,32 @@ export const CheckoutView: React.FC = () => {
 
           </div>
 
+          {submitError && (
+            <div className="p-4 bg-red-50 border border-red-200 rounded-2xl text-xs text-red-800 flex items-start gap-2.5 shadow-xs">
+              <AlertCircle className="w-4 h-4 text-[#af101a] shrink-0 mt-0.5" />
+              <div className="flex-1 space-y-0.5">
+                <span className="font-bold block">Checkout Notice</span>
+                <span className="text-gray-700">{submitError}</span>
+              </div>
+            </div>
+          )}
+
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full py-4 bg-[#af101a] hover:bg-[#8d0a12] disabled:opacity-60 disabled:cursor-not-allowed text-white font-extrabold text-base rounded-2xl shadow-lg shadow-red-900/30 transition-all flex items-center justify-center gap-2"
+            className="w-full py-4 bg-[#af101a] hover:bg-[#8d0a12] disabled:opacity-75 disabled:cursor-not-allowed text-white font-extrabold text-base rounded-2xl shadow-lg shadow-red-900/30 transition-all flex items-center justify-center gap-2"
           >
-            <ShieldCheck className="w-5 h-5" />
-            <span>{isSubmitting ? 'Processing Order...' : `Complete Order & Pay (RM ${finalTotal.toFixed(2)})`}</span>
+            {isSubmitting ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin text-white" />
+                <span>{submitProgressText}</span>
+              </>
+            ) : (
+              <>
+                <ShieldCheck className="w-5 h-5" />
+                <span>Complete Order & Pay (RM {finalTotal.toFixed(2)})</span>
+              </>
+            )}
           </button>
 
         </form>
