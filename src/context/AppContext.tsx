@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { 
   Product, 
   CartItem, 
@@ -89,6 +89,7 @@ interface AppContextType {
   // Toast notifications
   toast: ToastState | null;
   showToast: (message: string, type?: 'success' | 'info' | 'warning') => void;
+  hideToast: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -120,9 +121,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Toast state
   const [toast, setToast] = useState<ToastState | null>(null);
 
-  const showToast = (message: string, type: 'success' | 'info' | 'warning' = 'success') => {
+  const hideToast = useCallback(() => {
+    setToast(null);
+  }, []);
+
+  const showToast = useCallback((message: string, type: 'success' | 'info' | 'warning' = 'success') => {
     setToast({ message, type, id: Date.now() });
-  };
+  }, []);
+
+  // Automatically dismiss toast information popup after 2 seconds (2000ms)
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => {
+      setToast(null);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [toast]);
 
   // Initialize Firebase Auth listener
   useEffect(() => {
@@ -585,7 +599,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         addSpool,
         addNewProduct,
         toast,
-        showToast
+        showToast,
+        hideToast
       }}
     >
       {children}

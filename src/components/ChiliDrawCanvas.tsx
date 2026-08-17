@@ -798,7 +798,7 @@ export const ChiliDrawCanvas: React.FC<ChiliDrawCanvasProps> = ({
                   type="text"
                   value={creatorName}
                   onChange={(e) => setCreatorName(e.target.value)}
-                  placeholder="e.g. Li Yang"
+                  placeholder="e.g. Spicy Maker"
                   className="w-full p-3 rounded-xl border border-gray-300 bg-gray-50 font-medium text-gray-900 focus:outline-hidden focus:border-[#af101a]"
                 />
               </div>

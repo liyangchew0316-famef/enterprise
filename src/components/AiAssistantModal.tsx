@@ -80,10 +80,11 @@ export const AiAssistantModal: React.FC<AiAssistantModalProps> = ({ isOpen, onCl
   };
 
   const quickPrompts = [
-    "What material is best for phone stands?",
+    "Who is in The Hall of Glory? 🏆",
+    "Studio Info & WhatsApp 📍",
     "Tell me about the Cabai Keychain 🌶️",
-    "How does custom 3D printing pricing work?",
-    "PLA vs PETG: What's the difference?"
+    "PLA vs PETG vs TPU material guide",
+    "How does custom 3D printing work?"
   ];
 
   return (

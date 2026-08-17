@@ -92,31 +92,65 @@ export const ContactView: React.FC = () => {
         {/* Right Info Cards (5 cols) */}
         <div className="lg:col-span-5 space-y-4">
           
-          <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-xs space-y-4 text-xs">
-            <h2 className="font-heading font-extrabold text-base text-gray-900 uppercase">Studio Info</h2>
+          <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-xs space-y-5 text-xs">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+              <h2 className="font-heading font-extrabold text-base text-gray-900 uppercase tracking-wider">Studio Info</h2>
+              <span className="text-[10px] font-extrabold bg-red-100 text-[#af101a] px-2 py-0.5 rounded-full">
+                Live Studio
+              </span>
+            </div>
 
             <div className="flex items-start gap-3 text-gray-700">
-              <MapPin className="w-5 h-5 text-[#af101a] shrink-0 mt-0.5" />
+              <div className="w-9 h-9 rounded-xl bg-red-50 text-[#af101a] flex items-center justify-center shrink-0 mt-0.5">
+                <MapPin className="w-5 h-5 text-[#af101a]" />
+              </div>
               <div>
-                <strong className="text-gray-900 block font-bold">Studio Location</strong>
-                <span>Inside your computer</span>
+                <strong className="text-gray-900 block font-bold text-sm">Studio Location</strong>
+                <span className="text-gray-600 font-medium">Inside your computer</span>
+                <span className="block text-[11px] text-gray-400 mt-0.5">Express courier shipping across Malaysia 🇲🇾</span>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 text-gray-700">
-              <Phone className="w-5 h-5 text-[#af101a] shrink-0" />
-              <div>
-                <strong className="text-gray-900 block font-bold">WhatsApp & Phone:</strong>
-                <span>+60 11-6741 0881</span>
+            <div className="flex items-start gap-3 text-gray-700">
+              <div className="w-9 h-9 rounded-xl bg-red-50 text-[#af101a] flex items-center justify-center shrink-0 mt-0.5">
+                <Phone className="w-5 h-5 text-[#af101a]" />
+              </div>
+              <div className="flex-1">
+                <strong className="text-gray-900 block font-bold text-sm">WhatsApp & Phone:</strong>
+                <a 
+                  href="https://wa.me/60129058515" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-emerald-700 hover:text-emerald-800 font-bold hover:underline inline-flex items-center gap-1.5 mt-0.5"
+                >
+                  <span>+60 12-905 8515</span>
+                  <span className="text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.2 rounded font-bold">Chat on WA</span>
+                </a>
+                <span className="block text-[11px] text-gray-400 mt-0.5">Fast response for custom CAD & order inquiries</span>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 text-gray-700">
-              <Mail className="w-5 h-5 text-[#af101a] shrink-0" />
-              <div>
-                <strong className="text-gray-900 block font-bold">Email Inquiry:</strong>
-                <span>hello@cabai.enterprise.my</span>
+            <div className="flex items-start gap-3 text-gray-700">
+              <div className="w-9 h-9 rounded-xl bg-red-50 text-[#af101a] flex items-center justify-center shrink-0 mt-0.5">
+                <Mail className="w-5 h-5 text-[#af101a]" />
               </div>
+              <div className="flex-1">
+                <strong className="text-gray-900 block font-bold text-sm">Email Inquiry:</strong>
+                <a 
+                  href="mailto:enterprise.cabai@gmail.com" 
+                  className="text-[#af101a] hover:underline font-bold block mt-0.5"
+                >
+                  enterprise.cabai@gmail.com
+                </a>
+                <span className="block text-[11px] text-gray-400 mt-0.5">Corporate quotations & STL file attachments</span>
+              </div>
+            </div>
+
+            <div className="p-4 bg-gray-50 rounded-2xl border border-gray-200 text-gray-600 text-xs space-y-1">
+              <span className="font-bold text-gray-900 block">⚡ Rapid 24–48hr Turnaround</span>
+              <p className="text-[11px] leading-relaxed">
+                All 3D models sliced and printed fresh in-house. Need an immediate quotation? Message our WhatsApp or consult <strong>Cabai AI</strong>.
+              </p>
             </div>
           </div>
 

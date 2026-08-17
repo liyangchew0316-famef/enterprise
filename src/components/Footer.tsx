@@ -40,9 +40,23 @@ export const Footer: React.FC = () => {
               Malaysia’s premier 3D printing studio. Turning digital CAD concepts and STL files into physical precision products with premium PLA+, PETG, and flexible TPU materials.
             </p>
 
-            <div className="pt-2 flex items-center gap-2 text-xs text-gray-400">
-              <MapPin className="w-4 h-4 text-[#af101a] shrink-0" />
-              <span>Inside your computer</span>
+            <div className="pt-2 space-y-1.5 text-xs text-gray-400">
+              <div className="flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-[#af101a] shrink-0" />
+                <span>Inside your computer</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Phone className="w-4 h-4 text-[#af101a] shrink-0" />
+                <a href="https://wa.me/60129058515" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 font-semibold transition-colors">
+                  +60 12-905 8515 (WhatsApp)
+                </a>
+              </div>
+              <div className="flex items-center gap-2">
+                <Mail className="w-4 h-4 text-[#af101a] shrink-0" />
+                <a href="mailto:enterprise.cabai@gmail.com" className="hover:text-red-400 transition-colors">
+                  enterprise.cabai@gmail.com
+                </a>
+              </div>
             </div>
           </div>
 
@@ -82,10 +96,10 @@ export const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* Col 3: Customer Care */}
+          {/* Col 3: Customer Care & Hall of Glory */}
           <div className="space-y-3">
             <h4 className="font-heading font-bold text-base text-white uppercase tracking-wider">
-              Support & Track
+              Support & Company
             </h4>
             <ul className="space-y-2 text-sm text-gray-400">
               <li>
@@ -94,8 +108,14 @@ export const Footer: React.FC = () => {
                 </button>
               </li>
               <li>
+                <button onClick={() => navTo('about')} className="hover:text-[#af101a] transition-colors flex items-center gap-1.5">
+                  <span>The Hall of Glory 🏆</span>
+                  <span className="text-[10px] bg-amber-900/60 text-amber-300 px-1.5 py-0.5 rounded-full font-bold">4 Legends</span>
+                </button>
+              </li>
+              <li>
                 <button onClick={() => navTo('about')} className="hover:text-[#af101a] transition-colors">
-                  Our 3D Printers & Quality Guarantee
+                  Our Story & Mission
                 </button>
               </li>
               <li>
@@ -104,10 +124,15 @@ export const Footer: React.FC = () => {
                 </button>
               </li>
               <li>
-                <button onClick={() => navTo('boss_admin')} className="hover:text-[#af101a] transition-colors text-amber-400 flex items-center gap-1">
+                <a 
+                  href="https://admin-beta-pink-11.vercel.app/" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="hover:text-[#af101a] transition-colors text-amber-400 flex items-center gap-1"
+                >
                   <ShieldCheck className="w-4 h-4" />
                   <span>Boss Admin Dashboard</span>
-                </button>
+                </a>
               </li>
             </ul>
           </div>

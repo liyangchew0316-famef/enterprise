@@ -242,7 +242,7 @@ export const CheckoutView: React.FC = () => {
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Chew Li Yang"
+                  placeholder="e.g. Alex Tan"
                   value={customer.fullName}
                   onChange={(e) => setCustomer({ ...customer, fullName: e.target.value })}
                   className="w-full px-3.5 py-2.5 bg-white border border-gray-300 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-red-100 focus:border-[#af101a] font-medium"
@@ -257,7 +257,7 @@ export const CheckoutView: React.FC = () => {
                 <input
                   type="email"
                   required
-                  placeholder="e.g. liyang@example.com"
+                  placeholder="e.g. customer@example.com"
                   value={customer.email}
                   onChange={(e) => setCustomer({ ...customer, email: e.target.value })}
                   className="w-full px-3.5 py-2.5 bg-white border border-gray-300 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-red-100 focus:border-[#af101a] font-medium"

@@ -1,5 +1,89 @@
-import { Product, MaterialSpool, Order, ColorOption } from '../types';
+import { Product, MaterialSpool, Order, ColorOption, HallOfGloryMember } from '../types';
 import { imageConfig } from '../config/assets';
+
+export const STUDIO_INFO = {
+  name: 'CABAI ENTERPRISE™',
+  location: 'Inside your computer',
+  phone: '+60 12-905 8515',
+  whatsappNumber: '60129058515',
+  whatsappUrl: 'https://wa.me/60129058515',
+  email: 'enterprise.cabai@gmail.com',
+  businessRegistration: '202603019821',
+  operatingHours: 'Digital Studio 24/7 (Courier Dispatch: Mon - Fri 9:00 AM - 6:00 PM)',
+  slogan: 'From Cabai to Something Real. 🌶️'
+};
+
+export const HALL_OF_GLORY_MEMBERS: HallOfGloryMember[] = [
+  {
+    id: 'hall-01',
+    name: 'Kong Zi Teng',
+    chineseName: '江子腾',
+    role: 'CEO (Chief Executive Officer)',
+    avatarEmoji: '👑',
+    badge: 'Enterprise Leader',
+    specialty: 'Executive Leadership, Strategic Vision & Brand Expansion',
+    bio: 'Chief Executive Officer steering CABAI ENTERPRISE™ from a digital maker concept into a powerhouse 3D manufacturing brand. Spearheads corporate partnerships, production scalability, and long-term vision.',
+    quote: '“We lead with precision and deliver with passion. CABAI is here to reshape personal 3D manufacturing in Malaysia.”',
+    achievements: [
+      'Strategic architect behind CABAI ENTERPRISE™ corporate growth',
+      'Orchestrated multi-channel 3D manufacturing expansion',
+      'Established high-standard quality assurance protocols across all product lines'
+    ],
+    signatureItem: 'CABAI Enterprise Vision'
+  },
+  {
+    id: 'hall-02',
+    name: 'Lim Ee Fun',
+    chineseName: '林依芬',
+    role: 'CFO (Chief Financial Officer)',
+    avatarEmoji: '💎',
+    badge: 'Finance & Treasury Lead',
+    specialty: 'Financial Strategy, Unit Economics & Pricing Models',
+    bio: 'Chief Financial Officer overseeing financial health, material cost optimization, and transparent quotation formulas. Ensures fair, accessible pricing for makers, students, and businesses alike.',
+    quote: '“Sustainable growth comes from meticulous numbers and giving customers maximum value for every ringgit.”',
+    achievements: [
+      'Engineered dynamic weight-and-volume algorithmic pricing models',
+      'Maintains transparent Touch \'n Go & digital payment reconciliation',
+      'Secured high-volume bulk filament procurement pipelines'
+    ],
+    signatureItem: 'Dynamic Pricing Engine'
+  },
+  {
+    id: 'hall-03',
+    name: 'H\'ng Kai Yii',
+    chineseName: '方凯谊',
+    role: 'Manager (Operations & Studio Logistics)',
+    avatarEmoji: '⚡',
+    badge: 'Operations Commander',
+    specialty: 'Studio Operations, Dispatch Logistics & Customer Care',
+    bio: 'Operational Commander managing daily print queue workflows, fleet synchronization, and rapid courier fulfillment. Guarantees every physical print meets strict quality standards before shipping.',
+    quote: '“Every print job has a timeline. We execute without delay, ensuring orders move from slice to delivery seamlessly.”',
+    achievements: [
+      'Maintains the 24–48 hour rapid dispatch turnaround benchmark',
+      'Oversees multi-station CoreXY printing fleet and calibration queues',
+      'Pioneered 100% order verification tracking system'
+    ],
+    signatureItem: 'Fleet Operations & Rapid Dispatch'
+  },
+  {
+    id: 'hall-04',
+    name: 'Li Yang',
+    chineseName: '李阳',
+    role: 'Lead 3D Print Specialist & CAD Artisan',
+    avatarEmoji: '🌶️',
+    badge: 'Master Maker & Slicer',
+    specialty: '3D Printer Tuning, Slicing Optimization & CAD Crafting',
+    bio: 'Dedicated 3D printing craftsman and creator of the signature Cabai Keychain 🌶️. Works under studio operations management to calibrate nozzles, slice models with 0.12mm precision, and ensure physical print perfection.',
+    quote: '“Every print bed needs care and precision. I turn digital files into clean, tangible objects layer by layer.”',
+    achievements: [
+      'Original creator and sculptor of the iconic Cabai Keychain 🌶️',
+      'Over 10,000+ flawless print hours logged across studio machines',
+      'Specialist in fine-detail 0.12mm slicing calibration and surface finish'
+    ],
+    signatureItem: 'Cabai Keychain 🌶️'
+  }
+];
+
 
 export const DEFAULT_COLORS: ColorOption[] = [
   { name: 'Chili Red', hex: '#af101a', bgClass: 'bg-[#af101a]' },

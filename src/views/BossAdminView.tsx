@@ -88,6 +88,22 @@ export const BossAdminView: React.FC = () => {
             </p>
           </div>
 
+          <a
+            href="https://admin-beta-pink-11.vercel.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-2 w-full py-3 px-4 bg-gradient-to-r from-red-600 to-[#af101a] hover:from-red-700 hover:to-[#8d0a12] text-white font-bold text-sm rounded-xl shadow-md transition-all group"
+          >
+            <span>Open Vercel Boss Admin Portal</span>
+            <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+          </a>
+
+          <div className="relative flex py-1 items-center">
+            <div className="grow border-t border-gray-200"></div>
+            <span className="shrink mx-3 text-gray-400 text-xs font-semibold uppercase">or enter studio console</span>
+            <div className="grow border-t border-gray-200"></div>
+          </div>
+
           <form onSubmit={handleAuthSubmit} className="space-y-4 text-left">
             <div>
               <label className="block text-xs font-bold text-gray-700 mb-1">
@@ -303,6 +319,7 @@ export const BossAdminView: React.FC = () => {
               <option value="Printing">Printing</option>
               <option value="Printed">Printed</option>
               <option value="Shipped">Shipped</option>
+              <option value="Cancelled">Cancelled</option>
             </select>
           </div>
         </div>
@@ -325,18 +342,25 @@ export const BossAdminView: React.FC = () => {
               {filteredOrders.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="p-8 text-center text-gray-500 text-xs font-semibold">
-                    No customer orders placed yet. Store is live and ready for new orders! 🌶️
+                    No customer orders found in this filter. Store is live and ready for new orders! 🌶️
                   </td>
                 </tr>
               ) : (
                 filteredOrders.map(order => {
                   const payStatus = order.paymentStatus || 'pending';
+                  const isOrderCancelled = order.status === 'Cancelled' || payStatus === 'cancelled';
                   return (
-                  <tr key={order.id} className="hover:bg-red-50/20 transition-colors">
-                  <td className="p-4 font-mono font-extrabold text-[#af101a]">{order.id}</td>
+                  <tr key={order.id} className={`hover:bg-red-50/20 transition-colors ${isOrderCancelled ? 'bg-red-50/30 opacity-80' : ''}`}>
+                  <td className="p-4 font-mono font-extrabold text-[#af101a]">
+                    #{order.id}
+                    {isOrderCancelled && (
+                      <span className="block text-[9px] text-red-600 font-bold uppercase tracking-wider">Cancelled</span>
+                    )}
+                  </td>
                   <td className="p-4">
                     <strong className="text-gray-900 block">{order.customer.fullName}</strong>
-                    <span className="text-gray-400">{order.customer.email}</span>
+                    <span className="text-gray-500 font-mono text-[11px] block">{order.customer.phone || 'No phone'}</span>
+                    <span className="text-gray-400 text-[10px]">{order.customer.email}</span>
                   </td>
                   <td className="p-4 max-w-xs">
                     <div className="space-y-1">
@@ -358,47 +382,107 @@ export const BossAdminView: React.FC = () => {
                   </td>
                   <td className="p-4 font-extrabold text-gray-900">RM {order.total.toFixed(2)}</td>
                   
-                  {/* Payment Verification Column */}
+                  {/* Payment Verification Column with "Not yet payed" action */}
                   <td className="p-4">
-                    {payStatus === 'paid' ? (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-100 text-emerald-800 font-extrabold text-[11px] rounded-lg">
-                        <Check className="w-3.5 h-3.5" />
-                        <span>Paid & Verified</span>
-                      </span>
+                    {isOrderCancelled ? (
+                      <div className="space-y-1">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-red-100 text-red-800 font-extrabold text-[11px] rounded-lg border border-red-200">
+                          ✕ Cancelled (Not Paid)
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            updateOrderPaymentStatus(order.id, 'paid', 'Re-opened and marked paid by Boss Admin');
+                            updateOrderStatus(order.id, 'Slicing', 'Re-opened order - queued for slicing');
+                            showToast(`Order #${order.id} re-opened and marked as PAID!`, 'success');
+                          }}
+                          className="block text-[10px] font-bold text-emerald-700 hover:underline"
+                        >
+                          + Re-open / Mark Paid
+                        </button>
+                      </div>
+                    ) : payStatus === 'paid' ? (
+                      <div className="space-y-1">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-100 text-emerald-800 font-extrabold text-[11px] rounded-lg">
+                          <Check className="w-3.5 h-3.5" />
+                          <span>Paid & Verified</span>
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            updateOrderPaymentStatus(order.id, 'cancelled', 'Payment cancelled by Boss Admin');
+                            updateOrderStatus(order.id, 'Cancelled', 'Cancelled - payment not received');
+                            showToast(`Order #${order.id} marked as Not Paid and Cancelled`, 'info');
+                          }}
+                          className="block text-[10px] font-bold text-red-600 hover:underline"
+                          title="Cancel order and mark not paid"
+                        >
+                          ✕ Not yet payed (Cancel)
+                        </button>
+                      </div>
                     ) : payStatus === 'payment_submitted' ? (
                       <div className="space-y-1.5">
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-900 font-extrabold text-[10px] rounded-md border border-amber-300 animate-pulse">
                           <Clock className="w-3 h-3 text-amber-700" />
                           <span>Needs Verification</span>
                         </span>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            updateOrderPaymentStatus(order.id, 'paid', 'Verified by Boss Admin');
-                            updateOrderStatus(order.id, 'Slicing', 'Payment verified - queued for STL slicing');
-                            showToast(`Order #${order.id} marked as PAID & verified! Customer screen auto-updated.`, 'success');
-                          }}
-                          className="block px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-[10px] rounded-lg transition-colors shadow-xs"
-                          title="Verify and confirm payment in Firestore"
-                        >
-                          ✓ Confirm Paid
-                        </button>
+                        <div className="flex flex-col gap-1">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              updateOrderPaymentStatus(order.id, 'paid', 'Verified by Boss Admin');
+                              updateOrderStatus(order.id, 'Slicing', 'Payment verified - queued for STL slicing');
+                              showToast(`Order #${order.id} marked as PAID & verified! Customer screen auto-updated.`, 'success');
+                            }}
+                            className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-[10px] rounded-lg transition-colors shadow-xs text-center"
+                            title="Verify and confirm payment in Firestore"
+                          >
+                            ✓ Confirm Paid
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              updateOrderPaymentStatus(order.id, 'cancelled', 'Payment not received - Cancelled by Boss Admin');
+                              updateOrderStatus(order.id, 'Cancelled', 'Cancelled - payment not received');
+                              showToast(`Order #${order.id} cancelled (Not yet payed)`, 'info');
+                            }}
+                            className="px-2.5 py-1 bg-red-100 hover:bg-red-200 text-red-700 font-extrabold text-[10px] rounded-lg transition-colors text-center border border-red-200"
+                            title="Mark as not yet paid - order will be cancelled"
+                          >
+                            ✕ Not yet payed
+                          </button>
+                        </div>
                       </div>
                     ) : (
-                      <div className="space-y-1">
+                      <div className="space-y-1.5">
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 text-gray-700 font-bold text-[10px] rounded-md">
                           <span>Pending QR</span>
                         </span>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            updateOrderPaymentStatus(order.id, 'paid', 'Verified by Boss Admin');
-                            showToast(`Order #${order.id} marked as PAID in Firestore!`, 'success');
-                          }}
-                          className="block text-[10px] font-bold text-[#af101a] hover:underline"
-                        >
-                          + Mark Paid
-                        </button>
+                        <div className="flex flex-col gap-1">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              updateOrderPaymentStatus(order.id, 'paid', 'Verified by Boss Admin');
+                              updateOrderStatus(order.id, 'Slicing', 'Payment verified - queued for STL slicing');
+                              showToast(`Order #${order.id} marked as PAID in Firestore!`, 'success');
+                            }}
+                            className="text-[10px] font-bold text-emerald-700 hover:underline text-left"
+                          >
+                            + Mark Paid
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              updateOrderPaymentStatus(order.id, 'cancelled', 'Payment not received - Cancelled by Boss Admin');
+                              updateOrderStatus(order.id, 'Cancelled', 'Cancelled - payment not received');
+                              showToast(`Order #${order.id} cancelled (Not yet payed)`, 'info');
+                            }}
+                            className="text-[10px] font-bold text-red-600 hover:underline text-left"
+                            title="Cancel order because payment not received"
+                          >
+                            ✕ Not yet payed
+                          </button>
+                        </div>
                       </div>
                     )}
                   </td>
@@ -407,13 +491,18 @@ export const BossAdminView: React.FC = () => {
                     <select
                       value={order.status}
                       onChange={(e: any) => updateOrderStatus(order.id, e.target.value)}
-                      className="px-2.5 py-1.5 text-xs font-bold rounded-lg bg-gray-100 border border-gray-300 text-gray-800"
+                      className={`px-2.5 py-1.5 text-xs font-bold rounded-lg border ${
+                        order.status === 'Cancelled' 
+                          ? 'bg-red-100 border-red-300 text-red-800'
+                          : 'bg-gray-100 border-gray-300 text-gray-800'
+                      }`}
                     >
                       <option value="Pending">Pending</option>
                       <option value="Slicing">Slicing</option>
                       <option value="Printing">Printing</option>
                       <option value="Printed">Printed</option>
                       <option value="Shipped">Shipped</option>
+                      <option value="Cancelled">Cancelled</option>
                     </select>
                   </td>
                   <td className="p-4 text-right">
@@ -800,15 +889,30 @@ export const BossAdminView: React.FC = () => {
                     <span className="font-heading font-extrabold text-sm">TNG Payment Verification</span>
                   </div>
                   <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold ${
-                    selectedOrder.paymentStatus === 'paid' 
+                    selectedOrder.status === 'Cancelled' || selectedOrder.paymentStatus === 'cancelled'
+                      ? 'bg-red-500/20 text-red-300 border border-red-500/40'
+                      : selectedOrder.paymentStatus === 'paid' 
                       ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
                       : selectedOrder.paymentStatus === 'payment_submitted'
                       ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 animate-pulse'
                       : 'bg-gray-700 text-gray-300'
                   }`}>
-                    {selectedOrder.paymentStatus === 'paid' ? 'PAID & VERIFIED' : selectedOrder.paymentStatus === 'payment_submitted' ? 'SUBMITTED BY CUSTOMER' : 'PENDING QR SCAN'}
+                    {selectedOrder.status === 'Cancelled' || selectedOrder.paymentStatus === 'cancelled' 
+                      ? 'CANCELLED (NOT PAID)' 
+                      : selectedOrder.paymentStatus === 'paid' 
+                      ? 'PAID & VERIFIED' 
+                      : selectedOrder.paymentStatus === 'payment_submitted' 
+                      ? 'SUBMITTED BY CUSTOMER' 
+                      : 'PENDING QR SCAN'}
                   </span>
                 </div>
+
+                {(selectedOrder.status === 'Cancelled' || selectedOrder.paymentStatus === 'cancelled') && (
+                  <div className="p-3 bg-red-950/60 border border-red-800/60 rounded-xl text-red-200 text-xs flex items-center gap-2">
+                    <span className="text-red-400 font-extrabold text-sm">✕</span>
+                    <span>Order is currently <strong>Cancelled</strong> because payment was not received.</span>
+                  </div>
+                )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
                   <div className="bg-slate-800/80 p-2.5 rounded-xl">
@@ -820,32 +924,77 @@ export const BossAdminView: React.FC = () => {
                     <span className="font-extrabold text-emerald-400">RM {selectedOrder.total.toFixed(2)}</span>
                   </div>
                   <div className="bg-slate-800/80 p-2.5 rounded-xl">
-                    <span className="text-[10px] text-gray-400 block font-bold uppercase">Firestore User</span>
-                    <span className="font-mono text-[11px] text-gray-300 truncate block">{selectedOrder.userId || 'anon-client'}</span>
+                    <span className="text-[10px] text-gray-400 block font-bold uppercase">Customer Phone</span>
+                    <span className="font-mono text-[11px] text-gray-300 truncate block">{selectedOrder.customer.phone || 'None provided'}</span>
                   </div>
                 </div>
 
                 {/* Verification Buttons */}
                 <div className="flex flex-wrap gap-2 pt-1">
-                  {selectedOrder.paymentStatus !== 'paid' ? (
+                  {selectedOrder.status === 'Cancelled' || selectedOrder.paymentStatus === 'cancelled' ? (
                     <button
                       type="button"
                       onClick={() => {
-                        updateOrderPaymentStatus(selectedOrder.id, 'paid', 'Verified by Boss Admin');
-                        updateOrderStatus(selectedOrder.id, 'Slicing', 'Payment verified - queued for STL slicing');
+                        updateOrderPaymentStatus(selectedOrder.id, 'paid', 'Re-opened & verified by Boss Admin');
+                        updateOrderStatus(selectedOrder.id, 'Slicing', 'Re-opened order - queued for slicing');
                         setSelectedOrder({ ...selectedOrder, paymentStatus: 'paid', status: 'Slicing' });
-                        showToast(`Order #${selectedOrder.id} marked as PAID & verified! Customer payment page updated in real-time.`, 'success');
+                        showToast(`Order #${selectedOrder.id} re-opened and marked as PAID!`, 'success');
                       }}
                       className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-md"
                     >
                       <Check className="w-4 h-4" />
-                      <span>Verify & Mark Paid (RM {selectedOrder.total.toFixed(2)})</span>
+                      <span>Re-open & Mark Paid (RM {selectedOrder.total.toFixed(2)})</span>
                     </button>
+                  ) : selectedOrder.paymentStatus !== 'paid' ? (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          updateOrderPaymentStatus(selectedOrder.id, 'paid', 'Verified by Boss Admin');
+                          updateOrderStatus(selectedOrder.id, 'Slicing', 'Payment verified - queued for STL slicing');
+                          setSelectedOrder({ ...selectedOrder, paymentStatus: 'paid', status: 'Slicing' });
+                          showToast(`Order #${selectedOrder.id} marked as PAID & verified! Customer screen auto-updated.`, 'success');
+                        }}
+                        className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-md"
+                      >
+                        <Check className="w-4 h-4" />
+                        <span>Verify & Mark Paid (RM {selectedOrder.total.toFixed(2)})</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          updateOrderPaymentStatus(selectedOrder.id, 'cancelled', 'Payment not received - Cancelled by Boss Admin');
+                          updateOrderStatus(selectedOrder.id, 'Cancelled', 'Cancelled - payment not received');
+                          setSelectedOrder({ ...selectedOrder, paymentStatus: 'cancelled', status: 'Cancelled' });
+                          showToast(`Order #${selectedOrder.id} cancelled (Not yet payed)`, 'info');
+                        }}
+                        className="py-2.5 px-4 bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-md"
+                        title="Mark as not yet paid - cancels the order"
+                      >
+                        <span>✕ Not yet payed</span>
+                      </button>
+                    </>
                   ) : (
-                    <div className="flex-1 py-2 bg-emerald-950/60 border border-emerald-700/50 rounded-xl text-emerald-300 text-center font-extrabold text-xs flex items-center justify-center gap-1.5">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                      <span>Payment Verified in Firestore</span>
-                    </div>
+                    <>
+                      <div className="flex-1 py-2 bg-emerald-950/60 border border-emerald-700/50 rounded-xl text-emerald-300 text-center font-extrabold text-xs flex items-center justify-center gap-1.5">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                        <span>Payment Verified in Firestore</span>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          updateOrderPaymentStatus(selectedOrder.id, 'cancelled', 'Payment marked unreceived by Boss Admin');
+                          updateOrderStatus(selectedOrder.id, 'Cancelled', 'Cancelled - payment not received');
+                          setSelectedOrder({ ...selectedOrder, paymentStatus: 'cancelled', status: 'Cancelled' });
+                          showToast(`Order #${selectedOrder.id} marked as Not Yet Paid and Cancelled`, 'info');
+                        }}
+                        className="py-2 px-3 bg-red-950/80 hover:bg-red-900 text-red-300 border border-red-800 font-bold text-xs rounded-xl transition-colors"
+                      >
+                        ✕ Not yet payed (Cancel)
+                      </button>
+                    </>
                   )}
 
                   <button

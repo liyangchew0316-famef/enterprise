@@ -176,19 +176,17 @@ export const Header: React.FC = () => {
               )}
             </button>
 
-            {/* Boss Admin Dashboard Toggle */}
-            <button
-              onClick={() => handleNav('boss_admin')}
-              className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
-                currentView === 'boss_admin'
-                  ? 'bg-[#1a1c1c] text-white border-[#1a1c1c] shadow-md'
-                  : 'bg-white text-gray-800 border-gray-300 hover:border-[#af101a] hover:text-[#af101a]'
-              }`}
-              title="Boss Admin Console"
+            {/* Boss Admin Dashboard External Link */}
+            <a
+              href="https://admin-beta-pink-11.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all border bg-white text-gray-800 border-gray-300 hover:border-[#af101a] hover:text-[#af101a] shadow-xs"
+              title="Boss Admin Console (External Portal)"
             >
               <ShieldCheck className="w-4 h-4 text-[#af101a]" />
               <span>Boss Admin</span>
-            </button>
+            </a>
 
             {/* Mobile Menu Button */}
             <button
@@ -251,13 +249,16 @@ export const Header: React.FC = () => {
             📞 Contact Us
           </button>
           <div className="pt-2 border-t border-gray-100">
-            <button
-              onClick={() => handleNav('boss_admin')}
+            <a
+              href="https://admin-beta-pink-11.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setMobileMenuOpen(false)}
               className="w-full text-left px-3 py-2.5 rounded-lg text-base font-bold bg-[#1a1c1c] text-white flex items-center gap-2"
             >
               <ShieldCheck className="w-5 h-5 text-[#af101a]" />
               <span>Boss Admin Console</span>
-            </button>
+            </a>
           </div>
         </div>
       )}

@@ -193,6 +193,78 @@ export const TngPaymentView: React.FC<TngPaymentViewProps> = ({ orderId: propOrd
   const currentPaymentStatus: PaymentStatus = currentOrder.paymentStatus || 'pending';
 
   // =========================================================================
+  // VIEW 0: PAYMENT CANCELLED (paymentStatus === 'cancelled' or status === 'Cancelled')
+  // =========================================================================
+  if (currentPaymentStatus === 'cancelled' || currentOrder.status === 'Cancelled') {
+    return (
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-6 animate-fadeIn">
+        <div className="bg-white rounded-3xl border-2 border-red-300 p-8 sm:p-10 shadow-xl text-center space-y-6">
+          <div className="w-20 h-20 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto shadow-md ring-8 ring-red-50">
+            <span className="text-3xl font-extrabold">✕</span>
+          </div>
+
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-50 text-red-700 text-xs font-extrabold rounded-full border border-red-200 uppercase tracking-wider">
+              <span>Order Cancelled</span>
+            </div>
+            
+            <h1 className="font-heading font-extrabold text-2xl sm:text-3xl text-gray-900">
+              Payment Not Received — Order Cancelled
+            </h1>
+            
+            <p className="text-xs sm:text-sm text-gray-600 max-w-md mx-auto leading-relaxed">
+              Order <strong className="text-[#af101a] font-mono">#{currentOrder.id}</strong> has been cancelled because payment was not received or verified.
+            </p>
+          </div>
+
+          <div className="bg-gray-50 rounded-2xl p-5 border border-gray-200 text-left max-w-md mx-auto space-y-2 text-xs">
+            <div className="flex justify-between">
+              <span className="text-gray-500">Order ID:</span>
+              <strong className="text-gray-900 font-mono">#{currentOrder.id}</strong>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-500">Customer:</span>
+              <strong className="text-gray-900">{currentOrder.customer.fullName}</strong>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-500">Order Total:</span>
+              <strong className="text-gray-900">RM {orderAmount.toFixed(2)}</strong>
+            </div>
+            <div className="flex justify-between pt-2 border-t border-gray-200">
+              <span className="text-gray-500 font-bold">Status:</span>
+              <span className="text-red-700 font-extrabold bg-red-100 px-2 py-0.5 rounded">Cancelled</span>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+            <button
+              onClick={() => {
+                setTrackedOrderId(currentOrder.id);
+                setCurrentView('order_tracking');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className="w-full sm:w-auto px-6 py-3 bg-[#1a1c1c] hover:bg-black text-white font-extrabold text-xs rounded-xl shadow-md transition-colors flex items-center justify-center gap-2"
+            >
+              <Truck className="w-4 h-4" />
+              <span>Check Order Tracker</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setCurrentView('shop');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className="w-full sm:w-auto px-6 py-3 bg-[#af101a] hover:bg-[#8d0a12] text-white font-extrabold text-xs rounded-xl shadow-md transition-colors"
+            >
+              Return to Catalog & Shop
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // =========================================================================
   // VIEW 1: PAYMENT SUCCESS (paymentStatus === 'paid')
   // Automatically displayed when Admin verifies the transfer in Firestore!
   // =========================================================================

@@ -98,7 +98,7 @@ export interface CustomPrintQuote {
   calculatedPrice: number;
 }
 
-export type OrderStatus = 'Pending' | 'Slicing' | 'Printing' | 'Printed' | 'Shipped' | 'Delivered';
+export type OrderStatus = 'Pending' | 'Slicing' | 'Printing' | 'Printed' | 'Shipped' | 'Delivered' | 'Cancelled';
 export type PaymentStatus = 'pending' | 'payment_submitted' | 'paid' | 'cancelled';
 export type PaymentMethod = 'TNG' | 'fpx' | 'credit_card' | 'ewallet';
 
@@ -183,6 +183,20 @@ export interface MaterialSpool {
   isLow: boolean;
 }
 
+export interface HallOfGloryMember {
+  id: string;
+  name: string;
+  chineseName?: string;
+  role: string;
+  avatarEmoji: string;
+  badge: string;
+  specialty: string;
+  bio: string;
+  quote: string;
+  achievements: string[];
+  signatureItem?: string;
+}
+
 export type ViewMode = 
   | 'home'
   | 'shop'
@@ -194,3 +208,4 @@ export type ViewMode =
   | 'boss_admin'
   | 'about'
   | 'contact';
+

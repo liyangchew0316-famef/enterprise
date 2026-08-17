@@ -127,22 +127,59 @@ export const OrderTrackingView: React.FC = () => {
     showToast(`Copied tracking code ${code} to clipboard!`, 'success');
   };
 
-  const steps: { status: OrderStatus; label: string; desc: string; icon: string }[] = [
-    { status: 'Pending', label: 'Order Received', desc: 'Touch \'n Go payment verified & queued for slicing', icon: '📝' },
-    { status: 'Slicing', label: 'STL Slicing & Mesh Prep', desc: 'Generating GCode toolpaths & printer bed setup', icon: '💻' },
-    { status: 'Printing', label: '3D Printing in Studio', desc: 'Active high-speed print job on CoreXY bed', icon: '🖨️' },
-    { status: 'Printed', label: 'Quality Inspection', desc: 'Hand-inspected, deburred & protective boxed', icon: '✨' },
-    { status: 'Shipped', label: 'Dispatched with Courier', desc: 'Handed over for express courier delivery', icon: '🚚' }
-  ];
+  const isPaid = activeOrder?.paymentStatus === 'paid';
+  const isCancelled = activeOrder?.status === 'Cancelled' || activeOrder?.paymentStatus === 'cancelled';
+
+  const steps: { status: OrderStatus; label: string; desc: string; icon: string }[] = useMemo(() => {
+    if (isCancelled) {
+      return [
+        { 
+          status: 'Cancelled' as OrderStatus, 
+          label: 'Cancelled', 
+          desc: 'This order has been cancelled because payment was not received or verified.', 
+          icon: '✕' 
+        }
+      ];
+    }
+
+    return [
+      { 
+        status: 'Pending', 
+        label: isPaid ? 'Order Received' : 'Pending', 
+        desc: isPaid 
+          ? 'Touch \'n Go payment verified & queued for slicing' 
+          : 'Waiting for Touch \'n Go eWallet payment verification by Admin', 
+        icon: isPaid ? '📝' : '⏳' 
+      },
+      { status: 'Slicing', label: 'STL Slicing & Mesh Prep', desc: 'Generating GCode toolpaths & printer bed setup', icon: '💻' },
+      { status: 'Printing', label: '3D Printing in Studio', desc: 'Active high-speed print job on CoreXY bed', icon: '🖨️' },
+      { status: 'Printed', label: 'Quality Inspection', desc: 'Hand-inspected, deburred & protective boxed', icon: '✨' },
+      { status: 'Shipped', label: 'Dispatched with Courier', desc: 'Handed over for express courier delivery', icon: '🚚' }
+    ];
+  }, [isPaid, isCancelled]);
 
   const getStepState = (stepStatus: OrderStatus) => {
     if (!activeOrder) return 'upcoming';
+    if (isCancelled) return 'cancelled';
+
+    // If payment is not yet verified, step 'Pending' is in 'current' state, everything else upcoming
+    if (!isPaid) {
+      if (stepStatus === 'Pending') return 'current';
+      return 'upcoming';
+    }
+
     const statusOrder: OrderStatus[] = ['Pending', 'Slicing', 'Printing', 'Printed', 'Shipped', 'Delivered'];
     const currentIndex = statusOrder.indexOf(activeOrder.status);
     const stepIndex = statusOrder.indexOf(stepStatus);
 
     if (stepIndex < currentIndex) return 'completed';
-    if (stepIndex === currentIndex) return 'current';
+    if (stepIndex === currentIndex) {
+      // If status is Pending but payment is already verified, mark Step 1 (Order Received) completed
+      if (stepStatus === 'Pending' && activeOrder.status === 'Pending') {
+        return 'completed';
+      }
+      return 'current';
+    }
     return 'upcoming';
   };
 
@@ -249,6 +286,8 @@ export const OrderTrackingView: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
                 {customerOrders.map((ord) => {
                   const isSelected = ord.id === activeOrder?.id;
+                  const ordPaid = ord.paymentStatus === 'paid';
+                  const ordCancelled = ord.status === 'Cancelled' || ord.paymentStatus === 'cancelled';
                   return (
                     <button
                       key={ord.id}
@@ -264,8 +303,14 @@ export const OrderTrackingView: React.FC = () => {
                     >
                       <div className="flex justify-between items-center">
                         <span className="font-mono font-extrabold">#{ord.id}</span>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white border border-gray-200">
-                          {ord.status}
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                          ordCancelled
+                            ? 'bg-red-50 text-red-700 border-red-200'
+                            : !ordPaid
+                            ? 'bg-amber-50 text-amber-800 border-amber-200'
+                            : 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                        }`}>
+                          {ordCancelled ? 'Cancelled' : !ordPaid ? 'Pending' : (ord.status === 'Pending' ? 'Order Received' : ord.status)}
                         </span>
                       </div>
                       <div className="text-[11px] text-gray-500 truncate">
@@ -299,9 +344,19 @@ export const OrderTrackingView: React.FC = () => {
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-xs font-bold px-3 py-1.5 bg-red-100 text-[#af101a] rounded-full">
-                      Status: {activeOrder.status}
-                    </span>
+                    {isCancelled ? (
+                      <span className="text-xs font-extrabold px-3.5 py-1.5 bg-red-100 text-red-700 rounded-full border border-red-300">
+                        Status: Cancelled
+                      </span>
+                    ) : !isPaid ? (
+                      <span className="text-xs font-extrabold px-3.5 py-1.5 bg-amber-100 text-amber-900 rounded-full border border-amber-300 animate-pulse">
+                        Status: Pending Verification
+                      </span>
+                    ) : (
+                      <span className="text-xs font-extrabold px-3.5 py-1.5 bg-emerald-100 text-emerald-800 rounded-full border border-emerald-300">
+                        Status: {activeOrder.status === 'Pending' ? 'Order Received' : activeOrder.status}
+                      </span>
+                    )}
                     {activeOrder.trackingNumber && (
                       <button
                         onClick={() => copyTracking(activeOrder.trackingNumber!)}
@@ -322,8 +377,23 @@ export const OrderTrackingView: React.FC = () => {
                   </div>
                 </div>
 
+                {/* Cancelled Order Notice */}
+                {isCancelled && (
+                  <div className="p-4 bg-red-50 border-2 border-red-200 rounded-2xl flex items-start gap-3.5 text-xs">
+                    <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center shrink-0 text-red-600 font-extrabold text-base border border-red-200">
+                      ✕
+                    </div>
+                    <div className="space-y-0.5">
+                      <strong className="font-extrabold text-sm text-red-900 block">Order Has Been Cancelled</strong>
+                      <p className="text-red-700 leading-relaxed">
+                        This order was marked as <strong>Not yet paid</strong> and has been cancelled. If you believe this is an error or already completed payment, please contact Cabai Studio with your Order ID <strong className="font-mono">#{activeOrder.id}</strong>.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 {/* Live Studio Printer Feed Simulation */}
-                {activeOrder.status === 'Printing' && (
+                {activeOrder.status === 'Printing' && !isCancelled && (
                   <div className="p-4 bg-gradient-to-r from-gray-900 to-black text-white rounded-2xl border border-gray-800 space-y-2">
                     <div className="flex items-center justify-between text-xs font-mono">
                       <span className="text-[#af101a] font-bold flex items-center gap-2">
@@ -345,7 +415,7 @@ export const OrderTrackingView: React.FC = () => {
                 {/* Step Timeline */}
                 <div className="pt-2 space-y-5">
                   <h3 className="font-heading font-extrabold text-sm text-gray-800 uppercase tracking-wider">
-                    Production & Delivery Timeline
+                    {isCancelled ? 'Order Status' : 'Production & Delivery Timeline'}
                   </h3>
 
                   <div className="space-y-4">
@@ -355,21 +425,33 @@ export const OrderTrackingView: React.FC = () => {
                       return (
                         <div key={step.status} className="flex gap-4 items-start">
                           <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm shrink-0 border-2 transition-all ${
+                            state === 'cancelled' ? 'bg-red-600 text-white border-red-600 ring-4 ring-red-100' :
                             state === 'completed' ? 'bg-emerald-600 text-white border-emerald-600' :
-                            state === 'current' ? 'bg-[#af101a] text-white border-[#af101a] ring-4 ring-red-100' :
+                            state === 'current' ? (isPaid ? 'bg-[#af101a] text-white border-[#af101a] ring-4 ring-red-100' : 'bg-amber-500 text-white border-amber-500 ring-4 ring-amber-100') :
                             'bg-gray-100 text-gray-400 border-gray-300'
                           }`}>
-                            {state === 'completed' ? '✓' : step.icon}
+                            {state === 'cancelled' ? '✕' : state === 'completed' ? '✓' : step.icon}
                           </div>
 
                           <div className="flex-1 pt-1">
                             <div className="flex items-baseline justify-between">
-                              <h4 className={`font-bold text-sm ${state === 'current' ? 'text-[#af101a]' : 'text-gray-900'}`}>
+                              <h4 className={`font-bold text-sm ${
+                                state === 'cancelled' ? 'text-red-700' :
+                                state === 'current' ? (isPaid ? 'text-[#af101a]' : 'text-amber-800') : 
+                                state === 'completed' ? 'text-gray-900' : 'text-gray-400'
+                              }`}>
                                 {step.label}
                               </h4>
-                              {state === 'current' && (
-                                <span className="text-[10px] bg-red-100 text-[#af101a] font-extrabold px-2 py-0.5 rounded uppercase">
-                                  In Progress
+                              {state === 'current' && !isCancelled && (
+                                <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded uppercase ${
+                                  isPaid ? 'bg-red-100 text-[#af101a]' : 'bg-amber-100 text-amber-800 animate-pulse'
+                                }`}>
+                                  {isPaid ? 'In Progress' : 'Pending Verification'}
+                                </span>
+                              )}
+                              {state === 'cancelled' && (
+                                <span className="text-[10px] bg-red-100 text-red-700 font-extrabold px-2 py-0.5 rounded uppercase">
+                                  Cancelled
                                 </span>
                               )}
                             </div>
@@ -474,9 +556,23 @@ export const OrderTrackingView: React.FC = () => {
 
                   <div className="pt-2 border-t border-gray-100 flex justify-between items-center text-xs">
                     <span className="text-gray-500 font-medium">Payment Status:</span>
-                    <span className="font-extrabold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 uppercase text-[10px]">
-                      {activeOrder.paymentStatus || 'Paid via TNG'}
-                    </span>
+                    {isCancelled ? (
+                      <span className="font-extrabold text-red-700 bg-red-50 px-2.5 py-0.5 rounded-full border border-red-200 uppercase text-[10px]">
+                        Order Cancelled (Not Paid)
+                      </span>
+                    ) : isPaid ? (
+                      <span className="font-extrabold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 uppercase text-[10px]">
+                        Paid & Verified via Touch 'n Go
+                      </span>
+                    ) : activeOrder.paymentStatus === 'payment_submitted' ? (
+                      <span className="font-extrabold text-amber-800 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200 uppercase text-[10px] animate-pulse">
+                        Payment Submitted (Pending Verification)
+                      </span>
+                    ) : (
+                      <span className="font-extrabold text-gray-700 bg-gray-100 px-2.5 py-0.5 rounded-full border border-gray-200 uppercase text-[10px]">
+                        Pending Touch 'n Go Payment
+                      </span>
+                    )}
                   </div>
                 </div>
 
