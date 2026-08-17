@@ -13,7 +13,7 @@ export async function optimizeImageToBlob(
   imageSource: string | HTMLCanvasElement | Blob,
   maxDimension: number = 800,
   quality: number = 0.85
-): Promise<{ blob: Blob; format: 'webp' | 'jpeg' }> {
+): Promise<{ blob: Blob; format: 'webp' | 'jpeg'; dataUrl?: string }> {
   // If it's already a small blob under 100KB with standard mime, return as is
   if (imageSource instanceof Blob && imageSource.size < 100 * 1024) {
     const isWebp = imageSource.type.includes('webp');
@@ -21,15 +21,20 @@ export async function optimizeImageToBlob(
   }
 
   return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error('Image optimization timed out'));
+    }, 4000);
+
     try {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d', { willReadFrequently: false });
 
       if (!ctx) {
+        clearTimeout(timer);
         throw new Error('Canvas 2D context unavailable');
       }
 
-      const processImage = (img: HTMLImageElement | HTMLCanvasElement) => {
+      const processImage = (img: HTMLImageElement | HTMLCanvasElement | ImageBitmap) => {
         let width = img.width || 800;
         let height = img.height || 800;
 
@@ -59,6 +64,7 @@ export async function optimizeImageToBlob(
         // Try WebP first for maximum compression efficiency
         canvas.toBlob(
           (webpBlob) => {
+            clearTimeout(timer);
             if (webpBlob && webpBlob.size > 0) {
               resolve({ blob: webpBlob, format: 'webp' });
             } else {
@@ -86,35 +92,62 @@ export async function optimizeImageToBlob(
           // It's already a hosted URL
           fetch(imageSource)
             .then((r) => r.blob())
-            .then((b) => resolve({ blob: b, format: 'webp' }))
-            .catch(reject);
+            .then((b) => {
+              clearTimeout(timer);
+              resolve({ blob: b, format: 'webp' });
+            })
+            .catch((err) => {
+              clearTimeout(timer);
+              reject(err);
+            });
           return;
         }
 
         const img = new Image();
-        img.crossOrigin = 'anonymous';
-        img.onload = () => processImage(img);
-        img.onerror = () => reject(new Error('Failed to load image for optimization'));
+        // IMPORTANT: NEVER set crossOrigin on data: URLs as it causes browsers to hang/block onload!
+        if (!imageSource.startsWith('data:')) {
+          img.crossOrigin = 'anonymous';
+        }
+        img.onload = () => {
+          try {
+            processImage(img);
+          } catch (e) {
+            clearTimeout(timer);
+            reject(e);
+          }
+        };
+        img.onerror = (err) => {
+          clearTimeout(timer);
+          console.error('[optimizeImageToBlob] Failed to load image element:', err);
+          reject(new Error('Failed to load image for optimization'));
+        };
         img.src = imageSource;
       } else if (imageSource instanceof HTMLCanvasElement) {
         processImage(imageSource);
       } else if (imageSource instanceof Blob) {
         const url = URL.createObjectURL(imageSource);
         const img = new Image();
-        img.crossOrigin = 'anonymous';
         img.onload = () => {
           URL.revokeObjectURL(url);
-          processImage(img);
+          try {
+            processImage(img);
+          } catch (e) {
+            clearTimeout(timer);
+            reject(e);
+          }
         };
         img.onerror = () => {
+          clearTimeout(timer);
           URL.revokeObjectURL(url);
           reject(new Error('Failed to load blob image for optimization'));
         };
         img.src = url;
       } else {
+        clearTimeout(timer);
         reject(new Error('Unsupported image source type'));
       }
     } catch (err) {
+      clearTimeout(timer);
       reject(err);
     }
   });
@@ -150,11 +183,15 @@ export async function uploadCustomDesignToStorage(
     return cachedUrl;
   }
 
-  const timeoutMs = 15000; // 15-second safeguard timeout
+  const timeoutMs = 8000; // 8-second safeguard timeout
 
   return new Promise(async (resolve, reject) => {
+    let isSettled = false;
     const timer = setTimeout(() => {
-      reject(new Error('Firebase Storage upload timed out after 15 seconds. Please try again.'));
+      if (!isSettled) {
+        isSettled = true;
+        reject(new Error('Firebase Storage upload timed out after 8 seconds.'));
+      }
     }, timeoutMs);
 
     try {
@@ -181,6 +218,7 @@ export async function uploadCustomDesignToStorage(
 
       const downloadUrl = await getDownloadURL(snapshot.ref);
       clearTimeout(timer);
+      isSettled = true;
 
       if (dedupeKey) {
         uploadCache.set(dedupeKey, downloadUrl);
@@ -190,8 +228,11 @@ export async function uploadCustomDesignToStorage(
       resolve(downloadUrl);
     } catch (error) {
       clearTimeout(timer);
-      console.error('[Firebase Storage] ❌ Failed to upload custom drawing:', error);
-      reject(error);
+      if (!isSettled) {
+        isSettled = true;
+        console.error('[Firebase Storage] ❌ Failed to upload custom drawing:', error);
+        reject(error);
+      }
     }
   });
 }

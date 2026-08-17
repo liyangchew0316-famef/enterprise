@@ -5,6 +5,8 @@ import {
   Order, 
   OrderItem,
   OrderStatus, 
+  PaymentStatus,
+  PaymentMethod,
   MaterialSpool, 
   ViewMode, 
   ProductCategory, 
@@ -18,12 +20,15 @@ import { normalizeProducts, normalizeProduct } from '../utils/imageHelper';
 import {
   saveOrderToFirestore,
   updateOrderStatusInFirestore,
+  updatePaymentStatusInFirestore,
   saveSpoolToFirestore,
   updateSpoolStockInFirestore,
   saveProductToFirestore,
   seedFirestoreInitialData
 } from '../lib/firestoreService';
 import { uploadCustomDesignToStorage } from '../lib/storageService';
+import { auth } from '../lib/firebase';
+import { onAuthStateChanged, signInAnonymously, User } from 'firebase/auth';
 
 interface ToastState {
   message: string;
@@ -66,11 +71,12 @@ interface AppContextType {
   orders: Order[];
   placeOrder: (
     customer: CustomerInfo, 
-    paymentMethod: 'fpx' | 'credit_card' | 'ewallet', 
+    paymentMethod?: PaymentMethod, 
     fpxBank?: string,
     onProgress?: (step: string) => void
   ) => Promise<Order>;
   updateOrderStatus: (orderId: string, newStatus: OrderStatus, note?: string) => void;
+  updateOrderPaymentStatus: (orderId: string, newStatus: PaymentStatus, note?: string) => Promise<boolean>;
   trackedOrderId: string;
   setTrackedOrderId: (id: string) => void;
   
@@ -106,6 +112,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Orders state
   const [orders, setOrders] = useState<Order[]>(INITIAL_ORDERS);
   const [trackedOrderId, setTrackedOrderId] = useState('');
+  const [currentUserId, setCurrentUserId] = useState<string>('');
 
   // Spools / Admin state
   const [spools, setSpools] = useState<MaterialSpool[]>(INITIAL_SPOOLS);
@@ -116,6 +123,26 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const showToast = (message: string, type: 'success' | 'info' | 'warning' = 'success') => {
     setToast({ message, type, id: Date.now() });
   };
+
+  // Initialize Firebase Auth listener
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setCurrentUserId(user.uid);
+      } else {
+        signInAnonymously(auth)
+          .then((cred) => {
+            setCurrentUserId(cred.user.uid);
+          })
+          .catch((err) => {
+            console.warn('Anonymous auth note:', err);
+            setCurrentUserId(`cust_${Math.random().toString(36).substring(2, 9)}`);
+          });
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   // Fetch initial data from Firestore database & Express API
   useEffect(() => {
@@ -298,7 +325,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const placeOrder = async (
     customer: CustomerInfo, 
-    paymentMethod: 'fpx' | 'credit_card' | 'ewallet', 
+    paymentMethod: PaymentMethod = 'TNG', 
     fpxBank?: string,
     onProgress?: (step: string) => void
   ): Promise<Order> => {
@@ -329,7 +356,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           if (item.drawingImage.startsWith('http://') || item.drawingImage.startsWith('https://')) {
             finalDesignUrl = item.drawingImage;
           } else {
-            onProgress?.('Uploading custom design...');
+            onProgress?.('Saving custom design to cloud...');
             finalDesignUrl = await uploadCustomDesignToStorage(
               item.drawingImage, 
               `order_chili_${item.id}`,
@@ -342,9 +369,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             }
           }
         } catch (uploadErr: any) {
-          console.error('[AppContext] ❌ Storage upload failed during placeOrder:', uploadErr);
-          // If upload fails, fallback to warning or throw to prevent inconsistent state
-          showToast(`Design upload notice: ${uploadErr?.message || 'Upload timed out. Continuing with order...' }`, 'warning');
+          console.warn('[AppContext] ⚠️ Storage upload note during placeOrder:', uploadErr);
+          // Graceful fallback: preserve drawingImage so Boss Admin can still view the artwork
+          finalDesignUrl = item.drawingImage;
         }
       }
 
@@ -373,13 +400,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       };
     }));
 
-    onProgress?.('Creating order...');
+    onProgress?.('Creating order in Firestore...');
 
     const newOrderNumber = `CBI-${Math.floor(1000 + Math.random() * 9000)}`;
+    const effectivePaymentMethod: PaymentMethod = paymentMethod === 'ewallet' ? 'TNG' : (paymentMethod || 'TNG');
+    const authUserId = currentUserId || auth.currentUser?.uid || `cust_${Date.now()}`;
+    const isoNow = new Date().toISOString();
     
     const newOrder: Order = {
       id: newOrderNumber,
-      date: new Date().toISOString(),
+      orderId: newOrderNumber,
+      userId: authUserId,
+      amount: total,
+      paymentMethod: effectivePaymentMethod,
+      paymentStatus: 'pending',
+      createdAt: isoNow,
+      date: isoNow,
       customer: {
         fullName: customer.fullName || '',
         email: customer.email || '',
@@ -396,11 +432,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       discount,
       tax,
       total,
-      paymentMethod,
       ...(fpxBank ? { fpxBank } : {}),
       status: 'Pending',
       statusHistory: [
-        { status: 'Pending', timestamp: new Date().toISOString(), note: 'Order placed & payment authorized' }
+        { status: 'Pending', timestamp: isoNow, note: 'Order created with TNG payment pending' }
       ],
       trackingNumber: `MY-CBI-${Math.floor(100000 + Math.random() * 900000)}`,
       estimatedDelivery: '1-3 Business Days'
@@ -426,8 +461,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setTrackedOrderId(newOrder.id);
     clearCart();
     onProgress?.('Order confirmed.');
-    showToast(`Order #${newOrder.id} confirmed! Thank you!`, 'success');
     return newOrder;
+  };
+
+  const updateOrderPaymentStatus = async (orderId: string, newStatus: PaymentStatus, note?: string): Promise<boolean> => {
+    const ok = await updatePaymentStatusInFirestore(orderId, newStatus, { note });
+    if (ok) {
+      setOrders(prev => prev.map(ord => {
+        if (ord.id === orderId) {
+          return {
+            ...ord,
+            paymentStatus: newStatus,
+            ...(newStatus === 'payment_submitted' ? { paymentSubmittedAt: new Date().toISOString() } : {}),
+            ...(newStatus === 'paid' ? { paymentVerifiedAt: new Date().toISOString() } : {})
+          };
+        }
+        return ord;
+      }));
+    }
+    return ok;
   };
 
   const updateOrderStatus = (orderId: string, newStatus: OrderStatus, note?: string) => {
@@ -525,6 +577,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         orders,
         placeOrder,
         updateOrderStatus,
+        updateOrderPaymentStatus,
         trackedOrderId,
         setTrackedOrderId,
         spools,

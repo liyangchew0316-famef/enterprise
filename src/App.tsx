@@ -13,6 +13,7 @@ import { ShopView } from './views/ShopView';
 import { ProductDetailView } from './views/ProductDetailView';
 import { CustomPrintView } from './views/CustomPrintView';
 import { CheckoutView } from './views/CheckoutView';
+import { TngPaymentView } from './views/TngPaymentView';
 import { OrderTrackingView } from './views/OrderTrackingView';
 import { BossAdminView } from './views/BossAdminView';
 import { AboutView } from './views/AboutView';
@@ -32,6 +33,7 @@ const MainContent: React.FC = () => {
         {currentView === 'product_detail' && <ProductDetailView />}
         {currentView === 'custom_print' && <CustomPrintView />}
         {currentView === 'checkout' && <CheckoutView />}
+        {currentView === 'tng_payment' && <TngPaymentView />}
         {currentView === 'order_tracking' && <OrderTrackingView />}
         {currentView === 'boss_admin' && <BossAdminView />}
         {currentView === 'about' && <AboutView />}

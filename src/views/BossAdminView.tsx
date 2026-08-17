@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { OrderStatus, MaterialSpool, Product } from '../types';
+import { OrderStatus, PaymentStatus, MaterialSpool, Product } from '../types';
 import { generateExecutiveReportPDF, generateOrderInvoicePDF } from '../utils/pdfGenerator';
 import { 
   ShieldCheck, 
@@ -20,13 +20,18 @@ import {
   Paintbrush,
   Sparkles,
   ExternalLink,
-  Sliders
+  Sliders,
+  Check,
+  QrCode,
+  Clock,
+  Zap
 } from 'lucide-react';
 
 export const BossAdminView: React.FC = () => {
   const { 
     orders, 
     updateOrderStatus, 
+    updateOrderPaymentStatus,
     spools, 
     updateSpoolStock, 
     addSpool, 
@@ -311,19 +316,22 @@ export const BossAdminView: React.FC = () => {
                 <th className="p-4">Customer</th>
                 <th className="p-4">Items</th>
                 <th className="p-4">Total RM</th>
-                <th className="p-4">Status</th>
+                <th className="p-4">Payment</th>
+                <th className="p-4">Studio Status</th>
                 <th className="p-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 font-medium">
               {filteredOrders.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="p-8 text-center text-gray-500 text-xs font-semibold">
+                  <td colSpan={7} className="p-8 text-center text-gray-500 text-xs font-semibold">
                     No customer orders placed yet. Store is live and ready for new orders! 🌶️
                   </td>
                 </tr>
               ) : (
-                filteredOrders.map(order => (
+                filteredOrders.map(order => {
+                  const payStatus = order.paymentStatus || 'pending';
+                  return (
                   <tr key={order.id} className="hover:bg-red-50/20 transition-colors">
                   <td className="p-4 font-mono font-extrabold text-[#af101a]">{order.id}</td>
                   <td className="p-4">
@@ -349,6 +357,52 @@ export const BossAdminView: React.FC = () => {
                     </div>
                   </td>
                   <td className="p-4 font-extrabold text-gray-900">RM {order.total.toFixed(2)}</td>
+                  
+                  {/* Payment Verification Column */}
+                  <td className="p-4">
+                    {payStatus === 'paid' ? (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-100 text-emerald-800 font-extrabold text-[11px] rounded-lg">
+                        <Check className="w-3.5 h-3.5" />
+                        <span>Paid & Verified</span>
+                      </span>
+                    ) : payStatus === 'payment_submitted' ? (
+                      <div className="space-y-1.5">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-900 font-extrabold text-[10px] rounded-md border border-amber-300 animate-pulse">
+                          <Clock className="w-3 h-3 text-amber-700" />
+                          <span>Needs Verification</span>
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            updateOrderPaymentStatus(order.id, 'paid', 'Verified by Boss Admin');
+                            updateOrderStatus(order.id, 'Slicing', 'Payment verified - queued for STL slicing');
+                            showToast(`Order #${order.id} marked as PAID & verified! Customer screen auto-updated.`, 'success');
+                          }}
+                          className="block px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-[10px] rounded-lg transition-colors shadow-xs"
+                          title="Verify and confirm payment in Firestore"
+                        >
+                          ✓ Confirm Paid
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="space-y-1">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 text-gray-700 font-bold text-[10px] rounded-md">
+                          <span>Pending QR</span>
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            updateOrderPaymentStatus(order.id, 'paid', 'Verified by Boss Admin');
+                            showToast(`Order #${order.id} marked as PAID in Firestore!`, 'success');
+                          }}
+                          className="block text-[10px] font-bold text-[#af101a] hover:underline"
+                        >
+                          + Mark Paid
+                        </button>
+                      </div>
+                    )}
+                  </td>
+
                   <td className="p-4">
                     <select
                       value={order.status}
@@ -371,7 +425,8 @@ export const BossAdminView: React.FC = () => {
                     </button>
                   </td>
                 </tr>
-              )))}
+                );
+              }))}
             </tbody>
           </table>
         </div>
@@ -735,6 +790,76 @@ export const BossAdminView: React.FC = () => {
                     </div>
                   );
                 })}
+              </div>
+
+              {/* Touch 'n Go Payment Status & Boss Actions */}
+              <div className="p-4 bg-slate-900 text-white rounded-2xl space-y-3 shadow-md">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <QrCode className="w-5 h-5 text-red-400" />
+                    <span className="font-heading font-extrabold text-sm">TNG Payment Verification</span>
+                  </div>
+                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold ${
+                    selectedOrder.paymentStatus === 'paid' 
+                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                      : selectedOrder.paymentStatus === 'payment_submitted'
+                      ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 animate-pulse'
+                      : 'bg-gray-700 text-gray-300'
+                  }`}>
+                    {selectedOrder.paymentStatus === 'paid' ? 'PAID & VERIFIED' : selectedOrder.paymentStatus === 'payment_submitted' ? 'SUBMITTED BY CUSTOMER' : 'PENDING QR SCAN'}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+                  <div className="bg-slate-800/80 p-2.5 rounded-xl">
+                    <span className="text-[10px] text-gray-400 block font-bold uppercase">Payment Method</span>
+                    <span className="font-extrabold text-white">{selectedOrder.paymentMethod.toUpperCase()}</span>
+                  </div>
+                  <div className="bg-slate-800/80 p-2.5 rounded-xl">
+                    <span className="text-[10px] text-gray-400 block font-bold uppercase">Payable Total</span>
+                    <span className="font-extrabold text-emerald-400">RM {selectedOrder.total.toFixed(2)}</span>
+                  </div>
+                  <div className="bg-slate-800/80 p-2.5 rounded-xl">
+                    <span className="text-[10px] text-gray-400 block font-bold uppercase">Firestore User</span>
+                    <span className="font-mono text-[11px] text-gray-300 truncate block">{selectedOrder.userId || 'anon-client'}</span>
+                  </div>
+                </div>
+
+                {/* Verification Buttons */}
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {selectedOrder.paymentStatus !== 'paid' ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        updateOrderPaymentStatus(selectedOrder.id, 'paid', 'Verified by Boss Admin');
+                        updateOrderStatus(selectedOrder.id, 'Slicing', 'Payment verified - queued for STL slicing');
+                        setSelectedOrder({ ...selectedOrder, paymentStatus: 'paid', status: 'Slicing' });
+                        showToast(`Order #${selectedOrder.id} marked as PAID & verified! Customer payment page updated in real-time.`, 'success');
+                      }}
+                      className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-md"
+                    >
+                      <Check className="w-4 h-4" />
+                      <span>Verify & Mark Paid (RM {selectedOrder.total.toFixed(2)})</span>
+                    </button>
+                  ) : (
+                    <div className="flex-1 py-2 bg-emerald-950/60 border border-emerald-700/50 rounded-xl text-emerald-300 text-center font-extrabold text-xs flex items-center justify-center gap-1.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                      <span>Payment Verified in Firestore</span>
+                    </div>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      updateOrderPaymentStatus(selectedOrder.id, 'pending', 'Reset to pending by admin');
+                      setSelectedOrder({ ...selectedOrder, paymentStatus: 'pending' });
+                      showToast(`Order #${selectedOrder.id} reset to pending`, 'info');
+                    }}
+                    className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-gray-300 font-bold text-xs rounded-xl transition-colors"
+                  >
+                    Reset Status
+                  </button>
+                </div>
               </div>
 
               {/* Order Financials Breakdown */}

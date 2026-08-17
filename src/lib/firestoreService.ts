@@ -13,7 +13,7 @@ import {
   onSnapshot
 } from 'firebase/firestore';
 import { db } from './firebase';
-import { Product, Order, MaterialSpool, OrderStatus, ChiliDrawing } from '../types';
+import { Product, Order, MaterialSpool, OrderStatus, PaymentStatus, ChiliDrawing } from '../types';
 
 // Collection references
 const PRODUCTS_COL = 'products';
@@ -186,6 +186,99 @@ export async function updateOrderStatusInFirestore(
     return false;
   } catch (error) {
     handleFirestoreError(`updateOrderStatusInFirestore(${orderId})`, error);
+    return false;
+  }
+}
+
+/**
+ * Real-time listener for a single order (Customer TNG Payment & Tracking).
+ * Calls onUpdate with fresh Order data whenever the document changes in Firestore.
+ */
+export function subscribeToOrderById(
+  orderId: string, 
+  onUpdate: (order: Order | null) => void,
+  onError?: (error: Error) => void
+): () => void {
+  try {
+    const orderRef = doc(db, ORDERS_COL, orderId);
+    const unsubscribe = onSnapshot(
+      orderRef, 
+      (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data() as Order;
+          onUpdate(data);
+        } else {
+          onUpdate(null);
+        }
+      },
+      (err) => {
+        console.error(`[Firestore onSnapshot] Error listening to order ${orderId}:`, err);
+        onError?.(err);
+      }
+    );
+    return unsubscribe;
+  } catch (err: any) {
+    console.error(`[Firestore onSnapshot] Setup failed for order ${orderId}:`, err);
+    return () => {};
+  }
+}
+
+/**
+ * Update payment status for an order in Firestore
+ * e.g., 'payment_submitted' when customer finishes manual TNG transfer,
+ * or 'paid' when Admin verifies the transfer.
+ */
+export async function updatePaymentStatusInFirestore(
+  orderId: string,
+  paymentStatus: PaymentStatus,
+  metadata?: Record<string, any>
+): Promise<boolean> {
+  console.log(`[Firestore] Updating paymentStatus for order ${orderId} -> ${paymentStatus}`);
+  try {
+    const orderRef = doc(db, ORDERS_COL, orderId);
+    const docSnap = await getDoc(orderRef);
+    if (!docSnap.exists()) {
+      console.warn(`[Firestore] Order ${orderId} not found to update paymentStatus`);
+      return false;
+    }
+
+    const orderData = docSnap.data() as Order;
+    const now = new Date().toISOString();
+    
+    // Status history entry
+    const historyNote = metadata?.note || 
+      (paymentStatus === 'payment_submitted' 
+        ? 'Customer submitted manual Touch \'n Go eWallet payment confirmation.' 
+        : paymentStatus === 'paid' 
+          ? 'Admin verified Touch \'n Go payment received.' 
+          : `Payment status changed to ${paymentStatus}`);
+
+    const historyEntry: { status: OrderStatus; timestamp: string; note?: string } = {
+      status: orderData.status || 'Pending',
+      timestamp: now,
+      note: historyNote
+    };
+
+    const updatedHistory = [
+      ...(orderData.statusHistory || []),
+      historyEntry
+    ];
+
+    const payload: Record<string, any> = {
+      paymentStatus,
+      statusHistory: updatedHistory,
+      updatedAt: now,
+      ...(paymentStatus === 'payment_submitted' ? { paymentSubmittedAt: now } : {}),
+      ...(paymentStatus === 'paid' ? { paymentVerifiedAt: now } : {}),
+      ...(metadata || {})
+    };
+
+    const cleanPayload = sanitizeForFirestore(payload);
+    await updateDoc(orderRef, cleanPayload);
+    console.log(`[Firestore] ✅ paymentStatus successfully updated to ${paymentStatus} for order ${orderId}`);
+    return true;
+  } catch (error) {
+    handleFirestoreError(`updatePaymentStatusInFirestore(${orderId})`, error);
     return false;
   }
 }

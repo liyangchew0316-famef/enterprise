@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { ProductImage } from '../components/ProductImage';
-import { CustomerInfo } from '../types';
+import { CustomerInfo, PaymentMethod } from '../types';
 import { MALAYSIAN_BANKS, MALAYSIAN_STATES } from '../data/mockData';
+import { TNG_PAYMENT_CONFIG } from '../config/paymentConfig';
 import { 
   ShieldCheck, 
   CreditCard, 
@@ -13,7 +14,9 @@ import {
   ArrowLeft,
   Lock,
   Loader2,
-  AlertCircle
+  AlertCircle,
+  QrCode,
+  Sparkles
 } from 'lucide-react';
 
 export const CheckoutView: React.FC = () => {
@@ -26,19 +29,20 @@ export const CheckoutView: React.FC = () => {
     setTrackedOrderId
   } = useApp();
 
+  // Initial customer info MUST be blank (no dummy/prefilled data)
   const [customer, setCustomer] = useState<CustomerInfo>({
-    fullName: 'Mohd Amirul',
-    email: 'amirul.maker@gmail.com',
-    phone: '+60 12-883 4910',
-    address: 'No. 18, Jalan USJ 10/1E',
-    city: 'Subang Jaya',
+    fullName: '',
+    email: '',
+    phone: '',
+    address: '',
+    city: '',
     state: 'Selangor',
-    postcode: '47620',
-    notes: 'Please call before delivery.'
+    postcode: '',
+    notes: ''
   });
 
-  const [paymentMethod, setPaymentMethod] = useState<'fpx' | 'credit_card' | 'ewallet'>('fpx');
-  const [fpxBank, setFpxBank] = useState<string>(MALAYSIAN_BANKS[0].name);
+  // Strictly only Touch 'n Go eWallet is accepted
+  const [paymentMethod] = useState<PaymentMethod>('TNG');
   const [isOrderComplete, setIsOrderComplete] = useState<boolean>(false);
   const [completedOrderId, setCompletedOrderId] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -50,25 +54,77 @@ export const CheckoutView: React.FC = () => {
   const tax = Number((taxableAmount * 0.06).toFixed(2));
   const finalTotal = Number((taxableAmount + shipping + tax).toFixed(2));
 
+  const validateCustomerInfo = (): boolean => {
+    if (!customer.fullName.trim()) {
+      setSubmitError('Please enter your Full Name.');
+      return false;
+    }
+    if (!customer.email.trim() || !customer.email.includes('@')) {
+      setSubmitError('Please enter a valid Email Address.');
+      return false;
+    }
+    if (!customer.phone.trim() || customer.phone.trim().length < 8) {
+      setSubmitError('Please enter a valid Malaysian Phone Number (e.g. 012-3456789).');
+      return false;
+    }
+    if (!customer.address.trim()) {
+      setSubmitError('Please enter your Street Delivery Address.');
+      return false;
+    }
+    if (!customer.city.trim()) {
+      setSubmitError('Please enter your City.');
+      return false;
+    }
+    if (!customer.postcode.trim()) {
+      setSubmitError('Please enter your 5-digit Postcode.');
+      return false;
+    }
+    return true;
+  };
+
   const handleCompleteOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (cart.length === 0 || isSubmitting) return;
 
     setSubmitError(null);
+
+    if (!validateCustomerInfo()) {
+      window.scrollTo({ top: 150, behavior: 'smooth' });
+      return;
+    }
+
     setIsSubmitting(true);
-    setSubmitProgressText('Preparing order...');
+    setSubmitProgressText('Saving customer order in Firestore...');
 
     try {
       const newOrd = await placeOrder(
         customer, 
-        paymentMethod, 
-        paymentMethod === 'fpx' ? fpxBank : undefined,
+        'TNG', 
+        undefined,
         (progressStep) => {
           setSubmitProgressText(progressStep);
         }
       );
+      
+      // Store customer session credentials locally for private order lookup
+      try {
+        localStorage.setItem('cabai_customer_name', customer.fullName.trim());
+        localStorage.setItem('cabai_customer_phone', customer.phone.trim());
+        const savedIds: string[] = JSON.parse(localStorage.getItem('cabai_my_order_ids') || '[]');
+        if (!savedIds.includes(newOrd.id)) {
+          savedIds.unshift(newOrd.id);
+          localStorage.setItem('cabai_my_order_ids', JSON.stringify(savedIds));
+        }
+      } catch (e) {
+        console.warn('LocalStorage save note:', e);
+      }
+
+      setTrackedOrderId(newOrd.id);
       setCompletedOrderId(newOrd.id);
-      setIsOrderComplete(true);
+
+      // Direct user straight to dedicated TNG QR payment page
+      setCurrentView('tng_payment');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err: any) {
       console.error('[CheckoutView] Failed to place order:', err);
       const errorMessage = err?.message || 'An error occurred while finalizing your order. Please try again.';
@@ -179,66 +235,90 @@ export const CheckoutView: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
               
               <div className="sm:col-span-2 space-y-1">
-                <label className="font-bold text-gray-700 block">Full Name</label>
+                <label className="font-bold text-gray-800 flex items-center gap-1">
+                  <span>Full Name</span>
+                  <span className="text-[#af101a] font-bold">*</span>
+                </label>
                 <input
                   type="text"
                   required
+                  placeholder="e.g. Chew Li Yang"
                   value={customer.fullName}
                   onChange={(e) => setCustomer({ ...customer, fullName: e.target.value })}
-                  className="w-full px-3 py-2.5 bg-gray-50 border border-gray-300 rounded-xl focus:outline-hidden focus:border-[#af101a]"
+                  className="w-full px-3.5 py-2.5 bg-white border border-gray-300 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-red-100 focus:border-[#af101a] font-medium"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-bold text-gray-700 block">Email Address</label>
+                <label className="font-bold text-gray-800 flex items-center gap-1">
+                  <span>Email Address</span>
+                  <span className="text-[#af101a] font-bold">*</span>
+                </label>
                 <input
                   type="email"
                   required
+                  placeholder="e.g. liyang@example.com"
                   value={customer.email}
                   onChange={(e) => setCustomer({ ...customer, email: e.target.value })}
-                  className="w-full px-3 py-2.5 bg-gray-50 border border-gray-300 rounded-xl focus:outline-hidden focus:border-[#af101a]"
+                  className="w-full px-3.5 py-2.5 bg-white border border-gray-300 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-red-100 focus:border-[#af101a] font-medium"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-bold text-gray-700 block">Phone Number (+60)</label>
+                <label className="font-bold text-gray-800 flex items-center gap-1">
+                  <span>Phone Number</span>
+                  <span className="text-[#af101a] font-bold">*</span>
+                  <span className="text-[10px] text-gray-400 font-normal">(Used to view your purchases)</span>
+                </label>
                 <input
                   type="tel"
                   required
+                  placeholder="e.g. 012-3456789"
                   value={customer.phone}
                   onChange={(e) => setCustomer({ ...customer, phone: e.target.value })}
-                  className="w-full px-3 py-2.5 bg-gray-50 border border-gray-300 rounded-xl focus:outline-hidden focus:border-[#af101a]"
+                  className="w-full px-3.5 py-2.5 bg-white border border-gray-300 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-red-100 focus:border-[#af101a] font-medium font-mono"
                 />
               </div>
 
               <div className="sm:col-span-2 space-y-1">
-                <label className="font-bold text-gray-700 block">Street Address</label>
+                <label className="font-bold text-gray-800 flex items-center gap-1">
+                  <span>Street Address</span>
+                  <span className="text-[#af101a] font-bold">*</span>
+                </label>
                 <input
                   type="text"
                   required
+                  placeholder="e.g. No. 28, Jalan Sutera 3, Taman Sutera"
                   value={customer.address}
                   onChange={(e) => setCustomer({ ...customer, address: e.target.value })}
-                  className="w-full px-3 py-2.5 bg-gray-50 border border-gray-300 rounded-xl focus:outline-hidden focus:border-[#af101a]"
+                  className="w-full px-3.5 py-2.5 bg-white border border-gray-300 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-red-100 focus:border-[#af101a] font-medium"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-bold text-gray-700 block">City</label>
+                <label className="font-bold text-gray-800 flex items-center gap-1">
+                  <span>City</span>
+                  <span className="text-[#af101a] font-bold">*</span>
+                </label>
                 <input
                   type="text"
                   required
+                  placeholder="e.g. Petaling Jaya"
                   value={customer.city}
                   onChange={(e) => setCustomer({ ...customer, city: e.target.value })}
-                  className="w-full px-3 py-2.5 bg-gray-50 border border-gray-300 rounded-xl focus:outline-hidden focus:border-[#af101a]"
+                  className="w-full px-3.5 py-2.5 bg-white border border-gray-300 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-red-100 focus:border-[#af101a] font-medium"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-bold text-gray-700 block">State</label>
+                <label className="font-bold text-gray-800 flex items-center gap-1">
+                  <span>State</span>
+                  <span className="text-[#af101a] font-bold">*</span>
+                </label>
                 <select
                   value={customer.state}
                   onChange={(e) => setCustomer({ ...customer, state: e.target.value })}
-                  className="w-full px-3 py-2.5 bg-gray-50 border border-gray-300 rounded-xl focus:outline-hidden focus:border-[#af101a]"
+                  className="w-full px-3.5 py-2.5 bg-white border border-gray-300 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-red-100 focus:border-[#af101a] font-bold text-gray-800"
                 >
                   {MALAYSIAN_STATES.map(s => (
                     <option key={s} value={s}>{s}</option>
@@ -247,112 +327,139 @@ export const CheckoutView: React.FC = () => {
               </div>
 
               <div className="space-y-1">
-                <label className="font-bold text-gray-700 block">Postcode</label>
+                <label className="font-bold text-gray-800 flex items-center gap-1">
+                  <span>Postcode</span>
+                  <span className="text-[#af101a] font-bold">*</span>
+                </label>
                 <input
                   type="text"
                   required
+                  placeholder="e.g. 47300"
+                  maxLength={5}
                   value={customer.postcode}
                   onChange={(e) => setCustomer({ ...customer, postcode: e.target.value })}
-                  className="w-full px-3 py-2.5 bg-gray-50 border border-gray-300 rounded-xl focus:outline-hidden focus:border-[#af101a]"
+                  className="w-full px-3.5 py-2.5 bg-white border border-gray-300 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-red-100 focus:border-[#af101a] font-medium font-mono"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-bold text-gray-700 block">Delivery Instructions (Optional)</label>
+                <label className="font-bold text-gray-800 block">Delivery Instructions (Optional)</label>
                 <input
                   type="text"
+                  placeholder="e.g. Leave parcel in shoe rack or call upon arrival"
                   value={customer.notes}
                   onChange={(e) => setCustomer({ ...customer, notes: e.target.value })}
-                  className="w-full px-3 py-2.5 bg-gray-50 border border-gray-300 rounded-xl focus:outline-hidden focus:border-[#af101a]"
+                  className="w-full px-3.5 py-2.5 bg-white border border-gray-300 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-red-100 focus:border-[#af101a] font-medium"
                 />
               </div>
 
             </div>
           </div>
 
-          {/* Section 2: Payment Method */}
+          {/* Section 2: Exclusively Touch 'n Go eWallet */}
           <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-xs space-y-4">
-            <h2 className="font-heading font-extrabold text-lg text-[#1a1c1c] flex items-center gap-2">
-              <Lock className="w-5 h-5 text-[#af101a]" />
-              <span>Payment Option</span>
-            </h2>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              
-              <button
-                type="button"
-                onClick={() => setPaymentMethod('fpx')}
-                className={`p-4 rounded-2xl border text-center transition-all flex flex-col items-center gap-2 ${
-                  paymentMethod === 'fpx'
-                    ? 'border-[#af101a] bg-red-50 text-[#af101a] ring-2 ring-red-200'
-                    : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                <Landmark className="w-6 h-6" />
-                <span className="font-extrabold text-xs">FPX Online Banking</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setPaymentMethod('ewallet')}
-                className={`p-4 rounded-2xl border text-center transition-all flex flex-col items-center gap-2 ${
-                  paymentMethod === 'ewallet'
-                    ? 'border-[#af101a] bg-red-50 text-[#af101a] ring-2 ring-red-200'
-                    : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                <Wallet className="w-6 h-6" />
-                <span className="font-extrabold text-xs">Touch 'n Go / eWallet</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setPaymentMethod('credit_card')}
-                className={`p-4 rounded-2xl border text-center transition-all flex flex-col items-center gap-2 ${
-                  paymentMethod === 'credit_card'
-                    ? 'border-[#af101a] bg-red-50 text-[#af101a] ring-2 ring-red-200'
-                    : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                <CreditCard className="w-6 h-6" />
-                <span className="font-extrabold text-xs">Credit / Debit Card</span>
-              </button>
-
+            <div className="flex items-center justify-between">
+              <h2 className="font-heading font-extrabold text-lg text-[#1a1c1c] flex items-center gap-2">
+                <Lock className="w-5 h-5 text-[#af101a]" />
+                <span>Payment Method</span>
+              </h2>
+              <span className="text-[11px] font-extrabold bg-red-100 text-[#af101a] px-3 py-1 rounded-full uppercase tracking-wider">
+                Exclusively Touch 'n Go
+              </span>
             </div>
 
-            {/* FPX Bank Selector */}
-            {paymentMethod === 'fpx' && (
-              <div className="p-4 bg-gray-50 rounded-2xl border border-gray-200 space-y-2 text-xs">
-                <label className="font-bold text-gray-800 block">Select Your Bank:</label>
-                <select
-                  value={fpxBank}
-                  onChange={(e) => setFpxBank(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl font-bold text-gray-900"
-                >
-                  {MALAYSIAN_BANKS.map(b => (
-                    <option key={b.id} value={b.name}>{b.logo} {b.name}</option>
-                  ))}
-                </select>
-              </div>
-            )}
+            {/* Single TNG Method Selection Card */}
+            <div className="p-4 rounded-2xl border-2 border-[#af101a] bg-red-50/70 relative overflow-hidden space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-white border border-red-200 flex items-center justify-center text-[#af101a] shadow-xs">
+                    <QrCode className="w-6 h-6 text-[#af101a]" />
+                  </div>
+                  <div>
+                    <h3 className="font-heading font-extrabold text-sm text-gray-900 flex items-center gap-1.5">
+                      <span>Touch 'n Go eWallet (DuitNow QR)</span>
+                      <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                    </h3>
+                    <p className="text-[11px] text-gray-600">
+                      Official direct payment to <strong>{TNG_PAYMENT_CONFIG.merchantName}</strong>
+                    </p>
+                  </div>
+                </div>
 
-            {paymentMethod === 'ewallet' && (
-              <div className="p-4 bg-gray-50 rounded-2xl border border-gray-200 text-xs space-y-1">
-                <strong className="text-gray-900 block font-bold">Touch 'n Go / GrabPay Instant QR</strong>
-                <p className="text-gray-500">Scan and authorize payment upon order submission.</p>
-              </div>
-            )}
-
-            {paymentMethod === 'credit_card' && (
-              <div className="p-4 bg-gray-50 rounded-2xl border border-gray-200 space-y-3 text-xs">
-                <input type="text" placeholder="Card Number (4000 0000 0000 0000)" className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl font-mono" />
-                <div className="grid grid-cols-2 gap-3">
-                  <input type="text" placeholder="MM / YY" className="px-3 py-2 bg-white border border-gray-300 rounded-xl font-mono" />
-                  <input type="text" placeholder="CVV" className="px-3 py-2 bg-white border border-gray-300 rounded-xl font-mono" />
+                <div className="bg-[#af101a] text-white text-[10px] font-extrabold px-2.5 py-1 rounded-lg uppercase shadow-2xs">
+                  Active
                 </div>
               </div>
-            )}
 
+              <div className="p-3 bg-white rounded-xl border border-red-100 text-xs text-gray-700 space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-500 font-medium">Merchant Account:</span>
+                  <span className="font-bold text-gray-900">{TNG_PAYMENT_CONFIG.merchantName}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-500 font-medium">Total to Transfer:</span>
+                  <span className="font-mono font-extrabold text-sm text-[#af101a]">RM {finalTotal.toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 3: Customer Information Review & Verification */}
+          <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-xs space-y-4">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+              <h2 className="font-heading font-extrabold text-base text-[#1a1c1c] flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                <span>Check Your Information Before Payment</span>
+              </h2>
+              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">
+                Verification
+              </span>
+            </div>
+
+            <p className="text-xs text-gray-500">
+              Please check and verify that your name and contact details below are accurate. 
+              <strong className="text-gray-800"> Only you can view your purchases using this Name and Phone Number.</strong>
+            </p>
+
+            {customer.fullName || customer.phone || customer.address ? (
+              <div className="p-4 bg-gray-50 rounded-2xl border border-gray-200 text-xs space-y-2.5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div>
+                    <span className="text-gray-400 font-medium block text-[11px]">Full Name:</span>
+                    <strong className="text-gray-900 text-sm">{customer.fullName || <span className="text-red-400 italic">Not entered</span>}</strong>
+                  </div>
+                  <div>
+                    <span className="text-gray-400 font-medium block text-[11px]">Phone Number:</span>
+                    <strong className="text-gray-900 font-mono text-sm">{customer.phone || <span className="text-red-400 italic">Not entered</span>}</strong>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-gray-200">
+                  <div>
+                    <span className="text-gray-400 font-medium block text-[11px]">Email Address:</span>
+                    <span className="text-gray-800 font-medium">{customer.email || '—'}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400 font-medium block text-[11px]">Delivery Location:</span>
+                    <span className="text-gray-800 font-medium">
+                      {customer.address ? `${customer.address}, ${customer.postcode} ${customer.city}, ${customer.state}` : '—'}
+                    </span>
+                  </div>
+                </div>
+
+                {customer.notes && (
+                  <div className="pt-2 border-t border-gray-200">
+                    <span className="text-gray-400 font-medium block text-[11px]">Instructions:</span>
+                    <span className="text-gray-700 italic">"{customer.notes}"</span>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="p-4 bg-amber-50 rounded-2xl border border-amber-200 text-xs text-amber-800 flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+                <span>Please fill in your Delivery Details above to review your information here.</span>
+              </div>
+            )}
           </div>
 
           {submitError && (
@@ -378,7 +485,7 @@ export const CheckoutView: React.FC = () => {
             ) : (
               <>
                 <ShieldCheck className="w-5 h-5" />
-                <span>Complete Order & Pay (RM {finalTotal.toFixed(2)})</span>
+                <span>Pay Now (RM {finalTotal.toFixed(2)})</span>
               </>
             )}
           </button>

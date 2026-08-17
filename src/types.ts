@@ -99,6 +99,8 @@ export interface CustomPrintQuote {
 }
 
 export type OrderStatus = 'Pending' | 'Slicing' | 'Printing' | 'Printed' | 'Shipped' | 'Delivered';
+export type PaymentStatus = 'pending' | 'payment_submitted' | 'paid' | 'cancelled';
+export type PaymentMethod = 'TNG' | 'fpx' | 'credit_card' | 'ewallet';
 
 export interface OrderItem {
   name: string;
@@ -146,6 +148,10 @@ export interface CustomerInfo {
 
 export interface Order {
   id: string; // e.g. CBI-8892
+  orderId?: string; // alias for id
+  userId?: string;
+  amount?: number; // total amount e.g. 585.01
+  createdAt?: string; // ISO string
   date: string; // ISO or formatted date
   customer: CustomerInfo;
   items: OrderItem[];
@@ -154,7 +160,10 @@ export interface Order {
   discount: number;
   tax: number;
   total: number;
-  paymentMethod: 'fpx' | 'credit_card' | 'ewallet';
+  paymentMethod: PaymentMethod;
+  paymentStatus?: PaymentStatus;
+  paymentSubmittedAt?: string;
+  paymentVerifiedAt?: string;
   fpxBank?: string;
   status: OrderStatus;
   statusHistory: { status: OrderStatus; timestamp: string; note?: string }[];
@@ -180,6 +189,7 @@ export type ViewMode =
   | 'product_detail'
   | 'custom_print'
   | 'checkout'
+  | 'tng_payment'
   | 'order_tracking'
   | 'boss_admin'
   | 'about'
