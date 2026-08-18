@@ -512,6 +512,11 @@ export const CheckoutView: React.FC = () => {
                   <div className="flex-1 min-w-0">
                     <div className="font-bold text-gray-900 truncate">{item.product.name}</div>
                     <div className="text-gray-500">{item.selectedColor.name} • {item.selectedMaterial}</div>
+                    {item.customText && (
+                      <div className="text-[11px] font-semibold text-amber-900 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200 mt-1 inline-block max-w-full truncate">
+                        {item.customText}
+                      </div>
+                    )}
                     <div className="text-gray-400 mt-1">Qty: {item.quantity}</div>
                   </div>
                   <div className="font-bold text-gray-900 text-right shrink-0">

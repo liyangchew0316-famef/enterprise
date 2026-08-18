@@ -184,12 +184,12 @@ export const AuthModal: React.FC = () => {
 
             <h2 className="font-heading font-extrabold text-2xl tracking-tight text-white">
               {currentUser 
-                ? (currentUser.role === 'vip' ? 'VIP Maker Profile' : 'Your Member Profile')
+                ? (currentUser.role === 'vip' ? 'VIP' : 'Your Member Profile')
                 : 'Authentication Required'}
             </h2>
             <p className="text-xs text-gray-200 mt-1 max-w-xs leading-relaxed">
               {currentUser 
-                ? 'Manage your 3D printing orders, slicing parameters, and account.' 
+                ? (currentUser.role === 'vip' ? 'VIP access unlocked with authorized passcode.' : 'Manage your 3D printing orders, slicing parameters, and account.') 
                 : 'Please enter the VIP password or log in to access the studio catalog.'}
             </p>
           </div>
@@ -202,12 +202,12 @@ export const AuthModal: React.FC = () => {
             <div className="space-y-5">
               <div className="flex items-center gap-3.5 p-4 bg-red-50/80 border border-red-100 rounded-xl">
                 <div className="w-12 h-12 rounded-full bg-[#af101a] text-white font-extrabold text-lg flex items-center justify-center shadow-md">
-                  {currentUser.displayName ? currentUser.displayName.charAt(0).toUpperCase() : (currentUser.role === 'vip' ? 'V' : 'U')}
+                  {currentUser.role === 'vip' ? '👑' : (currentUser.displayName ? currentUser.displayName.charAt(0).toUpperCase() : 'U')}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
                     <h3 className="font-bold text-gray-900 text-base truncate">
-                      {currentUser.displayName || (currentUser.role === 'vip' ? 'VIP Member' : 'Member')}
+                      {currentUser.role === 'vip' ? 'VIP' : (currentUser.displayName || 'Member')}
                     </h3>
                     {currentUser.role === 'vip' ? (
                       <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded text-[10px] font-extrabold bg-[#1a1c1c] text-amber-400">
@@ -226,8 +226,8 @@ export const AuthModal: React.FC = () => {
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-gray-600 truncate mt-0.5">
-                    {currentUser.email || (currentUser.role === 'vip' ? 'VIP Passcode Access' : 'Registered Member')}
+                  <p className="text-xs text-gray-600 truncate mt-0.5 font-medium">
+                    {currentUser.role === 'vip' ? 'VIP' : (currentUser.email || 'Registered Member')}
                   </p>
                 </div>
               </div>

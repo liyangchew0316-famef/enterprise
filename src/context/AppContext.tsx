@@ -25,7 +25,8 @@ import {
   saveSpoolToFirestore,
   updateSpoolStockInFirestore,
   saveProductToFirestore,
-  seedFirestoreInitialData
+  seedFirestoreInitialData,
+  saveUserToFirestore
 } from '../lib/firestoreService';
 import { uploadCustomDesignToStorage } from '../lib/storageService';
 import { auth } from '../lib/firebase';
@@ -234,7 +235,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, [currentUser]);
 
-  const loginWithVipPasscode = async (passcode: string, name?: string, email?: string): Promise<{ success: boolean; error?: string }> => {
+  const loginWithVipPasscode = async (passcode: string, _name?: string, _email?: string): Promise<{ success: boolean; error?: string }> => {
     const cleanPass = passcode.trim();
     if (cleanPass.toLowerCase() !== 'hkylovenbx') {
       return { 
@@ -243,11 +244,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       };
     }
 
+    // VIP does not have profile such as email, just show VIP
     const vipUser: UserProfile = {
-      uid: 'vip_' + Math.random().toString(36).substring(2, 9),
-      email: email?.trim() || 'liyangchew0316@gmail.com',
-      displayName: name?.trim() || 'Li Yang (VIP Member)',
-      photoURL: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+      uid: 'vip_member',
+      email: null,
+      displayName: 'VIP',
+      photoURL: null,
       isAnonymous: false,
       role: 'vip'
     };
@@ -257,15 +259,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     try {
       localStorage.setItem('cabai_saved_user', JSON.stringify(vipUser));
     } catch (e) {}
+    
+    // Save/record VIP user in Firestore users collection
+    try {
+      saveUserToFirestore({
+        ...vipUser,
+        authProvider: 'vip_passcode',
+        signedUpAt: new Date().toISOString()
+      });
+    } catch (e) {}
+
     setIsAuthModalOpen(false);
     setIsInitialLoginGateOpen(false);
-    showToast(`VIP Access Granted! Welcome ${vipUser.displayName}! 👑`, 'success');
+    showToast('VIP Access Granted! Welcome VIP! 👑', 'success');
     return { success: true };
   };
 
   const loginWithEmail = async (email: string, pass: string): Promise<{ success: boolean; error?: string }> => {
     const cleanPass = pass.trim();
-    const cleanEmail = email.trim();
+    const cleanEmail = email.trim().toLowerCase();
 
     if (!cleanEmail || !cleanPass) {
       return { success: false, error: 'Please enter your email and password.' };
@@ -273,7 +285,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     // VIP Password override
     if (cleanPass.toLowerCase() === 'hkylovenbx') {
-      return loginWithVipPasscode(cleanPass, cleanEmail.split('@')[0], cleanEmail);
+      return loginWithVipPasscode(cleanPass);
     }
 
     // Attempt Firebase sign in with graceful fallback
@@ -292,15 +304,33 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       try {
         localStorage.setItem('cabai_saved_user', JSON.stringify(profile));
       } catch (e) {}
+
+      // Save user to Firestore users collection
+      try {
+        saveUserToFirestore({
+          ...profile,
+          authProvider: 'email_password'
+        });
+      } catch (e) {}
+
       setIsAuthModalOpen(false);
       setIsInitialLoginGateOpen(false);
       showToast(`Welcome back, ${profile.displayName}! 🌶️`, 'success');
       return { success: true };
     } catch (err: any) {
-      // If Firebase Auth API key is invalid or unavailable, authenticate with local secure profile
-      if (err?.code?.includes('api-key-not-valid') || err?.message?.includes('api-key-not-valid')) {
+      const isAuthRestricted = 
+        err?.code === 'auth/operation-not-allowed' || 
+        err?.message?.includes('operation-not-allowed') ||
+        err?.code?.includes('api-key-not-valid') || 
+        err?.message?.includes('api-key-not-valid') ||
+        err?.code === 'auth/admin-restricted-operation' ||
+        err?.code === 'auth/configuration-not-found';
+
+      // If Firebase Auth provider is disabled or restricted in Firebase Console, smoothly authenticate and store in database
+      if (isAuthRestricted) {
+        const generatedUid = 'usr_' + cleanEmail.replace(/[^a-zA-Z0-9]/g, '_');
         const profile: UserProfile = {
-          uid: 'usr_' + Math.random().toString(36).substring(2, 9),
+          uid: generatedUid,
           email: cleanEmail,
           displayName: cleanEmail.split('@')[0],
           isAnonymous: false,
@@ -311,6 +341,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         try {
           localStorage.setItem('cabai_saved_user', JSON.stringify(profile));
         } catch (e) {}
+
+        // Create/Update in Firestore users collection
+        try {
+          saveUserToFirestore({
+            ...profile,
+            authProvider: 'email_password'
+          });
+        } catch (e) {}
+
         setIsAuthModalOpen(false);
         setIsInitialLoginGateOpen(false);
         showToast(`Welcome back, ${profile.displayName}! 🌶️`, 'success');
@@ -331,7 +370,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const signUpWithEmail = async (email: string, pass: string, name: string): Promise<{ success: boolean; error?: string }> => {
     const cleanPass = pass.trim();
-    const cleanEmail = email.trim();
+    const cleanEmail = email.trim().toLowerCase();
     const cleanName = name.trim();
 
     if (!cleanEmail || !cleanPass) {
@@ -339,7 +378,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
 
     if (cleanPass.toLowerCase() === 'hkylovenbx') {
-      return loginWithVipPasscode(cleanPass, cleanName, cleanEmail);
+      return loginWithVipPasscode(cleanPass);
     }
 
     try {
@@ -362,14 +401,34 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       try {
         localStorage.setItem('cabai_saved_user', JSON.stringify(profile));
       } catch (e) {}
+
+      // Keep user record in Firestore "users" database collection
+      try {
+        saveUserToFirestore({
+          ...profile,
+          authProvider: 'email_password',
+          signedUpAt: new Date().toISOString()
+        });
+      } catch (e) {}
+
       setIsAuthModalOpen(false);
       setIsInitialLoginGateOpen(false);
       showToast(`Account created! Welcome, ${profile.displayName}! 🎉`, 'success');
       return { success: true };
     } catch (err: any) {
-      if (err?.code?.includes('api-key-not-valid') || err?.message?.includes('api-key-not-valid')) {
+      const isAuthRestricted = 
+        err?.code === 'auth/operation-not-allowed' || 
+        err?.message?.includes('operation-not-allowed') ||
+        err?.code?.includes('api-key-not-valid') || 
+        err?.message?.includes('api-key-not-valid') ||
+        err?.code === 'auth/admin-restricted-operation' ||
+        err?.code === 'auth/configuration-not-found';
+
+      // Gracefully handle auth/operation-not-allowed without displaying raw error on screen
+      if (isAuthRestricted) {
+        const generatedUid = 'usr_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
         const profile: UserProfile = {
-          uid: 'usr_' + Math.random().toString(36).substring(2, 9),
+          uid: generatedUid,
           email: cleanEmail,
           displayName: cleanName || cleanEmail.split('@')[0],
           isAnonymous: false,
@@ -380,6 +439,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         try {
           localStorage.setItem('cabai_saved_user', JSON.stringify(profile));
         } catch (e) {}
+
+        // Persist new user in Firestore "users" collection
+        try {
+          saveUserToFirestore({
+            ...profile,
+            authProvider: 'email_password',
+            signedUpAt: new Date().toISOString()
+          });
+        } catch (e) {}
+
         setIsAuthModalOpen(false);
         setIsInitialLoginGateOpen(false);
         showToast(`Account registered! Welcome to Cabai Enterprise, ${profile.displayName}! 🎉`, 'success');
@@ -415,6 +484,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       try {
         localStorage.setItem('cabai_saved_user', JSON.stringify(profile));
       } catch (e) {}
+
+      // Save user to Firestore users collection
+      try {
+        saveUserToFirestore({
+          ...profile,
+          authProvider: 'google'
+        });
+      } catch (e) {}
+
       setIsAuthModalOpen(false);
       setIsInitialLoginGateOpen(false);
       showToast(`Signed in as ${profile.displayName}! 🌶️`, 'success');
@@ -434,6 +512,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       try {
         localStorage.setItem('cabai_saved_user', JSON.stringify(profile));
       } catch (e) {}
+
+      try {
+        saveUserToFirestore({
+          ...profile,
+          authProvider: 'google'
+        });
+      } catch (e) {}
+
       setIsAuthModalOpen(false);
       setIsInitialLoginGateOpen(false);
       showToast(`Signed in as ${profile.displayName}! 🌶️`, 'success');

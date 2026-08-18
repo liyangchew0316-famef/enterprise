@@ -74,6 +74,22 @@
         "likesCount": { "type": "number" }
       },
       "required": ["id", "title", "imageData", "createdAt"]
+    },
+    "users": {
+      "title": "users",
+      "description": "Registered user accounts, VIP members and maker profiles",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "displayName": { "type": "string" },
+        "email": { "type": "string" },
+        "role": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "lastLoginAt": { "type": "string" },
+        "authProvider": { "type": "string" }
+      },
+      "required": ["uid", "role"]
     }
   }
 }

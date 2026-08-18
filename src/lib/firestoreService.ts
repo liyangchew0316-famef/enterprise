@@ -13,7 +13,7 @@ import {
   onSnapshot
 } from 'firebase/firestore';
 import { db } from './firebase';
-import { Product, Order, MaterialSpool, OrderStatus, PaymentStatus, ChiliDrawing } from '../types';
+import { Product, Order, MaterialSpool, OrderStatus, PaymentStatus, ChiliDrawing, UserProfile } from '../types';
 
 // Collection references
 const PRODUCTS_COL = 'products';
@@ -21,6 +21,7 @@ const ORDERS_COL = 'orders';
 const SPOOLS_COL = 'spools';
 const QUOTES_COL = 'custom_quotes';
 const DRAWINGS_COL = 'chili_drawings';
+const USERS_COL = 'users';
 
 /**
  * Standardized Firestore error logger
@@ -378,7 +379,68 @@ export async function likeChiliDrawingInFirestore(id: string, currentLikes: numb
 }
 
 // ==========================================
-// 5. INITIAL DATA FETCH & SEEDING (PRODUCTS ONLY)
+// 5. USERS (Registered Makers & VIP Accounts)
+// ==========================================
+export interface StoredUserData extends UserProfile {
+  authProvider?: string;
+  createdAt?: string;
+  signedUpAt?: string;
+  lastLoginAt?: string;
+  lastActiveAt?: string;
+}
+
+export async function saveUserToFirestore(userData: StoredUserData): Promise<boolean> {
+  if (!userData || !userData.uid) return false;
+  try {
+    const userDocId = userData.uid;
+    const now = new Date().toISOString();
+    const cleanUser = sanitizeForFirestore({
+      ...userData,
+      lastLoginAt: now,
+      lastActiveAt: now,
+      createdAt: userData.createdAt || userData.signedUpAt || now
+    });
+    console.log('[Firestore] Saving user account to "users" collection:', userDocId);
+    await setDoc(doc(db, USERS_COL, userDocId), cleanUser, { merge: true });
+    console.log('[Firestore] ✅ User successfully saved to "users":', userDocId);
+    return true;
+  } catch (error) {
+    handleFirestoreError(`saveUserToFirestore(${userData?.uid})`, error);
+    return false;
+  }
+}
+
+export async function fetchUserFromFirestore(userId: string): Promise<StoredUserData | null> {
+  if (!userId) return null;
+  try {
+    const userRef = doc(db, USERS_COL, userId);
+    const docSnap = await getDoc(userRef);
+    if (docSnap.exists()) {
+      return docSnap.data() as StoredUserData;
+    }
+    return null;
+  } catch (error) {
+    handleFirestoreError(`fetchUserFromFirestore(${userId})`, error);
+    return null;
+  }
+}
+
+export async function fetchAllUsersFromFirestore(): Promise<StoredUserData[]> {
+  try {
+    const querySnapshot = await getDocs(collection(db, USERS_COL));
+    const users: StoredUserData[] = [];
+    querySnapshot.forEach((docSnap) => {
+      users.push(docSnap.data() as StoredUserData);
+    });
+    return users;
+  } catch (error) {
+    handleFirestoreError('fetchAllUsersFromFirestore', error);
+    return [];
+  }
+}
+
+// ==========================================
+// 6. INITIAL DATA FETCH & SEEDING (PRODUCTS ONLY)
 // ==========================================
 export async function seedFirestoreInitialData(
   defaultProducts: Product[],

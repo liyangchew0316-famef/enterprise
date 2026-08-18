@@ -52,6 +52,9 @@ export const ProductDetailView: React.FC = () => {
   // Customization fields
   const [clickerKeys, setClickerKeys] = useState<number>(1);
   const [switchType, setSwitchType] = useState<string>('Clicky Blue');
+  const [keycapLabels, setKeycapLabels] = useState<string[]>(['C', 'A', 'B', 'A', 'I']);
+  const [activePressedKey, setActivePressedKey] = useState<number | null>(null);
+  const [clickerWordInput, setClickerWordInput] = useState<string>('CABAI');
   const [nameTagText, setNameTagText] = useState<string>('CABAI');
   const [penInk, setPenInk] = useState<string>('Black Gel');
   const [customText, setCustomText] = useState<string>('');
@@ -60,6 +63,71 @@ export const ProductDetailView: React.FC = () => {
   const isNameTag = selectedProduct.id === 'prod-name-tag' || selectedProduct.name.toLowerCase().includes('name tag');
   const isDrawable = selectedProduct.name.toLowerCase().includes('drawable');
   const isPen = selectedProduct.id === 'prod-cabai-pen' || selectedProduct.name.toLowerCase().includes('pen');
+
+  // Mechanical switch audio simulator
+  const playMechanicalClick = (type: string) => {
+    try {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      
+      if (type.includes('Blue')) {
+        // High pitched clicky sound
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(950, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(320, ctx.currentTime + 0.04);
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.04);
+      } else if (type.includes('Brown')) {
+        // Tactile bump sound
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(500, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(220, ctx.currentTime + 0.035);
+        gain.gain.setValueAtTime(0.25, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.035);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.035);
+      } else {
+        // Linear smooth muted sound
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(300, ctx.currentTime);
+        gain.gain.setValueAtTime(0.18, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.03);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.03);
+      }
+    } catch (e) {}
+  };
+
+  const handleWordInputChange = (val: string) => {
+    const upper = val.toUpperCase();
+    setClickerWordInput(upper);
+    const chars = upper.split('');
+    const defaultDefaults = ['C', 'A', 'B', 'A', 'I'];
+    const newLabels = [0, 1, 2, 3, 4].map((idx) => chars[idx] || defaultDefaults[idx] || (idx + 1).toString());
+    setKeycapLabels(newLabels);
+  };
+
+  const handleKeycapLabelChange = (index: number, val: string) => {
+    const upper = val.toUpperCase().slice(0, 4);
+    const newLabels = [...keycapLabels];
+    newLabels[index] = upper;
+    setKeycapLabels(newLabels);
+  };
+
+  const handleKeycapPress = (index: number) => {
+    setActivePressedKey(index);
+    playMechanicalClick(switchType);
+    setTimeout(() => {
+      setActivePressedKey(null);
+    }, 150);
+  };
 
   // Dynamic unit price calculation
   const calculatedUnitPrice = useMemo(() => {
@@ -80,20 +148,21 @@ export const ProductDetailView: React.FC = () => {
   const computedCustomDetails = useMemo(() => {
     const parts: string[] = [];
     if (isClicker) {
-      parts.push(`${clickerKeys}-Key Switch (${switchType})`);
+      const activeKeys = keycapLabels.slice(0, clickerKeys).map((l, i) => l.trim() || `#${i+1}`);
+      parts.push(`${clickerKeys}-Key Switch (${switchType}) [Keycaps: ${activeKeys.join('-')}]`);
     }
     if (isNameTag) {
       const cleanLetters = nameTagText.trim();
-      parts.push(`Name: "${cleanLetters || 'CABAI'}" (${cleanLetters.length} Letters)`);
+      parts.push(`Name Tag: "${cleanLetters || 'CABAI'}" (${cleanLetters.length} Letters)`);
     }
     if (isPen) {
       parts.push(`Ink Core: ${penInk}`);
     }
     if (customText.trim()) {
-      parts.push(`Note: "${customText.trim()}"`);
+      parts.push(`Personalization: "${customText.trim()}"`);
     }
     return parts.join(' | ');
-  }, [isClicker, clickerKeys, switchType, isNameTag, nameTagText, isPen, penInk, customText]);
+  }, [isClicker, clickerKeys, switchType, keycapLabels, isNameTag, nameTagText, isPen, penInk, customText]);
 
   const handleAddToCart = () => {
     if (isNameTag && nameTagText.trim().length < 5) {
@@ -263,25 +332,28 @@ export const ProductDetailView: React.FC = () => {
 
           {/* 1. KEYBOARD CLICKER CUSTOMIZATION */}
           {isClicker && (
-            <div className="p-4 bg-red-50/60 rounded-2xl border border-red-200 space-y-4">
+            <div className="p-5 bg-gradient-to-br from-red-50/80 via-white to-red-50/50 rounded-2xl border-2 border-red-200 shadow-xs space-y-4">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-extrabold text-red-950 flex items-center gap-1.5 uppercase tracking-wider">
                   <KeyRound className="w-4 h-4 text-[#af101a]" />
                   <span>Choose Key Switch Count (RM5.00 / Key):</span>
                 </label>
-                <span className="font-mono font-bold text-xs text-[#af101a]">Max 5 Keys</span>
+                <span className="font-mono font-bold text-xs text-[#af101a]">1 to 5 Keys</span>
               </div>
 
+              {/* Key count buttons */}
               <div className="grid grid-cols-5 gap-2">
                 {[1, 2, 3, 4, 5].map((k) => (
                   <button
                     key={k}
                     type="button"
-                    onClick={() => setClickerKeys(k)}
-                    className={`py-2.5 rounded-xl border font-bold text-xs text-center transition-all ${
+                    onClick={() => {
+                      setClickerKeys(k);
+                    }}
+                    className={`py-2.5 rounded-xl border font-bold text-xs text-center transition-all cursor-pointer ${
                       clickerKeys === k
-                        ? 'border-[#af101a] bg-[#af101a] text-white shadow-xs scale-102'
-                        : 'border-red-200 bg-white text-gray-800 hover:border-red-300'
+                        ? 'border-[#af101a] bg-[#af101a] text-white shadow-md scale-102 ring-2 ring-red-300'
+                        : 'border-red-200 bg-white text-gray-800 hover:border-red-300 hover:bg-red-50/50'
                     }`}
                   >
                     <div className="text-sm font-extrabold">{k} {k === 1 ? 'Key' : 'Keys'}</div>
@@ -291,23 +363,26 @@ export const ProductDetailView: React.FC = () => {
               </div>
 
               {/* Mechanical Switch Type */}
-              <div className="pt-2">
+              <div className="pt-1">
                 <label className="text-xs font-bold text-red-900 block mb-1.5">
-                  Mechanical Switch Feel & Sound:
+                  Mechanical Switch Feel &amp; Sound Profile:
                 </label>
                 <div className="grid grid-cols-3 gap-2">
                   {[
-                    { id: 'Clicky Blue', desc: 'Satisfying Click' },
-                    { id: 'Tactile Brown', desc: 'Subtle Bump' },
-                    { id: 'Linear Red', desc: 'Smooth & Quiet' }
+                    { id: 'Clicky Blue', desc: 'Satisfying Click 🎶' },
+                    { id: 'Tactile Brown', desc: 'Subtle Bump 💥' },
+                    { id: 'Linear Red', desc: 'Smooth & Quiet 🤫' }
                   ].map((sw) => (
                     <button
                       key={sw.id}
                       type="button"
-                      onClick={() => setSwitchType(sw.id)}
-                      className={`p-2 rounded-xl border text-left transition-all ${
+                      onClick={() => {
+                        setSwitchType(sw.id);
+                        playMechanicalClick(sw.id);
+                      }}
+                      className={`p-2 rounded-xl border text-left transition-all cursor-pointer ${
                         switchType === sw.id
-                          ? 'border-[#af101a] bg-red-100/70 text-[#af101a] ring-2 ring-red-200'
+                          ? 'border-[#af101a] bg-red-100 text-[#af101a] ring-2 ring-red-200 shadow-xs'
                           : 'border-red-200 bg-white text-gray-700 hover:bg-red-50/40'
                       }`}
                     >
@@ -317,35 +392,179 @@ export const ProductDetailView: React.FC = () => {
                   ))}
                 </div>
               </div>
+
+              {/* Custom Keycap Text & Lettering */}
+              <div className="pt-2 border-t border-red-200/80 space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-extrabold text-gray-900 flex items-center gap-1.5 uppercase tracking-wider">
+                    <Sparkles className="w-3.5 h-3.5 text-[#af101a]" />
+                    <span>Custom Text on Keycaps:</span>
+                  </label>
+                  <span className="text-[11px] text-gray-500 font-medium">Type name or letters for each key</span>
+                </div>
+
+                {/* Quick Word/Name Input */}
+                <div>
+                  <label className="text-[11px] font-bold text-gray-600 block mb-1">
+                    Quick Word / Name (Auto-spreads to keycaps):
+                  </label>
+                  <input
+                    type="text"
+                    maxLength={clickerKeys}
+                    placeholder={`Type ${clickerKeys} letters (e.g. ${['C', 'CA', 'CAB', 'CABA', 'CABAI'][clickerKeys - 1]})`}
+                    value={clickerWordInput.slice(0, clickerKeys)}
+                    onChange={(e) => handleWordInputChange(e.target.value)}
+                    className="w-full px-3 py-2 bg-white border border-red-300 rounded-xl font-mono font-bold text-sm tracking-widest text-gray-900 focus:outline-hidden focus:border-[#af101a] focus:ring-1 focus:ring-red-400 uppercase"
+                  />
+                </div>
+
+                {/* Individual Keycap Input Fields */}
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold text-gray-600 block">
+                    Individual Keycap Legends:
+                  </label>
+                  <div className="grid grid-cols-5 gap-2">
+                    {[0, 1, 2, 3, 4].slice(0, clickerKeys).map((idx) => (
+                      <div key={idx} className="text-center space-y-1">
+                        <span className="text-[10px] font-bold text-gray-500 uppercase">Key #{idx + 1}</span>
+                        <input
+                          type="text"
+                          maxLength={3}
+                          value={keycapLabels[idx] || ''}
+                          onChange={(e) => handleKeycapLabelChange(idx, e.target.value)}
+                          placeholder={(idx + 1).toString()}
+                          className="w-full text-center py-2 bg-white border border-red-300 rounded-lg font-mono font-extrabold text-sm text-[#af101a] focus:outline-hidden focus:border-[#af101a] focus:ring-1 focus:ring-red-400 uppercase"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Interactive 3D Keycap Visual Preview */}
+                <div className="p-4 bg-gray-900 rounded-2xl border border-gray-800 text-center space-y-3 shadow-inner">
+                  <div className="flex items-center justify-between text-[11px] text-gray-400">
+                    <span className="font-bold text-white flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                      Live 3D Keycap Visualizer
+                    </span>
+                    <span className="text-gray-400 text-[10px]">Click keycaps to test mechanical click!</span>
+                  </div>
+
+                  {/* Switch Base & Keycaps */}
+                  <div className="flex items-center justify-center gap-3 p-3 bg-gray-950/80 rounded-xl border border-gray-800 shadow-inner">
+                    {[0, 1, 2, 3, 4].slice(0, clickerKeys).map((idx) => {
+                      const label = keycapLabels[idx] || (idx + 1).toString();
+                      const isPressed = activePressedKey === idx;
+                      return (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => handleKeycapPress(idx)}
+                          className={`relative flex flex-col items-center justify-center w-14 h-14 rounded-xl font-mono font-extrabold text-base transition-all duration-75 select-none cursor-pointer ${
+                            isPressed 
+                              ? 'translate-y-1 shadow-xs ring-2 ring-red-400' 
+                              : 'shadow-lg hover:-translate-y-0.5'
+                          }`}
+                          style={{
+                            backgroundColor: selectedColor.hex,
+                            color: ['#1C1C1C', '#000000', '#2E1A47', '#1E3A8A', '#065F46', '#831843'].includes(selectedColor.hex) ? '#FFFFFF' : '#1a1c1c',
+                            boxShadow: isPressed 
+                              ? 'inset 0 2px 4px rgba(0,0,0,0.5)' 
+                              : '0 6px 0 rgba(0,0,0,0.35), 0 8px 10px rgba(0,0,0,0.3)',
+                            borderTop: '2px solid rgba(255,255,255,0.4)',
+                            borderBottom: '2px solid rgba(0,0,0,0.4)'
+                          }}
+                          title={`Click to press Key #${idx + 1} (${label})`}
+                        >
+                          <span className="text-[9px] font-bold opacity-60 absolute top-1 left-1.5">#{idx + 1}</span>
+                          <span className="text-base tracking-wider drop-shadow-xs font-black">{label}</span>
+                          <span className="text-[8px] font-semibold opacity-70 absolute bottom-1">
+                            {switchType.split(' ')[0]}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div className="text-[11px] text-gray-300 flex items-center justify-center gap-2">
+                    <span>Filament: <strong className="text-white">{selectedColor.name}</strong></span>
+                    <span>•</span>
+                    <span>Material: <strong className="text-white">{selectedMaterial}</strong></span>
+                    <span>•</span>
+                    <span>Switch: <strong className="text-amber-300">{switchType}</strong></span>
+                  </div>
+                </div>
+
+              </div>
             </div>
           )}
 
           {/* 2. NAME TAG CUSTOMIZATION */}
           {isNameTag && (
-            <div className="p-4 bg-amber-50/70 rounded-2xl border border-amber-200 space-y-3">
+            <div className="p-5 bg-amber-50/80 rounded-2xl border-2 border-amber-300 space-y-4 shadow-xs">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-extrabold text-amber-950 flex items-center gap-1.5 uppercase tracking-wider">
                   <PenTool className="w-4 h-4 text-amber-700" />
                   <span>Custom Embossed Letters (1 Letter = RM0.50):</span>
                 </label>
-                <span className="text-[11px] font-bold text-amber-800">Min 5 Letters = RM2.50</span>
+                <span className="text-[11px] font-bold text-amber-900 bg-amber-200/80 px-2 py-0.5 rounded-md">
+                  Min 5 Letters = RM2.50
+                </span>
               </div>
 
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 <input
                   type="text"
-                  maxLength={16}
-                  placeholder="Enter custom name (e.g. CABAI, ADAM, SARAH)"
+                  maxLength={18}
+                  placeholder="Type your name (e.g. CABAI, ADAM, SARAH)"
                   value={nameTagText}
                   onChange={(e) => setNameTagText(e.target.value.toUpperCase())}
-                  className="w-full px-3.5 py-2.5 bg-white border border-amber-300 rounded-xl font-mono font-bold text-sm tracking-wider text-gray-900 focus:outline-hidden focus:border-[#af101a]"
+                  className="w-full px-4 py-3 bg-white border-2 border-amber-300 rounded-xl font-mono font-bold text-base tracking-widest text-gray-900 focus:outline-hidden focus:border-[#af101a] focus:ring-1 focus:ring-red-400"
                 />
-                <div className="flex justify-between text-[11px] text-amber-800 font-medium">
+                
+                <div className="flex justify-between text-xs text-amber-900 font-semibold px-1">
                   <span>
-                    Letter count: <strong>{nameTagText.trim().length}</strong> {nameTagText.trim().length < 5 ? '(Requires min 5)' : ''}
+                    Letter count: <strong>{nameTagText.trim().length}</strong> {nameTagText.trim().length < 5 ? '(Min 5 required)' : ''}
                   </span>
-                  <span>Calculated: <strong>RM {calculatedUnitPrice.toFixed(2)}</strong></span>
+                  <span>Price: <strong className="text-[#af101a] text-sm">RM {calculatedUnitPrice.toFixed(2)}</strong></span>
                 </div>
+              </div>
+
+              {/* 3D Embossed Name Tag Plate Preview */}
+              <div className="p-4 bg-gray-900 rounded-2xl border border-gray-800 text-center space-y-3">
+                <div className="flex items-center justify-between text-[11px] text-gray-400">
+                  <span className="font-bold text-white flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                    3D Printed Nameplate Live Preview
+                  </span>
+                  <span className="text-amber-400 text-[10px]">Embossed Dual-Layer Relief</span>
+                </div>
+
+                <div 
+                  className="p-4 rounded-xl border border-gray-700 shadow-xl flex items-center justify-center gap-3 min-h-[70px] relative overflow-hidden"
+                  style={{
+                    backgroundColor: selectedColor.hex,
+                    color: ['#1C1C1C', '#000000', '#2E1A47', '#1E3A8A', '#065F46', '#831843'].includes(selectedColor.hex) ? '#FFFFFF' : '#1a1c1c',
+                    boxShadow: '0 8px 16px rgba(0,0,0,0.4), inset 0 2px 3px rgba(255,255,255,0.3)'
+                  }}
+                >
+                  {/* Keychain Ring Hole Indicator */}
+                  <div className="w-5 h-5 rounded-full bg-gray-900 border-2 border-gray-700 shrink-0 shadow-inner flex items-center justify-center text-[8px] text-gray-500">
+                    ⭕
+                  </div>
+
+                  <div className="font-mono font-black text-xl sm:text-2xl tracking-widest uppercase drop-shadow-md truncate">
+                    {nameTagText.trim() || 'YOUR NAME'}
+                  </div>
+
+                  <div className="text-[10px] font-extrabold uppercase opacity-75 ml-auto border border-current px-2 py-0.5 rounded">
+                    {selectedMaterial}
+                  </div>
+                </div>
+
+                <p className="text-[11px] text-gray-400">
+                  Precision 3D printed with raised 1.2mm relief lettering in <strong className="text-white">{selectedColor.name}</strong> ({selectedMaterial}).
+                </p>
               </div>
             </div>
           )}
@@ -362,9 +581,9 @@ export const ProductDetailView: React.FC = () => {
                     key={ink}
                     type="button"
                     onClick={() => setPenInk(ink)}
-                    className={`flex-1 py-2 px-3 rounded-xl border text-xs font-bold text-center transition-all ${
+                    className={`flex-1 py-2 px-3 rounded-xl border text-xs font-bold text-center transition-all cursor-pointer ${
                       penInk === ink
-                        ? 'border-[#af101a] bg-red-50 text-[#af101a] ring-2 ring-red-200'
+                        ? 'border-[#af101a] bg-red-50 text-[#af101a] ring-2 ring-red-200 font-extrabold'
                         : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
                     }`}
                   >
@@ -372,6 +591,24 @@ export const ProductDetailView: React.FC = () => {
                   </button>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* 4. GENERAL PERSONALIZATION / CUSTOM NOTE (FOR ALL PRODUCTS) */}
+          {!isNameTag && (
+            <div className="p-3.5 bg-gray-50 rounded-xl border border-gray-200 space-y-1.5">
+              <label className="text-xs font-bold text-gray-800 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-[#af101a]" />
+                <span>Custom Name / Maker Engraving Request (Optional):</span>
+              </label>
+              <input
+                type="text"
+                maxLength={40}
+                placeholder="e.g. Engrave name 'Alex' on back or special instructions"
+                value={customText}
+                onChange={(e) => setCustomText(e.target.value)}
+                className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-xs font-medium text-gray-900 focus:outline-hidden focus:border-[#af101a]"
+              />
             </div>
           )}
 
