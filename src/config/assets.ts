@@ -4,11 +4,13 @@
  */
 
 // Bundled image imports via Vite
-import imgCabaiKeychain from '../assets/images/regenerated_image_1786627928894.png';
-import imgFlexiBuddy from '../assets/images/regenerated_image_1786532910610.png';
-import imgDeskDock from '../assets/images/regenerated_image_1786532916408.png';
-import imgCableClip from '../assets/images/regenerated_image_1786532913898.png';
-import imgNameTag from '../assets/images/regenerated_image_1786532918112.png';
+import imgKeyboardClicker from '../assets/images/keyboard_clicker_1787053198865.jpg';
+import imgCabaiKeychainDrawable from '../assets/images/cabai_keychain_draw_1787053219076.jpg';
+import imgCabaiKeychain from '../assets/images/cabai_keychain_red_1787053235901.jpg';
+import imgNameTag from '../assets/images/custom_name_tag_1787053248265.jpg';
+import imgCabaiFridgeMagnet from '../assets/images/cabai_magnet_1787053265638.jpg';
+import imgCabaiPhoneHolder from '../assets/images/cabai_phone_stand_1787053279991.jpg';
+import imgCabaiPen from '../assets/images/cabai_pen_1787053295709.jpg';
 import logoHeader from '../assets/images/regenerated_image_1786627761972.png';
 import logoFooter from '../assets/images/regenerated_image_1786627764275.png';
 import logoOfficial from '../assets/images/cabai_official_logo_1786624077846.jpg';
@@ -37,22 +39,38 @@ export const imageConfig = {
     fallback: FALLBACK_IMAGE_DATA_URI
   },
   
-  // Product Catalog Assets
+  // Product Catalog Assets (Exact 7 Studio Products)
   products: {
+    keyboardClicker: imgKeyboardClicker,
+    cabaiKeychainDrawable: imgCabaiKeychainDrawable,
     cabaiKeychain: imgCabaiKeychain,
-    flexiBuddy: imgFlexiBuddy,
-    deskDock: imgDeskDock,
-    cableClip: imgCableClip,
-    nameTag: imgNameTag
+    nameTag: imgNameTag,
+    cabaiFridgeMagnet: imgCabaiFridgeMagnet,
+    cabaiPhoneHolder: imgCabaiPhoneHolder,
+    cabaiPen: imgCabaiPen,
+    // Aliases for backward compatibility
+    flexiBuddy: imgKeyboardClicker,
+    deskDock: imgCabaiPhoneHolder,
+    cableClip: imgCabaiFridgeMagnet
   },
 
   // Direct Product ID to Asset mapping
   productMap: {
+    'prod-keyboard-clicker': imgKeyboardClicker,
+    'prod-cabai-keychain-drawable': imgCabaiKeychainDrawable,
+    'prod-cabai-keychain': imgCabaiKeychain,
+    'prod-name-tag': imgNameTag,
+    'prod-cabai-fridge-magnet': imgCabaiFridgeMagnet,
+    'prod-cabai-phone-holder': imgCabaiPhoneHolder,
+    'prod-cabai-pen': imgCabaiPen,
+    // Legacy ID aliases
     'prod-01': imgCabaiKeychain,
-    'prod-03': imgFlexiBuddy,
-    'prod-04': imgDeskDock,
-    'prod-05': imgCableClip,
-    'prod-06': imgNameTag
+    'prod-02': imgCabaiKeychainDrawable,
+    'prod-03': imgKeyboardClicker,
+    'prod-04': imgCabaiPhoneHolder,
+    'prod-05': imgCabaiFridgeMagnet,
+    'prod-06': imgNameTag,
+    'prod-07': imgCabaiPen
   } as Record<string, string>,
 
   // Metadata

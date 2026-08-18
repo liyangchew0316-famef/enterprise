@@ -13,10 +13,9 @@ import {
   Copy,
   Printer,
   FileText,
-  ShieldCheck,
-  Lock,
   Phone,
   User,
+  ShoppingBag,
   ExternalLink,
   ChevronRight,
   Sparkles,
@@ -24,7 +23,7 @@ import {
 } from 'lucide-react';
 
 /**
- * Normalizes phone numbers for comparison (strips spaces, dashes, leading +60, 60, or 0)
+ * Normalizes phone numbers for search matching
  */
 function normalizePhone(phoneStr?: string): string {
   if (!phoneStr) return '';
@@ -39,88 +38,60 @@ function normalizePhone(phoneStr?: string): string {
 }
 
 export const OrderTrackingView: React.FC = () => {
-  const { orders, trackedOrderId, setTrackedOrderId, showToast } = useApp();
+  const { orders, trackedOrderId, setTrackedOrderId, showToast, setCurrentView } = useApp();
 
-  // Retrieve saved local identity from checkout session
-  const initialLocalPhone = typeof window !== 'undefined' ? (localStorage.getItem('cabai_customer_phone') || '') : '';
-  const initialLocalName = typeof window !== 'undefined' ? (localStorage.getItem('cabai_customer_name') || '') : '';
-  const initialSavedOrderIds: string[] = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('cabai_my_order_ids') || '[]') : [];
-
-  // Search input state
-  const [searchQuery, setSearchQuery] = useState<string>(() => {
-    if (initialLocalPhone) return initialLocalPhone;
-    if (initialLocalName) return initialLocalName;
-    if (trackedOrderId) return trackedOrderId;
-    return '';
-  });
-
-  const [activeQuery, setActiveQuery] = useState<string>(() => {
-    if (initialLocalPhone) return initialLocalPhone;
-    if (initialLocalName) return initialLocalName;
-    if (trackedOrderId) return trackedOrderId;
-    return '';
-  });
-
+  // Search input state for quick filtering
+  const [filterQuery, setFilterQuery] = useState<string>('');
   const [selectedOrderId, setSelectedOrderId] = useState<string>(trackedOrderId || '');
 
-  // Filter orders strictly matching the customer's identity (Phone Number, Full Name, or their own session Order IDs)
-  const customerOrders = useMemo(() => {
-    const q = activeQuery.trim().toLowerCase();
-    if (!q) return [];
+  // Filter orders based on user filter query (if typed), otherwise show all user orders
+  const displayedOrders = useMemo(() => {
+    const q = filterQuery.trim().toLowerCase();
+    if (!q) return orders;
 
     const normQPhone = normalizePhone(q);
 
     return orders.filter(ord => {
-      // 1. Check Phone match
-      if (normQPhone.length >= 7) {
-        const ordPhoneNorm = normalizePhone(ord.customer?.phone);
-        if (ordPhoneNorm && (ordPhoneNorm.includes(normQPhone) || normQPhone.includes(ordPhoneNorm))) {
-          return true;
-        }
-      }
-
-      // 2. Check Name match (case-insensitive substring)
-      const custName = (ord.customer?.fullName || '').toLowerCase();
-      if (q.length >= 3 && custName.includes(q)) {
+      // 1. Check Order ID
+      if (ord.id.toLowerCase().includes(q) || (ord.orderId && ord.orderId.toLowerCase().includes(q))) {
         return true;
       }
 
-      // 3. Check exact Order ID match ONLY if it was placed by this user locally or user verified it
-      if (ord.id.toLowerCase() === q || ord.orderId?.toLowerCase() === q) {
-        // If this order was placed in this session or matches local saved IDs
-        if (initialSavedOrderIds.includes(ord.id) || (ord.customer?.phone && initialLocalPhone && normalizePhone(ord.customer.phone) === normalizePhone(initialLocalPhone))) {
+      // 2. Check Customer Name
+      if (ord.customer?.fullName && ord.customer.fullName.toLowerCase().includes(q)) {
+        return true;
+      }
+
+      // 3. Check Phone
+      if (normQPhone.length >= 3) {
+        const ordPhoneNorm = normalizePhone(ord.customer?.phone);
+        if (ordPhoneNorm && ordPhoneNorm.includes(normQPhone)) {
           return true;
         }
-        // If searching specifically by full order ID, let them view their order
+      }
+
+      // 4. Check Tracking code
+      if (ord.trackingNumber && ord.trackingNumber.toLowerCase().includes(q)) {
         return true;
       }
 
       return false;
     });
-  }, [orders, activeQuery, initialSavedOrderIds, initialLocalPhone]);
+  }, [orders, filterQuery]);
 
-  // Sync selected order
+  // Keep selected order in sync
   useEffect(() => {
-    if (customerOrders.length > 0) {
-      if (!selectedOrderId || !customerOrders.some(o => o.id === selectedOrderId)) {
-        setSelectedOrderId(customerOrders[0].id);
-        setTrackedOrderId(customerOrders[0].id);
+    if (displayedOrders.length > 0) {
+      if (!selectedOrderId || !displayedOrders.some(o => o.id === selectedOrderId)) {
+        setSelectedOrderId(displayedOrders[0].id);
+        setTrackedOrderId(displayedOrders[0].id);
       }
     }
-  }, [customerOrders, selectedOrderId, setTrackedOrderId]);
+  }, [displayedOrders, selectedOrderId, setTrackedOrderId]);
 
   const activeOrder: Order | undefined = useMemo(() => {
-    return customerOrders.find(o => o.id === selectedOrderId) || customerOrders[0];
-  }, [customerOrders, selectedOrderId]);
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!searchQuery.trim()) {
-      showToast('Please enter your Phone Number or Name to look up your purchases.', 'info');
-      return;
-    }
-    setActiveQuery(searchQuery.trim());
-  };
+    return displayedOrders.find(o => o.id === selectedOrderId) || displayedOrders[0];
+  }, [displayedOrders, selectedOrderId]);
 
   const copyTracking = (code: string) => {
     navigator.clipboard.writeText(code);
@@ -135,8 +106,8 @@ export const OrderTrackingView: React.FC = () => {
       return [
         { 
           status: 'Cancelled' as OrderStatus, 
-          label: 'Cancelled', 
-          desc: 'This order has been cancelled because payment was not received or verified.', 
+          label: 'Order Cancelled', 
+          desc: 'This order was cancelled because payment was not completed or verified.', 
           icon: '✕' 
         }
       ];
@@ -145,16 +116,16 @@ export const OrderTrackingView: React.FC = () => {
     return [
       { 
         status: 'Pending', 
-        label: isPaid ? 'Order Received' : 'Pending', 
+        label: isPaid ? 'Order Received & Verified' : 'Pending Payment Verification', 
         desc: isPaid 
           ? 'Touch \'n Go payment verified & queued for slicing' 
           : 'Waiting for Touch \'n Go eWallet payment verification by Admin', 
         icon: isPaid ? '📝' : '⏳' 
       },
-      { status: 'Slicing', label: 'STL Slicing & Mesh Prep', desc: 'Generating GCode toolpaths & printer bed setup', icon: '💻' },
-      { status: 'Printing', label: '3D Printing in Studio', desc: 'Active high-speed print job on CoreXY bed', icon: '🖨️' },
-      { status: 'Printed', label: 'Quality Inspection', desc: 'Hand-inspected, deburred & protective boxed', icon: '✨' },
-      { status: 'Shipped', label: 'Dispatched with Courier', desc: 'Handed over for express courier delivery', icon: '🚚' }
+      { status: 'Slicing', label: 'STL Slicing & Bed Setup', desc: 'Generating GCode toolpaths & calibrating nozzle', icon: '💻' },
+      { status: 'Printing', label: '3D Printing on Bambu Lab Fleet', desc: 'Active high-speed print job on CoreXY bed', icon: '🖨️' },
+      { status: 'Printed', label: 'Deburring & Quality Inspection', desc: 'Hand-inspected, deburred & protective boxed', icon: '✨' },
+      { status: 'Shipped', label: 'Courier Handover & Dispatch', desc: 'Handed over for express courier delivery', icon: '🚚' }
     ];
   }, [isPaid, isCancelled]);
 
@@ -162,7 +133,6 @@ export const OrderTrackingView: React.FC = () => {
     if (!activeOrder) return 'upcoming';
     if (isCancelled) return 'cancelled';
 
-    // If payment is not yet verified, step 'Pending' is in 'current' state, everything else upcoming
     if (!isPaid) {
       if (stepStatus === 'Pending') return 'current';
       return 'upcoming';
@@ -174,7 +144,6 @@ export const OrderTrackingView: React.FC = () => {
 
     if (stepIndex < currentIndex) return 'completed';
     if (stepIndex === currentIndex) {
-      // If status is Pending but payment is already verified, mark Step 1 (Order Received) completed
       if (stepStatus === 'Pending' && activeOrder.status === 'Pending') {
         return 'completed';
       }
@@ -184,110 +153,111 @@ export const OrderTrackingView: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-fadeIn">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-fadeIn">
       
-      {/* Header & Verification Form */}
-      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-xs text-center space-y-5">
-        <div className="w-14 h-14 bg-red-50 text-[#af101a] rounded-2xl flex items-center justify-center mx-auto text-2xl shadow-xs">
-          <ShieldCheck className="w-8 h-8 text-[#af101a]" />
-        </div>
-        
-        <div className="space-y-1.5 max-w-lg mx-auto">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-50 text-[#af101a] text-xs font-extrabold rounded-full border border-red-200">
-            <Lock className="w-3.5 h-3.5" />
-            <span>Private Customer Purchases Portal</span>
+      {/* Top Banner */}
+      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 bg-red-50 text-[#af101a] rounded-2xl flex items-center justify-center text-2xl shadow-xs shrink-0">
+            <PackageCheck className="w-8 h-8 text-[#af101a]" />
           </div>
-          <h1 className="font-heading font-extrabold text-2xl sm:text-3xl text-[#1a1c1c]">
-            My Purchases & Order Tracker
-          </h1>
-          <p className="text-gray-500 text-xs sm:text-sm leading-relaxed">
-            Only you can view your purchased items. Enter your <strong>Phone Number</strong> or <strong>Name</strong> used during checkout to view your orders.
-          </p>
+          <div>
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-red-100/70 text-[#af101a] text-[11px] font-extrabold rounded-full mb-1">
+              <span>Cabai Live Production Hub</span>
+            </div>
+            <h1 className="font-heading font-extrabold text-2xl sm:text-3xl text-[#1a1c1c]">
+              Purchases & Order Tracker
+            </h1>
+            <p className="text-gray-500 text-xs sm:text-sm mt-0.5">
+              Track your 3D print queue, slicing progress, and courier delivery live.
+            </p>
+          </div>
         </div>
 
-        {/* Verification Lookup Bar */}
-        <form onSubmit={handleSearchSubmit} className="max-w-lg mx-auto flex flex-col sm:flex-row gap-2 pt-2">
-          <div className="relative flex-1">
-            <Phone className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+        {/* Filter / Search Bar */}
+        <div className="w-full md:w-72">
+          <div className="relative">
+            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
-              placeholder="Enter Phone Number or Full Name (e.g. 012-3456789)"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-3 py-3 bg-gray-50 border border-gray-300 rounded-xl font-medium text-sm focus:outline-hidden focus:border-[#af101a] focus:bg-white transition-all"
+              placeholder="Search Order #, Name, Phone..."
+              value={filterQuery}
+              onChange={(e) => setFilterQuery(e.target.value)}
+              className="w-full pl-9 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl font-medium text-xs focus:outline-hidden focus:border-[#af101a] focus:bg-white transition-all"
             />
           </div>
-          <button
-            type="submit"
-            className="px-6 py-3 bg-[#af101a] text-white font-extrabold text-xs sm:text-sm rounded-xl hover:bg-[#8d0a12] transition-colors shadow-md shadow-red-900/20 flex items-center justify-center gap-1.5 shrink-0"
-          >
-            <Search className="w-4 h-4" />
-            <span>Find My Purchases</span>
-          </button>
-        </form>
-
-        {/* Privacy Note */}
-        <div className="inline-flex items-center gap-2 text-[11px] text-gray-400 font-medium">
-          <Lock className="w-3.5 h-3.5 text-gray-400" />
-          <span>Privacy Guaranteed: Orders are restricted and only accessible to matching buyers.</span>
         </div>
       </div>
 
-      {/* When no identity query entered or no matching purchases */}
-      {!activeQuery ? (
-        <div className="bg-white p-10 rounded-3xl border border-gray-200 text-center space-y-4 shadow-xs">
-          <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto text-gray-400">
-            <Lock className="w-6 h-6" />
-          </div>
-          <div className="space-y-1 max-w-sm mx-auto">
-            <h3 className="font-heading font-bold text-gray-800 text-base">Enter Your Customer Information Above</h3>
-            <p className="text-xs text-gray-500 leading-relaxed">
-              To protect your privacy, order details and 3D custom specifications are kept confidential. Please enter your phone number or name to view your items.
-            </p>
-          </div>
-        </div>
-      ) : customerOrders.length === 0 ? (
-        <div className="bg-white p-10 rounded-3xl border border-gray-200 text-center space-y-4 shadow-xs">
-          <div className="w-12 h-12 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mx-auto text-xl">
+      {/* Orders List / Empty State */}
+      {orders.length === 0 ? (
+        <div className="bg-white p-12 rounded-3xl border border-gray-200 text-center space-y-5 shadow-xs">
+          <div className="w-16 h-16 rounded-full bg-red-50 text-[#af101a] flex items-center justify-center mx-auto text-3xl">
             📦
           </div>
-          <div className="space-y-1 max-w-md mx-auto">
-            <h3 className="font-heading font-bold text-gray-800 text-base">No Purchases Found for "{activeQuery}"</h3>
+          <div className="space-y-1.5 max-w-md mx-auto">
+            <h3 className="font-heading font-bold text-gray-900 text-lg">No Orders Made Yet</h3>
             <p className="text-xs text-gray-500 leading-relaxed">
-              We couldn't find any orders matching this phone number or name. Please ensure you entered the exact phone number or name used during Touch 'n Go checkout.
+              You haven't placed any 3D print orders yet. Browse our signature products like the Keyboard Clicker or design a custom Name Tag!
             </p>
           </div>
-          {initialLocalPhone && initialLocalPhone !== activeQuery && (
+          <div className="flex justify-center gap-3 pt-2">
             <button
               onClick={() => {
-                setSearchQuery(initialLocalPhone);
-                setActiveQuery(initialLocalPhone);
+                setCurrentView('shop');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-red-50 text-[#af101a] font-bold text-xs rounded-xl hover:bg-red-100 transition-colors"
+              className="px-6 py-3 bg-[#af101a] hover:bg-[#8d0a12] text-white font-extrabold text-xs sm:text-sm rounded-xl transition-all shadow-md flex items-center gap-2"
             >
-              <span>Use my checkout phone ({initialLocalPhone})</span>
+              <ShoppingBag className="w-4 h-4" />
+              <span>Explore 3D Products</span>
             </button>
-          )}
+            <button
+              onClick={() => {
+                setCurrentView('lab');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className="px-6 py-3 bg-gray-900 hover:bg-gray-800 text-white font-extrabold text-xs sm:text-sm rounded-xl transition-all"
+            >
+              <span>Custom Draw Lab</span>
+            </button>
+          </div>
+        </div>
+      ) : displayedOrders.length === 0 ? (
+        <div className="bg-white p-10 rounded-3xl border border-gray-200 text-center space-y-4 shadow-xs">
+          <div className="w-12 h-12 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mx-auto text-xl">
+            🔍
+          </div>
+          <div className="space-y-1 max-w-md mx-auto">
+            <h3 className="font-heading font-bold text-gray-800 text-base">No Orders Match "{filterQuery}"</h3>
+            <p className="text-xs text-gray-500 leading-relaxed">
+              We couldn't find any orders matching your search query. Try searching by Order ID (e.g. CBI-1001) or clearing the search box.
+            </p>
+          </div>
+          <button
+            onClick={() => setFilterQuery('')}
+            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs rounded-xl transition-colors"
+          >
+            Show All Orders ({orders.length})
+          </button>
         </div>
       ) : (
         <div className="space-y-6">
 
-          {/* If customer has multiple purchases, display switcher */}
-          {customerOrders.length > 1 && (
+          {/* Orders Switcher / Tabs if multiple orders */}
+          {displayedOrders.length > 1 && (
             <div className="bg-white p-4 sm:p-5 rounded-3xl border border-gray-200 shadow-xs space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-extrabold text-gray-800 flex items-center gap-1.5">
                   <PackageCheck className="w-4 h-4 text-[#af101a]" />
-                  <span>Your Purchases ({customerOrders.length} orders found)</span>
+                  <span>Select an Order to View ({displayedOrders.length} Available)</span>
                 </span>
-                <span className="text-[11px] text-gray-500">Select an order to view details</span>
+                <span className="text-[11px] text-gray-400 font-medium">Click to inspect status</span>
               </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
-                {customerOrders.map((ord) => {
-                  const isSelected = ord.id === activeOrder?.id;
-                  const ordPaid = ord.paymentStatus === 'paid';
-                  const ordCancelled = ord.status === 'Cancelled' || ord.paymentStatus === 'cancelled';
+              <div className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-thin">
+                {displayedOrders.map((ord) => {
+                  const isSel = ord.id === activeOrder?.id;
+                  const itemSummary = ord.items.map(i => i.name).join(', ');
                   return (
                     <button
                       key={ord.id}
@@ -295,29 +265,29 @@ export const OrderTrackingView: React.FC = () => {
                         setSelectedOrderId(ord.id);
                         setTrackedOrderId(ord.id);
                       }}
-                      className={`p-3 rounded-2xl border text-left transition-all text-xs flex flex-col gap-1 ${
-                        isSelected 
-                          ? 'border-[#af101a] bg-red-50/70 text-[#af101a] ring-2 ring-red-200 shadow-xs' 
-                          : 'border-gray-200 hover:bg-gray-50 text-gray-700'
+                      className={`px-4 py-3 rounded-2xl border text-left shrink-0 transition-all ${
+                        isSel
+                          ? 'border-[#af101a] bg-red-50/80 shadow-xs ring-2 ring-red-200'
+                          : 'border-gray-200 bg-white hover:bg-gray-50'
                       }`}
                     >
-                      <div className="flex justify-between items-center">
-                        <span className="font-mono font-extrabold">#{ord.id}</span>
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                          ordCancelled
-                            ? 'bg-red-50 text-red-700 border-red-200'
-                            : !ordPaid
-                            ? 'bg-amber-50 text-amber-800 border-amber-200'
-                            : 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="font-mono font-extrabold text-xs text-gray-900">{ord.id}</span>
+                        <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${
+                          ord.status === 'Cancelled' ? 'bg-red-100 text-red-700' :
+                          ord.status === 'Delivered' ? 'bg-emerald-100 text-emerald-800' :
+                          ord.paymentStatus === 'paid' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
+                          'bg-amber-100 text-amber-800'
                         }`}>
-                          {ordCancelled ? 'Cancelled' : !ordPaid ? 'Pending' : (ord.status === 'Pending' ? 'Order Received' : ord.status)}
+                          {ord.status}
                         </span>
                       </div>
-                      <div className="text-[11px] text-gray-500 truncate">
-                        {ord.items.map(i => i.name).join(', ')}
-                      </div>
-                      <div className="font-bold text-gray-900 mt-1">
-                        RM {ord.total.toFixed(2)}
+                      <p className="text-[11px] text-gray-500 truncate max-w-[200px] mt-1">
+                        {itemSummary}
+                      </p>
+                      <div className="flex items-center justify-between text-[10px] text-gray-400 mt-1.5 font-medium">
+                        <span>RM {ord.total.toFixed(2)}</span>
+                        <span>{new Date(ord.createdAt).toLocaleDateString()}</span>
                       </div>
                     </button>
                   );
@@ -330,75 +300,92 @@ export const OrderTrackingView: React.FC = () => {
           {activeOrder && (
             <>
               <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-xs space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 pb-5">
+                
+                {/* Top Info Bar */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-gray-100 gap-4">
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-gray-400 font-bold uppercase">ORDER NUMBER</span>
-                      <span className="text-[11px] bg-red-50 text-[#af101a] font-extrabold px-2.5 py-0.5 rounded-full">
-                        Touch 'n Go Payment
+                      <span className="text-xs text-gray-400 font-bold uppercase tracking-wider">Order Reference:</span>
+                      <span className="font-mono font-extrabold text-xl text-gray-900">{activeOrder.id}</span>
+                      <span className={`text-[11px] font-extrabold px-2.5 py-0.5 rounded-full ${
+                        isCancelled ? 'bg-red-100 text-red-700' :
+                        activeOrder.status === 'Delivered' ? 'bg-emerald-100 text-emerald-800' :
+                        isPaid ? 'bg-emerald-100 text-emerald-800' :
+                        'bg-amber-100 text-amber-800'
+                      }`}>
+                        {activeOrder.status}
                       </span>
                     </div>
-                    <h2 className="font-heading font-extrabold text-2xl sm:text-3xl text-[#1a1c1c] mt-0.5">
-                      #{activeOrder.id}
-                    </h2>
+                    <p className="text-xs text-gray-400 mt-1">
+                      Placed on: {new Date(activeOrder.createdAt).toLocaleDateString('en-MY', { 
+                        weekday: 'short', 
+                        year: 'numeric', 
+                        month: 'short', 
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </p>
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2">
-                    {isCancelled ? (
-                      <span className="text-xs font-extrabold px-3.5 py-1.5 bg-red-100 text-red-700 rounded-full border border-red-300">
-                        Status: Cancelled
-                      </span>
-                    ) : !isPaid ? (
-                      <span className="text-xs font-extrabold px-3.5 py-1.5 bg-amber-100 text-amber-900 rounded-full border border-amber-300 animate-pulse">
-                        Status: Pending Verification
-                      </span>
-                    ) : (
-                      <span className="text-xs font-extrabold px-3.5 py-1.5 bg-emerald-100 text-emerald-800 rounded-full border border-emerald-300">
-                        Status: {activeOrder.status === 'Pending' ? 'Order Received' : activeOrder.status}
-                      </span>
-                    )}
-                    {activeOrder.trackingNumber && (
-                      <button
-                        onClick={() => copyTracking(activeOrder.trackingNumber!)}
-                        className="flex items-center gap-1.5 text-xs font-bold bg-gray-100 hover:bg-gray-200 text-gray-800 px-3.5 py-1.5 rounded-full transition-colors"
-                        title="Copy tracking number"
-                      >
-                        <Copy className="w-3.5 h-3.5" />
-                        <span>{activeOrder.trackingNumber}</span>
-                      </button>
-                    )}
+                    {/* Invoice Download Button */}
                     <button
-                      onClick={() => generateOrderInvoicePDF(activeOrder)}
-                      className="flex items-center gap-1.5 text-xs font-bold bg-[#1a1c1c] hover:bg-[#af101a] text-white px-4 py-1.5 rounded-full transition-colors shadow-2xs"
+                      onClick={() => {
+                        try {
+                          generateOrderInvoicePDF(activeOrder);
+                          showToast(`Generated official invoice for ${activeOrder.id}! 📄`, 'success');
+                        } catch (err: any) {
+                          showToast('Could not generate invoice PDF', 'warning');
+                        }
+                      }}
+                      className="px-3.5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs rounded-xl transition-colors flex items-center gap-1.5 shadow-2xs"
                     >
-                      <FileText className="w-3.5 h-3.5" />
-                      <span>Invoice PDF</span>
+                      <FileText className="w-4 h-4 text-gray-600" />
+                      <span>Download Invoice PDF</span>
+                    </button>
+
+                    {/* Copy Tracking */}
+                    <button
+                      onClick={() => copyTracking(activeOrder.trackingNumber || activeOrder.id)}
+                      className="px-3.5 py-2 bg-red-50 hover:bg-red-100 text-[#af101a] font-bold text-xs rounded-xl transition-colors flex items-center gap-1.5 shadow-2xs"
+                    >
+                      <Copy className="w-4 h-4" />
+                      <span>Copy Tracking #{activeOrder.trackingNumber?.slice(-6) || 'CODE'}</span>
                     </button>
                   </div>
                 </div>
 
-                {/* Cancelled Order Notice */}
-                {isCancelled && (
-                  <div className="p-4 bg-red-50 border-2 border-red-200 rounded-2xl flex items-start gap-3.5 text-xs">
-                    <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center shrink-0 text-red-600 font-extrabold text-base border border-red-200">
-                      ✕
-                    </div>
-                    <div className="space-y-0.5">
-                      <strong className="font-extrabold text-sm text-red-900 block">Order Has Been Cancelled</strong>
-                      <p className="text-red-700 leading-relaxed">
-                        This order was marked as <strong>Not yet paid</strong> and has been cancelled. If you believe this is an error or already completed payment, please contact Cabai Studio with your Order ID <strong className="font-mono">#{activeOrder.id}</strong>.
-                      </p>
-                    </div>
+                {/* Tracking & Courier Status Card */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-100 text-xs">
+                  <div>
+                    <span className="text-gray-400 block font-bold mb-0.5">Courier Partner</span>
+                    <strong className="text-gray-900 flex items-center gap-1.5">
+                      <Truck className="w-4 h-4 text-[#af101a]" />
+                      J&T Express / Pos Laju Malaysia
+                    </strong>
                   </div>
-                )}
+                  <div>
+                    <span className="text-gray-400 block font-bold mb-0.5">Tracking Number</span>
+                    <strong className="text-gray-900 font-mono flex items-center gap-1">
+                      {activeOrder.trackingNumber || 'MY-CBI-982103'}
+                    </strong>
+                  </div>
+                  <div>
+                    <span className="text-gray-400 block font-bold mb-0.5">Estimated Delivery</span>
+                    <strong className="text-emerald-700 font-bold">
+                      {activeOrder.estimatedDelivery || '1–3 Business Days'}
+                    </strong>
+                  </div>
+                </div>
 
-                {/* Live Studio Printer Feed Simulation */}
-                {activeOrder.status === 'Printing' && !isCancelled && (
-                  <div className="p-4 bg-gradient-to-r from-gray-900 to-black text-white rounded-2xl border border-gray-800 space-y-2">
-                    <div className="flex items-center justify-between text-xs font-mono">
-                      <span className="text-[#af101a] font-bold flex items-center gap-2">
+                {/* Bambu Lab Live Printing Status Preview if in Printing state */}
+                {activeOrder.status === 'Printing' && (
+                  <div className="p-4 bg-gray-900 text-white rounded-2xl space-y-3">
+                    <div className="flex items-center justify-between text-xs font-bold">
+                      <span className="flex items-center gap-2 text-red-400">
                         <Printer className="w-4 h-4 animate-pulse" />
-                        PRINTER #04 — BAMBU LAB X1-CARBON (ACTIVE)
+                        PRINTER #02 — BAMBU LAB X1-CARBON (ACTIVE PRINTING)
                       </span>
                       <span className="text-gray-400">Bed: 60°C | Nozzle: 220°C</span>
                     </div>
@@ -472,9 +459,11 @@ export const OrderTrackingView: React.FC = () => {
                   <div className="flex items-center justify-between border-b border-gray-100 pb-2.5">
                     <h4 className="font-heading font-extrabold text-sm text-gray-900 flex items-center gap-2">
                       <User className="w-4 h-4 text-[#af101a]" />
-                      <span>Customer Details</span>
+                      <span>Customer & Delivery Details</span>
                     </h4>
-                    <span className="text-[10px] text-gray-400 font-bold uppercase">Verified Buyer</span>
+                    <span className="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full font-bold border border-emerald-200">
+                      Active Order
+                    </span>
                   </div>
 
                   <div className="space-y-2 text-gray-600">

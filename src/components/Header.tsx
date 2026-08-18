@@ -12,7 +12,9 @@ import {
   Flame,
   ChevronDown,
   PackageCheck,
-  Paintbrush
+  Paintbrush,
+  User,
+  LogIn
 } from 'lucide-react';
 import { imageConfig } from '../config/assets';
 
@@ -23,7 +25,9 @@ export const Header: React.FC = () => {
     cartCount, 
     setIsCartOpen, 
     setIsSearchOpen,
-    setActiveCategory
+    setActiveCategory,
+    currentUser,
+    setIsAuthModalOpen
   } = useApp();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -176,6 +180,37 @@ export const Header: React.FC = () => {
               )}
             </button>
 
+            {/* User Account / Sign In Trigger Button */}
+            {currentUser ? (
+              <button
+                onClick={() => setIsAuthModalOpen(true)}
+                className={`flex items-center gap-2 py-1.5 px-3 rounded-full transition-all font-semibold text-xs shadow-2xs group ${
+                  currentUser.role === 'vip' 
+                    ? 'bg-amber-50/90 hover:bg-amber-100/90 text-amber-900 border border-amber-300' 
+                    : 'bg-red-50/80 hover:bg-red-100/80 text-gray-900 border border-red-200'
+                }`}
+                title={`Signed in as ${currentUser.displayName || currentUser.email} (${currentUser.role === 'vip' ? 'VIP' : 'Member'})`}
+              >
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-extrabold shadow-xs ${
+                  currentUser.role === 'vip' ? 'bg-[#af101a] text-amber-300' : 'bg-gray-900 text-white'
+                }`}>
+                  {currentUser.displayName ? currentUser.displayName.charAt(0).toUpperCase() : (currentUser.role === 'vip' ? '👑' : 'U')}
+                </div>
+                <span className="hidden sm:inline-block max-w-[90px] truncate font-bold text-gray-800 group-hover:text-[#af101a]">
+                  {currentUser.displayName?.split(' ')[0] || (currentUser.role === 'vip' ? 'VIP' : 'Member')}
+                </span>
+              </button>
+            ) : (
+              <button
+                onClick={() => setIsAuthModalOpen(true)}
+                className="flex items-center gap-1.5 py-1.5 px-3 rounded-xl bg-red-50 hover:bg-red-100 text-[#af101a] transition-all font-bold text-xs border border-red-200 shadow-2xs cursor-pointer"
+                title="Log In or Create Account"
+              >
+                <LogIn className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline-block">Log In</span>
+              </button>
+            )}
+
             {/* Boss Admin Dashboard External Link */}
             <a
               href="https://admin-beta-pink-11.vercel.app/"
@@ -203,6 +238,31 @@ export const Header: React.FC = () => {
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
         <div className="md:hidden bg-white border-b border-gray-200 px-4 pt-3 pb-6 space-y-2 animate-fadeIn">
+          {/* User Status Card in Mobile Menu */}
+          <div className="p-3 bg-gray-50 border border-gray-200 rounded-xl mb-2 flex items-center justify-between">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-9 h-9 rounded-full bg-[#af101a] text-white flex items-center justify-center font-bold text-sm">
+                {currentUser?.displayName ? currentUser.displayName.charAt(0).toUpperCase() : '👤'}
+              </div>
+              <div className="min-w-0">
+                <div className="text-xs font-bold text-gray-900 truncate">
+                  {currentUser ? currentUser.displayName || currentUser.email : 'Guest Customer'}
+                </div>
+                <div className="text-[10px] text-gray-500 truncate">
+                  {currentUser ? (currentUser.email || 'VIP Member') : 'Not logged in'}
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                setIsAuthModalOpen(true);
+              }}
+              className="px-3 py-1.5 bg-[#af101a] hover:bg-[#8d0a12] text-white text-xs font-bold rounded-lg shadow-xs"
+            >
+              {currentUser ? 'Profile' : 'Log In'}
+            </button>
+          </div>
           <button
             onClick={() => handleNav('home')}
             className="w-full text-left px-3 py-2.5 rounded-lg text-base font-semibold text-gray-800 hover:bg-gray-50"

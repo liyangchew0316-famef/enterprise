@@ -109,23 +109,28 @@ export const HomeView: React.FC = () => {
             <div className="relative mx-auto max-w-md rounded-2xl overflow-hidden shadow-2xl border-2 border-gray-800 bg-gray-900 group">
               <ProductImage
                 src={products[0]?.images[0]}
-                productId={products[0]?.id || 'prod-01'}
-                alt="Cabai 3D Printed Keychain"
+                productId={products[0]?.id || 'prod-keyboard-clicker'}
+                alt={products[0]?.name || 'Cabai 3D Printed'}
                 className="w-full h-96 object-cover group-hover:scale-105 transition-transform duration-500"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-6">
                 <span className="text-xs font-bold text-[#af101a] uppercase tracking-wider mb-1">
-                  Featured Craft
+                  Featured Product
                 </span>
                 <h3 className="font-heading font-extrabold text-2xl text-white">
-                  Signature Cabai Pepper Keychain
+                  {products[0]?.name || 'Keyboard Clicker'}
                 </h3>
                 <p className="text-xs text-gray-300 mt-1">
-                  High durability PLA+ with vibrant red finish. RM 6.90
+                  {products[0]?.subtitle || 'Custom 3D Printed Switch Fidget'}
                 </p>
                 <div className="mt-4 flex items-center justify-between">
                   <span className="font-heading font-extrabold text-lg text-white">
-                    RM 6.90 <span className="text-xs text-gray-400 line-through">RM 8.90</span>
+                    RM {(products[0]?.price || 5.00).toFixed(2)}{' '}
+                    {products[0]?.originalPrice && (
+                      <span className="text-xs text-gray-400 line-through">
+                        RM {products[0]?.originalPrice.toFixed(2)}
+                      </span>
+                    )}
                   </span>
                   <button
                     onClick={() => openProductDetail(products[0])}

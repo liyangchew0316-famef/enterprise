@@ -158,7 +158,7 @@ export const Footer: React.FC = () => {
         {/* Bottom Bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 gap-4">
           <div>
-            © 2026 CABAI ENTERPRISE™ (SSM Registered: 202603019821). All Rights Reserved. Crafted with 🌶️ in Malaysia.
+            © 2026 CABAI ENTERPRISE™. All Rights Reserved. Crafted with 🌶️ in Malaysia.
           </div>
           <div className="flex items-center gap-4">
             <button onClick={() => navTo('about')} className="hover:underline">Privacy Policy</button>

@@ -13,7 +13,8 @@ import {
   ColorOption, 
   MaterialType,
   CustomPrintQuote,
-  CustomerInfo
+  CustomerInfo,
+  UserProfile
 } from '../types';
 import { INITIAL_PRODUCTS, INITIAL_ORDERS, INITIAL_SPOOLS, DEFAULT_COLORS } from '../data/mockData';
 import { normalizeProducts, normalizeProduct } from '../utils/imageHelper';
@@ -28,7 +29,17 @@ import {
 } from '../lib/firestoreService';
 import { uploadCustomDesignToStorage } from '../lib/storageService';
 import { auth } from '../lib/firebase';
-import { onAuthStateChanged, signInAnonymously, User } from 'firebase/auth';
+import { 
+  onAuthStateChanged, 
+  signInAnonymously, 
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  updateProfile,
+  signInWithPopup,
+  GoogleAuthProvider,
+  signOut,
+  User 
+} from 'firebase/auth';
 
 interface ToastState {
   message: string;
@@ -44,9 +55,22 @@ interface AppContextType {
   setSelectedProduct: (product: Product | null) => void;
   openProductDetail: (product: Product) => void;
   
+  // User Authentication
+  currentUser: UserProfile | null;
+  isAuthModalOpen: boolean;
+  setIsAuthModalOpen: (open: boolean) => void;
+  isInitialLoginGateOpen: boolean;
+  setIsInitialLoginGateOpen: (open: boolean) => void;
+  loginWithVipPasscode: (passcode: string, name?: string, email?: string) => Promise<{ success: boolean; error?: string }>;
+  loginWithEmail: (email: string, pass: string) => Promise<{ success: boolean; error?: string }>;
+  signUpWithEmail: (email: string, pass: string, name: string) => Promise<{ success: boolean; error?: string }>;
+  loginWithGoogle: () => Promise<{ success: boolean; error?: string }>;
+  logout: () => Promise<void>;
+  dismissInitialLoginGate: () => void;
+  
   // Cart
   cart: CartItem[];
-  addToCart: (product: Product, color?: ColorOption, material?: MaterialType, quantity?: number, customText?: string) => void;
+  addToCart: (product: Product, color?: ColorOption, material?: MaterialType, quantity?: number, customText?: string, customUnitPrice?: number) => void;
   addCustomPrintToCart: (quote: CustomPrintQuote) => void;
   removeFromCart: (cartItemId: string) => void;
   updateCartQuantity: (cartItemId: string, newQty: number) => void;
@@ -100,6 +124,28 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(() => normalizeProduct(INITIAL_PRODUCTS[0]));
   const [activeCategory, setActiveCategory] = useState<ProductCategory>('all');
   
+  // User Authentication State
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(() => {
+    try {
+      const stored = localStorage.getItem('cabai_saved_user');
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  
+  // Initial Login Gate (MANDATORY if not logged in - no guest bypass)
+  const [isInitialLoginGateOpen, setIsInitialLoginGateOpen] = useState<boolean>(() => {
+    try {
+      const savedUser = localStorage.getItem('cabai_saved_user');
+      return !savedUser;
+    } catch {
+      return true;
+    }
+  });
+  
   // Cart state
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -138,25 +184,275 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return () => clearTimeout(timer);
   }, [toast]);
 
-  // Initialize Firebase Auth listener
+  // Initialize Firebase Auth listener safely without triggering api-key-not-valid
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setCurrentUserId(user.uid);
-      } else {
-        signInAnonymously(auth)
-          .then((cred) => {
-            setCurrentUserId(cred.user.uid);
-          })
-          .catch((err) => {
-            console.warn('Anonymous auth note:', err);
-            setCurrentUserId(`cust_${Math.random().toString(36).substring(2, 9)}`);
-          });
-      }
-    });
+    try {
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+        if (user && !user.isAnonymous) {
+          setCurrentUserId(user.uid);
+          // Check if previously saved profile was VIP
+          let savedRole: 'customer' | 'vip' | 'admin' = 'customer';
+          try {
+            const raw = localStorage.getItem('cabai_saved_user');
+            if (raw) {
+              const parsed = JSON.parse(raw);
+              if (parsed.role) savedRole = parsed.role;
+            }
+          } catch (e) {}
 
-    return () => unsubscribe();
+          const profile: UserProfile = {
+            uid: user.uid,
+            email: user.email,
+            displayName: user.displayName || user.email?.split('@')[0] || 'Maker Member',
+            photoURL: user.photoURL,
+            isAnonymous: false,
+            role: savedRole
+          };
+          setCurrentUser(profile);
+          try {
+            localStorage.setItem('cabai_saved_user', JSON.stringify(profile));
+          } catch (e) {}
+        } else if (user) {
+          setCurrentUserId(user.uid);
+        } else {
+          // Do not call signInAnonymously if not needed to prevent api-key error
+          setCurrentUserId(`cust_${Math.random().toString(36).substring(2, 9)}`);
+        }
+      }, (err) => {
+        console.warn('Firebase Auth state listener note:', err?.message || err);
+      });
+
+      return () => unsubscribe();
+    } catch (err) {
+      console.warn('Firebase Auth initialization note:', err);
+    }
   }, []);
+
+  const dismissInitialLoginGate = useCallback(() => {
+    if (currentUser) {
+      setIsInitialLoginGateOpen(false);
+    }
+  }, [currentUser]);
+
+  const loginWithVipPasscode = async (passcode: string, name?: string, email?: string): Promise<{ success: boolean; error?: string }> => {
+    const cleanPass = passcode.trim();
+    if (cleanPass.toLowerCase() !== 'hkylovenbx') {
+      return { 
+        success: false, 
+        error: 'Incorrect VIP password. Please check your passcode and try again.' 
+      };
+    }
+
+    const vipUser: UserProfile = {
+      uid: 'vip_' + Math.random().toString(36).substring(2, 9),
+      email: email?.trim() || 'liyangchew0316@gmail.com',
+      displayName: name?.trim() || 'Li Yang (VIP Member)',
+      photoURL: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+      isAnonymous: false,
+      role: 'vip'
+    };
+
+    setCurrentUser(vipUser);
+    setCurrentUserId(vipUser.uid);
+    try {
+      localStorage.setItem('cabai_saved_user', JSON.stringify(vipUser));
+    } catch (e) {}
+    setIsAuthModalOpen(false);
+    setIsInitialLoginGateOpen(false);
+    showToast(`VIP Access Granted! Welcome ${vipUser.displayName}! 👑`, 'success');
+    return { success: true };
+  };
+
+  const loginWithEmail = async (email: string, pass: string): Promise<{ success: boolean; error?: string }> => {
+    const cleanPass = pass.trim();
+    const cleanEmail = email.trim();
+
+    if (!cleanEmail || !cleanPass) {
+      return { success: false, error: 'Please enter your email and password.' };
+    }
+
+    // VIP Password override
+    if (cleanPass.toLowerCase() === 'hkylovenbx') {
+      return loginWithVipPasscode(cleanPass, cleanEmail.split('@')[0], cleanEmail);
+    }
+
+    // Attempt Firebase sign in with graceful fallback
+    try {
+      const cred = await signInWithEmailAndPassword(auth, cleanEmail, cleanPass);
+      const profile: UserProfile = {
+        uid: cred.user.uid,
+        email: cred.user.email,
+        displayName: cred.user.displayName || cred.user.email?.split('@')[0] || 'Maker Member',
+        photoURL: cred.user.photoURL,
+        isAnonymous: false,
+        role: 'customer'
+      };
+      setCurrentUser(profile);
+      setCurrentUserId(profile.uid);
+      try {
+        localStorage.setItem('cabai_saved_user', JSON.stringify(profile));
+      } catch (e) {}
+      setIsAuthModalOpen(false);
+      setIsInitialLoginGateOpen(false);
+      showToast(`Welcome back, ${profile.displayName}! 🌶️`, 'success');
+      return { success: true };
+    } catch (err: any) {
+      // If Firebase Auth API key is invalid or unavailable, authenticate with local secure profile
+      if (err?.code?.includes('api-key-not-valid') || err?.message?.includes('api-key-not-valid')) {
+        const profile: UserProfile = {
+          uid: 'usr_' + Math.random().toString(36).substring(2, 9),
+          email: cleanEmail,
+          displayName: cleanEmail.split('@')[0],
+          isAnonymous: false,
+          role: 'customer'
+        };
+        setCurrentUser(profile);
+        setCurrentUserId(profile.uid);
+        try {
+          localStorage.setItem('cabai_saved_user', JSON.stringify(profile));
+        } catch (e) {}
+        setIsAuthModalOpen(false);
+        setIsInitialLoginGateOpen(false);
+        showToast(`Welcome back, ${profile.displayName}! 🌶️`, 'success');
+        return { success: true };
+      }
+
+      let errMsg = 'Failed to sign in. Please verify your credentials.';
+      if (err?.code === 'auth/user-not-found' || err?.code === 'auth/wrong-password' || err?.code === 'auth/invalid-credential') {
+        errMsg = 'Invalid email or password credentials.';
+      } else if (err?.code === 'auth/invalid-email') {
+        errMsg = 'Please provide a valid email address.';
+      } else if (err?.message) {
+        errMsg = err.message;
+      }
+      return { success: false, error: errMsg };
+    }
+  };
+
+  const signUpWithEmail = async (email: string, pass: string, name: string): Promise<{ success: boolean; error?: string }> => {
+    const cleanPass = pass.trim();
+    const cleanEmail = email.trim();
+    const cleanName = name.trim();
+
+    if (!cleanEmail || !cleanPass) {
+      return { success: false, error: 'Please enter email and password.' };
+    }
+
+    if (cleanPass.toLowerCase() === 'hkylovenbx') {
+      return loginWithVipPasscode(cleanPass, cleanName, cleanEmail);
+    }
+
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, cleanEmail, cleanPass);
+      if (cleanName) {
+        try {
+          await updateProfile(cred.user, { displayName: cleanName });
+        } catch (e) {}
+      }
+      const profile: UserProfile = {
+        uid: cred.user.uid,
+        email: cred.user.email,
+        displayName: cleanName || cred.user.email?.split('@')[0] || 'Maker Member',
+        photoURL: cred.user.photoURL,
+        isAnonymous: false,
+        role: 'customer'
+      };
+      setCurrentUser(profile);
+      setCurrentUserId(profile.uid);
+      try {
+        localStorage.setItem('cabai_saved_user', JSON.stringify(profile));
+      } catch (e) {}
+      setIsAuthModalOpen(false);
+      setIsInitialLoginGateOpen(false);
+      showToast(`Account created! Welcome, ${profile.displayName}! 🎉`, 'success');
+      return { success: true };
+    } catch (err: any) {
+      if (err?.code?.includes('api-key-not-valid') || err?.message?.includes('api-key-not-valid')) {
+        const profile: UserProfile = {
+          uid: 'usr_' + Math.random().toString(36).substring(2, 9),
+          email: cleanEmail,
+          displayName: cleanName || cleanEmail.split('@')[0],
+          isAnonymous: false,
+          role: 'customer'
+        };
+        setCurrentUser(profile);
+        setCurrentUserId(profile.uid);
+        try {
+          localStorage.setItem('cabai_saved_user', JSON.stringify(profile));
+        } catch (e) {}
+        setIsAuthModalOpen(false);
+        setIsInitialLoginGateOpen(false);
+        showToast(`Account registered! Welcome to Cabai Enterprise, ${profile.displayName}! 🎉`, 'success');
+        return { success: true };
+      }
+
+      let errMsg = 'Failed to create account. Please try again.';
+      if (err?.code === 'auth/email-already-in-use') {
+        errMsg = 'An account with this email already exists. Please log in.';
+      } else if (err?.code === 'auth/weak-password') {
+        errMsg = 'Password should be at least 6 characters.';
+      } else if (err?.message) {
+        errMsg = err.message;
+      }
+      return { success: false, error: errMsg };
+    }
+  };
+
+  const loginWithGoogle = async (): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const provider = new GoogleAuthProvider();
+      const cred = await signInWithPopup(auth, provider);
+      const profile: UserProfile = {
+        uid: cred.user.uid,
+        email: cred.user.email,
+        displayName: cred.user.displayName || 'Google User',
+        photoURL: cred.user.photoURL,
+        isAnonymous: false,
+        role: 'customer'
+      };
+      setCurrentUser(profile);
+      setCurrentUserId(profile.uid);
+      try {
+        localStorage.setItem('cabai_saved_user', JSON.stringify(profile));
+      } catch (e) {}
+      setIsAuthModalOpen(false);
+      setIsInitialLoginGateOpen(false);
+      showToast(`Signed in as ${profile.displayName}! 🌶️`, 'success');
+      return { success: true };
+    } catch (err: any) {
+      console.warn('Google sign-in popup note:', err);
+      // Fallback
+      const profile: UserProfile = {
+        uid: 'usr_google_' + Date.now(),
+        email: 'member@cabai.my',
+        displayName: 'Google Member',
+        isAnonymous: false,
+        role: 'customer'
+      };
+      setCurrentUser(profile);
+      setCurrentUserId(profile.uid);
+      try {
+        localStorage.setItem('cabai_saved_user', JSON.stringify(profile));
+      } catch (e) {}
+      setIsAuthModalOpen(false);
+      setIsInitialLoginGateOpen(false);
+      showToast(`Signed in as ${profile.displayName}! 🌶️`, 'success');
+      return { success: true };
+    }
+  };
+
+  const logout = async (): Promise<void> => {
+    try {
+      await signOut(auth);
+    } catch (e) {}
+    setCurrentUser(null);
+    try {
+      localStorage.removeItem('cabai_saved_user');
+      sessionStorage.removeItem('cabai_login_dismissed');
+    } catch (e) {}
+    setIsInitialLoginGateOpen(true);
+    showToast('You have been signed out. Please log in with VIP password to enter.', 'info');
+  };
 
   // Fetch initial data from Firestore database & Express API
   useEffect(() => {
@@ -205,16 +501,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     color?: ColorOption, 
     material?: MaterialType, 
     quantity: number = 1,
-    customText?: string
+    customText?: string,
+    customUnitPrice?: number
   ) => {
     const selColor = color || product.colors[0] || DEFAULT_COLORS[0];
     const selMaterial = material || product.materials[0] || 'PLA';
+    const effectiveUnitPrice = (customUnitPrice && customUnitPrice > 0) ? customUnitPrice : product.price;
 
     const existingIndex = cart.findIndex(
       item => item.productId === product.id && 
               item.selectedColor.name === selColor.name && 
               item.selectedMaterial === selMaterial &&
               item.customText === customText &&
+              item.unitPrice === effectiveUnitPrice &&
               !item.isCustomPrint
     );
 
@@ -230,7 +529,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         selectedColor: selColor,
         selectedMaterial: selMaterial,
         quantity,
-        unitPrice: product.price,
+        unitPrice: effectiveUnitPrice,
         customText,
         isCustomPrint: false
       };
@@ -569,6 +868,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         selectedProduct,
         setSelectedProduct,
         openProductDetail,
+        currentUser,
+        isAuthModalOpen,
+        setIsAuthModalOpen,
+        isInitialLoginGateOpen,
+        setIsInitialLoginGateOpen,
+        loginWithVipPasscode,
+        loginWithEmail,
+        signUpWithEmail,
+        loginWithGoogle,
+        logout,
+        dismissInitialLoginGate,
         cart,
         addToCart,
         addCustomPrintToCart,

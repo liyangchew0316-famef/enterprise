@@ -186,7 +186,6 @@ export interface MaterialSpool {
 export interface HallOfGloryMember {
   id: string;
   name: string;
-  chineseName?: string;
   role: string;
   avatarEmoji: string;
   badge: string;
@@ -195,6 +194,15 @@ export interface HallOfGloryMember {
   quote: string;
   achievements: string[];
   signatureItem?: string;
+}
+
+export interface UserProfile {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+  photoURL?: string | null;
+  isAnonymous: boolean;
+  role?: 'customer' | 'vip' | 'admin';
 }
 
 export type ViewMode = 

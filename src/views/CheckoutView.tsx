@@ -26,20 +26,20 @@ export const CheckoutView: React.FC = () => {
     discountAmount, 
     placeOrder, 
     setCurrentView,
-    setTrackedOrderId
+    setTrackedOrderId,
+    currentUser
   } = useApp();
 
-  // Initial customer info MUST be blank (no dummy/prefilled data)
-  const [customer, setCustomer] = useState<CustomerInfo>({
-    fullName: '',
-    email: '',
+  const [customer, setCustomer] = useState<CustomerInfo>(() => ({
+    fullName: currentUser?.displayName || '',
+    email: currentUser?.email || '',
     phone: '',
     address: '',
     city: '',
     state: 'Selangor',
     postcode: '',
     notes: ''
-  });
+  }));
 
   // Strictly only Touch 'n Go eWallet is accepted
   const [paymentMethod] = useState<PaymentMethod>('TNG');

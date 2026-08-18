@@ -161,11 +161,6 @@ export const AboutView: React.FC = () => {
                       <h3 className="font-heading font-extrabold text-lg text-gray-900">
                         {member.name}
                       </h3>
-                      {member.chineseName && (
-                        <span className="text-xs font-semibold text-gray-400 font-serif">
-                          ({member.chineseName})
-                        </span>
-                      )}
                     </div>
                     <div className="text-xs font-bold text-[#af101a]">
                       {member.role}

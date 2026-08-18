@@ -6,6 +6,7 @@ import { Toast } from './components/Toast';
 import { CartDrawer } from './components/CartDrawer';
 import { SearchModal } from './components/SearchModal';
 import { AiAssistantModal } from './components/AiAssistantModal';
+import { AuthModal } from './components/AuthModal';
 import { Sparkles } from 'lucide-react';
 
 import { HomeView } from './views/HomeView';
@@ -60,6 +61,7 @@ const MainContent: React.FC = () => {
       <CartDrawer />
       <SearchModal />
       <AiAssistantModal isOpen={isAiOpen} onClose={() => setIsAiOpen(false)} />
+      <AuthModal />
       <Toast />
     </div>
   );
