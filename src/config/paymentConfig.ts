@@ -18,7 +18,7 @@ export const TNG_PAYMENT_CONFIG = {
 
   // Configured QR Code Image Path (Local public asset or CDN URL)
   // Replace this with your own QR image URL or public path anytime
-  qrImageUrl: '/tng_qr_chew_li_yang.jpg',
+  qrImageUrl: '/duitnow_qr.jpg',
 
   // Fallback direct scan instructions
   instructions: [
