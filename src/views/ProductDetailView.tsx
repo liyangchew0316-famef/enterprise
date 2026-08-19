@@ -1,6 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { useApp } from '../context/AppContext';
 import { ProductImage } from '../components/ProductImage';
+import { ChiliDrawCanvas } from '../components/ChiliDrawCanvas';
+import { saveChiliDrawingToFirestore } from '../lib/firestoreService';
 import { ColorOption, MaterialType } from '../types';
 import { 
   Star, 
@@ -16,7 +18,10 @@ import {
   Palette,
   KeyRound,
   PenTool,
-  Info
+  Info,
+  Brush,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 
 export const ProductDetailView: React.FC = () => {
@@ -45,7 +50,7 @@ export const ProductDetailView: React.FC = () => {
   }
 
   const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const [selectedColor, setSelectedColor] = useState<ColorOption>(selectedProduct.colors[0]);
+  const [selectedColor, setSelectedColor] = useState<ColorOption>(selectedProduct.colors[0] || { name: 'Chili Red', hex: '#af101a', bgClass: 'bg-[#af101a]' });
   const [selectedMaterial, setSelectedMaterial] = useState<MaterialType>(selectedProduct.materials[0] || 'PLA');
   const [quantity, setQuantity] = useState(1);
   
@@ -58,10 +63,14 @@ export const ProductDetailView: React.FC = () => {
   const [nameTagText, setNameTagText] = useState<string>('CABAI');
   const [penInk, setPenInk] = useState<string>('Black Gel');
   const [customText, setCustomText] = useState<string>('');
+  
+  // Drawing Canvas State for Drawable Products
+  const [customDrawingDataUrl, setCustomDrawingDataUrl] = useState<string | null>(null);
+  const [isDrawingStudioOpen, setIsDrawingStudioOpen] = useState<boolean>(true);
 
   const isClicker = selectedProduct.id === 'prod-keyboard-clicker' || selectedProduct.name.toLowerCase().includes('clicker');
   const isNameTag = selectedProduct.id === 'prod-name-tag' || selectedProduct.name.toLowerCase().includes('name tag');
-  const isDrawable = selectedProduct.name.toLowerCase().includes('drawable');
+  const isDrawable = selectedProduct.tags.includes('Drawable') || selectedProduct.name.toLowerCase().includes('draw') || selectedProduct.id.includes('draw');
   const isPen = selectedProduct.id === 'prod-cabai-pen' || selectedProduct.name.toLowerCase().includes('pen');
 
   // Mechanical switch audio simulator
@@ -155,6 +164,13 @@ export const ProductDetailView: React.FC = () => {
       const cleanLetters = nameTagText.trim();
       parts.push(`Name Tag: "${cleanLetters || 'CABAI'}" (${cleanLetters.length} Letters)`);
     }
+    if (isDrawable) {
+      if (customDrawingDataUrl) {
+        parts.push(`Custom Drawn Chili: Canvas Art Attached`);
+      } else {
+        parts.push(`Custom Drawable: Base Template Selected`);
+      }
+    }
     if (isPen) {
       parts.push(`Ink Core: ${penInk}`);
     }
@@ -162,7 +178,7 @@ export const ProductDetailView: React.FC = () => {
       parts.push(`Personalization: "${customText.trim()}"`);
     }
     return parts.join(' | ');
-  }, [isClicker, clickerKeys, switchType, keycapLabels, isNameTag, nameTagText, isPen, penInk, customText]);
+  }, [isClicker, clickerKeys, switchType, keycapLabels, isNameTag, nameTagText, isDrawable, customDrawingDataUrl, isPen, penInk, customText]);
 
   const handleAddToCart = () => {
     if (isNameTag && nameTagText.trim().length < 5) {
@@ -594,7 +610,104 @@ export const ProductDetailView: React.FC = () => {
             </div>
           )}
 
-          {/* 4. GENERAL PERSONALIZATION / CUSTOM NOTE (FOR ALL PRODUCTS) */}
+          {/* 4. DRAW CUSTOM CHILI CANVAS STUDIO (FOR DRAWABLE PRODUCTS) */}
+          {isDrawable && (
+            <div className="p-5 bg-gradient-to-br from-purple-50 via-indigo-50/40 to-pink-50 rounded-2xl border-2 border-purple-300 shadow-sm space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-purple-700 text-white flex items-center justify-center font-bold text-sm shadow-sm">
+                    🎨
+                  </div>
+                  <div>
+                    <h3 className="font-heading font-extrabold text-sm text-purple-950">
+                      Interactive 3D Chili Drawing Studio
+                    </h3>
+                    <p className="text-[11px] text-purple-700 font-medium">
+                      Draw, color, add expressions &amp; stamps directly on the chili canvas
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setIsDrawingStudioOpen(!isDrawingStudioOpen)}
+                  className="px-3 py-1.5 bg-white text-purple-800 border border-purple-200 rounded-lg text-xs font-bold flex items-center gap-1 hover:bg-purple-50"
+                >
+                  <span>{isDrawingStudioOpen ? 'Hide Studio' : 'Open Drawing Studio'}</span>
+                  {isDrawingStudioOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                </button>
+              </div>
+
+              {isDrawingStudioOpen ? (
+                <div className="pt-2">
+                  <ChiliDrawCanvas
+                    onCanvasChange={(dataUrl) => {
+                      setCustomDrawingDataUrl(dataUrl);
+                    }}
+                    onSaveToFirebase={async (designData) => {
+                      try {
+                        const success = await saveChiliDrawingToFirestore({
+                          id: `draw-${Date.now()}`,
+                          title: designData.title || selectedProduct.name,
+                          creatorName: designData.creatorName || 'Maker Member',
+                          imageData: designData.imageData,
+                          baseChiliTemplate: designData.baseTemplate || 'signature',
+                          material: selectedMaterial,
+                          colorName: selectedColor.name,
+                          colorHex: selectedColor.hex,
+                          scalePercent: 100,
+                          infillPercent: 20,
+                          specialInstructions: customText,
+                          estimatedPrice: calculatedUnitPrice,
+                          createdAt: new Date().toISOString()
+                        });
+                        if (success) {
+                          showToast('Custom chili design synchronized with 3D printer! 🌶️', 'success');
+                          return true;
+                        }
+                      } catch (e) {
+                        console.error(e);
+                      }
+                      return false;
+                    }}
+                  />
+                </div>
+              ) : (
+                <div className="p-3 bg-white rounded-xl border border-purple-200 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    {customDrawingDataUrl ? (
+                      <img 
+                        src={customDrawingDataUrl} 
+                        alt="Your chili drawing" 
+                        className="w-12 h-12 object-contain bg-gray-50 rounded-lg border border-purple-200 p-0.5"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 rounded-lg bg-purple-100 flex items-center justify-center text-xl">
+                        🌶️
+                      </div>
+                    )}
+                    <div>
+                      <div className="text-xs font-bold text-gray-800">
+                        {customDrawingDataUrl ? '✅ Custom Drawing Attached!' : 'Standard Chili Template'}
+                      </div>
+                      <div className="text-[10px] text-gray-500">
+                        {customDrawingDataUrl ? 'Your drawing is saved and will be 3D printed.' : 'Click to customize your chili design.'}
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsDrawingStudioOpen(true)}
+                    className="px-3 py-1.5 bg-purple-700 text-white rounded-lg text-xs font-bold hover:bg-purple-800"
+                  >
+                    Edit Drawing
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* 5. GENERAL PERSONALIZATION / CUSTOM NOTE (FOR ALL PRODUCTS) */}
           {!isNameTag && (
             <div className="p-3.5 bg-gray-50 rounded-xl border border-gray-200 space-y-1.5">
               <label className="text-xs font-bold text-gray-800 flex items-center gap-1.5">

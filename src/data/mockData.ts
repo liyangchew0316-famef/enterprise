@@ -92,47 +92,49 @@ export const DEFAULT_COLORS: ColorOption[] = [
 
 export const INITIAL_PRODUCTS: Product[] = [
   {
-    id: 'prod-keyboard-clicker',
-    name: 'Keyboard Clicker',
-    subtitle: '1 Key RM5 (Max 5 Keys) • Custom Switches',
+    id: 'prod-draw-custom-chili',
+    name: 'Draw Custom Chili 🌶️',
+    subtitle: 'Interactive 3D Chili Drawing Canvas • RM5',
     price: 5.00,
-    originalPrice: 7.00,
-    rating: 4.95,
-    reviewsCount: 184,
+    originalPrice: 8.00,
+    rating: 5.00,
+    reviewsCount: 382,
     category: 'custom',
-    tags: ['Customizable', 'Mechanical Key', 'Fidget Toy', 'Best Seller'],
-    description: '3D printed mechanical keyboard switch clicker fidget toy. Custom-configured with 1 to 5 clicky keys (RM5.00 per key switch). Satisfying mechanical tactile click sound and durable compact casing.',
+    tags: ['Drawable', 'Interactive Canvas', 'Custom Art', 'Top Pick', '3D Chili'],
+    description: 'Interactive custom chili drawing & coloring studio! Paint your own pepper artwork, add funny facial expressions, stamps, or embossed lettering directly on the 3D chili canvas, then we 3D print your custom chili in rigid PLA!',
     images: [
-      imageConfig.products.keyboardClicker
+      imageConfig.products.cabaiKeychainDrawable,
+      imageConfig.products.cabaiKeychain
     ],
     specifications: {
-      material: 'Premium PLA+',
-      weight: '18g (per key)',
-      dimensions: '25mm x 25mm x 32mm (1-Key Base)',
-      printTime: '35 mins',
-      layerHeight: '0.16mm (Fine)',
+      material: 'Pure PLA (Drawing Ready Surface)',
+      weight: '16g',
+      dimensions: '60mm x 22mm x 18mm',
+      printTime: '30 mins',
+      layerHeight: '0.16mm (Fine Detail)',
       madeToOrder: true
     },
     colors: DEFAULT_COLORS,
-    materials: ['PLA', 'PETG'],
+    materials: ['PLA'],
     isBestSeller: true,
     isNew: true,
     inStock: true,
-    stockQuantity: 95
+    stockQuantity: 150
   },
   {
     id: 'prod-cabai-keychain-drawable',
     name: 'Cabai Keychain (Drawable)',
-    subtitle: 'DIY Colorable Chili Keyring • Max RM5',
+    subtitle: 'DIY Colorable Chili Keyring • RM5',
     price: 5.00,
     originalPrice: 6.50,
-    rating: 4.92,
-    reviewsCount: 146,
+    rating: 4.95,
+    reviewsCount: 196,
     category: 'keychains',
-    tags: ['Drawable', 'DIY Art', 'Chili Signature', 'Popular'],
-    description: 'Customizable 3D printed chili pepper keychain with smooth white matte drawing canvas. Color your own expressions, facial details, or personalized patterns with markers.',
+    tags: ['Drawable', 'DIY Art', 'Chili Signature', 'Best Seller'],
+    description: 'Customizable 3D printed chili pepper keychain with smooth white matte drawing canvas. Color your own expressions, facial details, or personalized patterns on the printable PLA surface.',
     images: [
-      imageConfig.products.cabaiKeychainDrawable
+      imageConfig.products.cabaiKeychainDrawable,
+      imageConfig.products.cabaiKeychain
     ],
     specifications: {
       material: 'Matte White PLA+',
@@ -147,7 +149,65 @@ export const INITIAL_PRODUCTS: Product[] = [
     isBestSeller: true,
     isNew: true,
     inStock: true,
-    stockQuantity: 110
+    stockQuantity: 120
+  },
+  {
+    id: 'prod-cabai-fridge-magnet',
+    name: 'Cabai Fridge Magnet (Drawable)',
+    subtitle: 'DIY Colorable Chili Magnet • RM3',
+    price: 3.00,
+    originalPrice: 4.50,
+    rating: 4.90,
+    reviewsCount: 135,
+    category: 'home',
+    tags: ['Drawable', 'Fridge Magnet', 'DIY Canvas', 'Popular'],
+    description: 'Cute 3D printed chili pepper fridge magnet with embedded strong neodymium magnet and smooth drawable front face. Customize with markers or online canvas before ordering!',
+    images: [
+      imageConfig.products.cabaiFridgeMagnet
+    ],
+    specifications: {
+      material: 'Tough PLA+ with N52 Neodymium Magnet',
+      weight: '16g',
+      dimensions: '50mm x 30mm x 12mm',
+      printTime: '28 mins',
+      layerHeight: '0.16mm',
+      madeToOrder: true
+    },
+    colors: DEFAULT_COLORS,
+    materials: ['PLA'],
+    isBestSeller: false,
+    isNew: true,
+    inStock: true,
+    stockQuantity: 140
+  },
+  {
+    id: 'prod-keyboard-clicker',
+    name: 'Keyboard Clicker',
+    subtitle: '1 Key RM5 (Max 5 Keys) • Custom Switches',
+    price: 5.00,
+    originalPrice: 7.00,
+    rating: 4.95,
+    reviewsCount: 184,
+    category: 'custom',
+    tags: ['Customizable', 'Mechanical Key', 'Fidget Toy', 'Best Seller'],
+    description: '3D printed mechanical keyboard switch clicker fidget toy. Custom-configured with 1 to 5 clicky keys (RM5.00 per key switch). Satisfying mechanical tactile click sound and durable compact PLA casing.',
+    images: [
+      imageConfig.products.keyboardClicker
+    ],
+    specifications: {
+      material: 'Premium PLA+',
+      weight: '18g (per key)',
+      dimensions: '25mm x 25mm x 32mm (1-Key Base)',
+      printTime: '35 mins',
+      layerHeight: '0.16mm (Fine)',
+      madeToOrder: true
+    },
+    colors: DEFAULT_COLORS,
+    materials: ['PLA'],
+    isBestSeller: true,
+    isNew: false,
+    inStock: true,
+    stockQuantity: 95
   },
   {
     id: 'prod-cabai-keychain',
@@ -159,7 +219,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     reviewsCount: 320,
     category: 'keychains',
     tags: ['RM3 Classic', 'Studio Signature', 'Best Seller', 'Pocket Size'],
-    description: 'Our studio signature classic 3D printed Malaysian chili pepper keychain. Vibrant red finish with green stem, sleek surface, and durable split ring.',
+    description: 'Our studio signature classic 3D printed Malaysian chili pepper keychain. Vibrant red finish with green stem, sleek surface, and durable split ring in rigid PLA.',
     images: [
       imageConfig.products.cabaiKeychain
     ],
@@ -172,7 +232,7 @@ export const INITIAL_PRODUCTS: Product[] = [
       madeToOrder: true
     },
     colors: DEFAULT_COLORS,
-    materials: ['PLA', 'PETG'],
+    materials: ['PLA'],
     isBestSeller: true,
     isNew: false,
     inStock: true,
@@ -188,7 +248,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     reviewsCount: 278,
     category: 'custom',
     tags: ['Custom Text', 'Name Keyring', 'Embossed 3D', 'Personalized'],
-    description: 'Personalized 3D printed embossed name tag keyring. RM0.50 per letter (minimum 5 letters = RM2.50 base). High-contrast dual-tone raised lettering tailored to your custom name.',
+    description: 'Personalized 3D printed embossed name tag keyring. RM0.50 per letter (minimum 5 letters = RM2.50 base). High-contrast dual-tone raised lettering tailored to your custom name in PLA.',
     images: [
       imageConfig.products.nameTag
     ],
@@ -201,57 +261,28 @@ export const INITIAL_PRODUCTS: Product[] = [
       madeToOrder: true
     },
     colors: DEFAULT_COLORS,
-    materials: ['PLA', 'PETG'],
+    materials: ['PLA'],
     isBestSeller: true,
     isNew: false,
     inStock: true,
     stockQuantity: 180
   },
   {
-    id: 'prod-cabai-fridge-magnet',
-    name: 'Cabai Fridge Magnet (Drawable)',
-    subtitle: 'DIY Colorable • Max RM3',
-    price: 3.00,
-    originalPrice: 4.00,
-    rating: 4.89,
-    reviewsCount: 112,
-    category: 'home',
-    tags: ['Fridge Magnet', 'Drawable Canvas', 'Home Decor', 'Budget Pick'],
-    description: 'Cute 3D printed chili pepper fridge magnet with embedded strong neodymium magnet and smooth drawable front face. Sticks firmly to refrigerators, whiteboards, and magnetic boards.',
-    images: [
-      imageConfig.products.cabaiFridgeMagnet
-    ],
-    specifications: {
-      material: 'Tough PLA+ with N52 Magnet',
-      weight: '16g',
-      dimensions: '50mm x 30mm x 12mm',
-      printTime: '28 mins',
-      layerHeight: '0.16mm',
-      madeToOrder: true
-    },
-    colors: DEFAULT_COLORS,
-    materials: ['PLA'],
-    isBestSeller: false,
-    isNew: true,
-    inStock: true,
-    stockQuantity: 140
-  },
-  {
     id: 'prod-cabai-phone-holder',
-    name: 'Cabai Phone Holder',
+    name: 'Cabai Phone Holder (Drawable Canvas)',
     subtitle: 'Ergonomic Desktop Phone Stand • RM5',
     price: 5.00,
     originalPrice: 7.50,
     rating: 4.91,
     reviewsCount: 165,
     category: 'organizers',
-    tags: ['Phone Stand', 'Desk Setup', 'Ergonomic', 'Durable'],
-    description: 'Ergonomic 3D printed chili-inspired desktop smartphone holder. Holds smartphones securely in portrait or landscape orientation with angled viewing and cable routing notch.',
+    tags: ['Drawable', 'Phone Stand', 'Desk Setup', 'Ergonomic', 'Durable'],
+    description: 'Ergonomic 3D printed chili-inspired desktop smartphone holder with front doodle canvas face. Holds smartphones securely in portrait or landscape orientation.',
     images: [
       imageConfig.products.cabaiPhoneHolder
     ],
     specifications: {
-      material: 'Reinforced PETG / PLA+',
+      material: 'Reinforced Tough PLA+',
       weight: '48g',
       dimensions: '75mm x 68mm x 60mm',
       printTime: '1 hr 10 mins',
@@ -259,7 +290,7 @@ export const INITIAL_PRODUCTS: Product[] = [
       madeToOrder: true
     },
     colors: DEFAULT_COLORS,
-    materials: ['PLA', 'PETG'],
+    materials: ['PLA'],
     isBestSeller: true,
     isNew: false,
     inStock: true,
@@ -267,20 +298,20 @@ export const INITIAL_PRODUCTS: Product[] = [
   },
   {
     id: 'prod-cabai-pen',
-    name: 'Cabai Pen',
+    name: 'Cabai Pen (Drawable)',
     subtitle: '3D Printed Chili Ballpoint Pen • RM3',
     price: 3.00,
     originalPrice: 4.50,
     rating: 4.88,
     reviewsCount: 98,
     category: 'organizers',
-    tags: ['Novelty Pen', 'Chili Design', 'Stationery', 'Refillable'],
-    description: 'Fun novelty 3D printed chili pepper casing ballpoint pen. Includes removable green stem cap and smooth 0.5mm replaceable black gel/ballpoint ink core.',
+    tags: ['Drawable', 'Novelty Pen', 'Chili Design', 'Stationery'],
+    description: 'Fun novelty 3D printed chili pepper casing ballpoint pen with customizable barrel. Includes removable green stem cap and smooth 0.5mm replaceable black gel ink core in durable PLA.',
     images: [
       imageConfig.products.cabaiPen
     ],
     specifications: {
-      material: 'Lightweight PLA',
+      material: 'Lightweight PLA+',
       weight: '22g',
       dimensions: '140mm x 16mm x 16mm',
       printTime: '45 mins',
@@ -301,10 +332,10 @@ export const INITIAL_ORDERS: Order[] = [];
 export const INITIAL_SPOOLS: MaterialSpool[] = [
   { id: 'spool-01', name: 'PLA+ Chili Red', material: 'PLA', colorName: 'Chili Red', colorHex: '#af101a', stockKg: 14.5, maxCapacityKg: 25.0, pricePerKg: 65, isLow: false },
   { id: 'spool-02', name: 'PLA Matte Black', material: 'PLA', colorName: 'Matte Black', colorHex: '#1a1c1c', stockKg: 8.2, maxCapacityKg: 20.0, pricePerKg: 65, isLow: false },
-  { id: 'spool-03', name: 'PETG Industrial Black', material: 'PETG', colorName: 'Matte Black', colorHex: '#1a1c1c', stockKg: 2.1, maxCapacityKg: 15.0, pricePerKg: 85, isLow: true },
+  { id: 'spool-03', name: 'PLA Industrial Gray', material: 'PLA', colorName: 'Matte Black', colorHex: '#1a1c1c', stockKg: 6.5, maxCapacityKg: 15.0, pricePerKg: 65, isLow: false },
   { id: 'spool-04', name: 'PLA Chalk White', material: 'PLA', colorName: 'Chalk White', colorHex: '#f3f4f6', stockKg: 11.0, maxCapacityKg: 20.0, pricePerKg: 65, isLow: false },
-  { id: 'spool-05', name: 'TPU Flexible 95A Red', material: 'TPU', colorName: 'Chili Red', colorHex: '#af101a', stockKg: 3.8, maxCapacityKg: 10.0, pricePerKg: 110, isLow: false },
-  { id: 'spool-06', name: 'PLA Silk Gold', material: 'PLA', colorName: 'Silk Gold', colorHex: '#d97706', stockKg: 1.5, maxCapacityKg: 10.0, pricePerKg: 80, isLow: true }
+  { id: 'spool-05', name: 'PLA Tough Crimson', material: 'PLA', colorName: 'Chili Red', colorHex: '#af101a', stockKg: 7.8, maxCapacityKg: 10.0, pricePerKg: 70, isLow: false },
+  { id: 'spool-06', name: 'PLA Silk Gold', material: 'PLA', colorName: 'Silk Gold', colorHex: '#d97706', stockKg: 4.5, maxCapacityKg: 10.0, pricePerKg: 80, isLow: false }
 ];
 
 export const MALAYSIAN_BANKS = [

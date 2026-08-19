@@ -39,27 +39,33 @@ export type DrawingTool = 'brush' | 'eraser' | 'stamp' | 'text';
 export const CHILI_TEMPLATES = [
   {
     id: 'signature',
-    name: 'Signature Cabai 3D',
-    description: 'Realistic 3D printed cabai pepper with keyring loop',
-    imageSrc: imageConfig.products.cabaiKeychain
+    name: 'Signature Cabai 3D 🌶️',
+    description: 'Realistic 3D printed cabai pepper with keyring loop & glossy body',
+    svgType: 'signature'
+  },
+  {
+    id: 'white_matte',
+    name: 'White Matte DIY 🤍',
+    description: 'Clean matte white 3D chili surface perfect for custom colors & doodles',
+    svgType: 'white_matte'
   },
   {
     id: 'outline',
-    name: 'Pepper Outline',
+    name: 'Pepper Outline ✏️',
     description: 'Crisp vector outline canvas for custom pattern coloring',
     svgType: 'outline'
   },
   {
-    id: 'fiery',
-    name: 'Fiery Habanero',
-    description: 'Plump curved hot habanero pepper silhouette',
-    svgType: 'habanero'
+    id: 'mascot',
+    name: 'Chili Mascot 😊',
+    description: 'Cute stylized pepper character with big eyes & smile',
+    svgType: 'mascot'
   },
   {
-    id: 'mascot',
-    name: 'Chili Mascot',
-    description: 'Cute stylized pepper character ready for faces & stickers',
-    svgType: 'mascot'
+    id: 'fiery',
+    name: 'Fiery Habanero 🔥',
+    description: 'Plump curved hot habanero pepper silhouette',
+    svgType: 'habanero'
   }
 ];
 
@@ -134,12 +140,12 @@ export const ChiliDrawCanvas: React.FC<ChiliDrawCanvasProps> = ({
 
   // Render Base Template onto Canvas
   const drawBaseTemplate = useCallback((ctx: CanvasRenderingContext2D, templateId: string) => {
-    // Background
-    ctx.fillStyle = '#181a1b';
+    // Canvas Background
+    ctx.fillStyle = '#141517';
     ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-    // Subtle Grid pattern
-    ctx.strokeStyle = '#26292b';
+    // Subtle 3D Printing Grid pattern
+    ctx.strokeStyle = '#222528';
     ctx.lineWidth = 1;
     const gridSize = 40;
     for (let x = 0; x < CANVAS_WIDTH; x += gridSize) {
@@ -155,116 +161,234 @@ export const ChiliDrawCanvas: React.FC<ChiliDrawCanvasProps> = ({
       ctx.stroke();
     }
 
-    if (templateId === 'signature') {
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.src = imageConfig.products.cabaiKeychain;
-      img.onload = () => {
-        // Draw image centered
-        const pad = 60;
-        ctx.drawImage(img, pad, pad, CANVAS_WIDTH - pad * 2, CANVAS_HEIGHT - pad * 2);
-        // Save initial snapshot
-        if (canvasRef.current) {
-          const snap = canvasRef.current.toDataURL('image/png');
-          setHistory([snap]);
-          setHistoryStep(0);
-        }
-      };
-      img.onerror = () => {
-        drawFallbackVectorChili(ctx, 'signature');
-      };
-      return;
-    }
+    // Outer stage border
+    ctx.strokeStyle = '#2e3236';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(10, 10, CANVAS_WIDTH - 20, CANVAS_HEIGHT - 20);
 
-    drawFallbackVectorChili(ctx, templateId);
-  }, []);
-
-  const drawFallbackVectorChili = (ctx: CanvasRenderingContext2D, type: string) => {
     ctx.save();
 
-    // Studio drop shadow
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
-    ctx.shadowBlur = 25;
-    ctx.shadowOffsetX = 10;
-    ctx.shadowOffsetY = 15;
+    // Soft realistic shadow under chili
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.65)';
+    ctx.shadowBlur = 35;
+    ctx.shadowOffsetX = 12;
+    ctx.shadowOffsetY = 24;
 
-    // Keyring ring hole at top
+    // 1. Metal Keyring Split Ring at Top
     ctx.strokeStyle = '#94a3b8';
     ctx.lineWidth = 14;
     ctx.beginPath();
-    ctx.arc(400, 100, 36, 0, Math.PI * 2);
+    ctx.arc(400, 95, 38, 0, Math.PI * 2);
     ctx.stroke();
 
-    // Stem
-    ctx.fillStyle = '#16a34a';
+    // Keyring inner ring highlight
+    ctx.strokeStyle = '#cbd5e1';
+    ctx.lineWidth = 4;
     ctx.beginPath();
-    ctx.moveTo(385, 160);
-    ctx.bezierCurveTo(390, 110, 410, 105, 415, 155);
-    ctx.bezierCurveTo(440, 175, 450, 205, 430, 220);
-    ctx.bezierCurveTo(400, 230, 370, 220, 365, 195);
+    ctx.arc(400, 95, 34, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // 2. Green Calyx & Stem at Top
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+    ctx.shadowBlur = 15;
+    
+    // Stem curve
+    ctx.fillStyle = '#15803d';
+    ctx.beginPath();
+    ctx.moveTo(385, 145);
+    ctx.bezierCurveTo(385, 85, 415, 80, 420, 140);
+    ctx.bezierCurveTo(450, 160, 460, 190, 440, 215);
+    ctx.bezierCurveTo(400, 225, 365, 215, 360, 185);
     ctx.closePath();
     ctx.fill();
 
-    // Main Chili Body
+    // Calyx leafy crown leaves
+    ctx.fillStyle = '#16a34a';
     ctx.beginPath();
-    if (type === 'habanero') {
-      // Plumper shape
-      ctx.moveTo(370, 210);
-      ctx.bezierCurveTo(240, 260, 240, 460, 310, 580);
-      ctx.bezierCurveTo(350, 660, 400, 710, 410, 730);
-      ctx.bezierCurveTo(425, 710, 490, 620, 530, 480);
-      ctx.bezierCurveTo(570, 340, 500, 220, 430, 210);
-    } else if (type === 'mascot') {
-      // Cute stylized shape
-      ctx.moveTo(370, 210);
-      ctx.bezierCurveTo(270, 250, 280, 440, 320, 560);
-      ctx.bezierCurveTo(350, 640, 390, 690, 420, 720);
-      ctx.bezierCurveTo(450, 680, 510, 580, 530, 460);
-      ctx.bezierCurveTo(550, 320, 480, 220, 430, 210);
+    ctx.moveTo(340, 190);
+    ctx.quadraticCurveTo(370, 230, 400, 200);
+    ctx.quadraticCurveTo(430, 235, 460, 190);
+    ctx.quadraticCurveTo(430, 180, 400, 180);
+    ctx.closePath();
+    ctx.fill();
+
+    // Stem gloss highlight
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(395, 110);
+    ctx.quadraticCurveTo(405, 140, 410, 180);
+    ctx.stroke();
+
+    // 3. Main Chili Body Silhouette
+    ctx.beginPath();
+    if (templateId === 'fiery' || templateId === 'habanero') {
+      // Plumper fiery curved habanero shape
+      ctx.moveTo(365, 205);
+      ctx.bezierCurveTo(230, 250, 230, 450, 300, 580);
+      ctx.bezierCurveTo(345, 660, 395, 715, 410, 740);
+      ctx.bezierCurveTo(430, 715, 495, 625, 535, 480);
+      ctx.bezierCurveTo(575, 335, 505, 215, 435, 205);
+    } else if (templateId === 'mascot') {
+      // Cute chubby mascot shape
+      ctx.moveTo(365, 205);
+      ctx.bezierCurveTo(260, 245, 270, 440, 310, 560);
+      ctx.bezierCurveTo(345, 640, 390, 695, 420, 730);
+      ctx.bezierCurveTo(450, 690, 515, 585, 535, 460);
+      ctx.bezierCurveTo(555, 315, 485, 215, 435, 205);
     } else {
-      // Classic curved chili
-      ctx.moveTo(370, 210);
-      ctx.bezierCurveTo(280, 260, 260, 420, 290, 530);
-      ctx.bezierCurveTo(320, 630, 380, 700, 430, 740);
-      ctx.bezierCurveTo(450, 720, 470, 650, 480, 570);
-      ctx.bezierCurveTo(500, 440, 530, 320, 430, 210);
+      // Classic sleek curved Malaysian Cabai pepper
+      ctx.moveTo(365, 205);
+      ctx.bezierCurveTo(275, 255, 255, 420, 285, 530);
+      ctx.bezierCurveTo(315, 630, 375, 705, 430, 745);
+      ctx.bezierCurveTo(455, 725, 475, 655, 485, 575);
+      ctx.bezierCurveTo(505, 440, 535, 315, 435, 205);
     }
     ctx.closePath();
 
-    if (type === 'outline') {
-      ctx.fillStyle = '#f8fafc';
+    if (templateId === 'outline') {
+      // Clean white fill with bold black 3D outline
+      ctx.fillStyle = '#ffffff';
       ctx.fill();
       ctx.strokeStyle = '#09090b';
-      ctx.lineWidth = 12;
+      ctx.lineWidth = 14;
       ctx.stroke();
-    } else {
-      // Vibrant 3D gradient fill
-      const grad = ctx.createLinearGradient(280, 210, 500, 700);
-      grad.addColorStop(0, '#dc2626');
-      grad.addColorStop(0.4, '#af101a');
-      grad.addColorStop(0.85, '#7f1d1d');
-      grad.addColorStop(1, '#450a0a');
-      ctx.fillStyle = grad;
+
+      // Inner texture guide lines
+      ctx.strokeStyle = '#e2e8f0';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(340, 260);
+      ctx.bezierCurveTo(310, 380, 330, 520, 380, 620);
+      ctx.stroke();
+    } else if (templateId === 'white_matte') {
+      // Matte White DIY Printable Canvas
+      const whiteGrad = ctx.createLinearGradient(280, 205, 500, 700);
+      whiteGrad.addColorStop(0, '#ffffff');
+      whiteGrad.addColorStop(0.5, '#f1f5f9');
+      whiteGrad.addColorStop(0.85, '#cbd5e1');
+      whiteGrad.addColorStop(1, '#94a3b8');
+      ctx.fillStyle = whiteGrad;
       ctx.fill();
 
-      // 3D Highlight curve
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+      // Subtle edge shading
+      ctx.strokeStyle = '#64748b';
+      ctx.lineWidth = 6;
+      ctx.stroke();
+
+      // 3D Soft highlight
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
       ctx.lineWidth = 10;
       ctx.beginPath();
       ctx.moveTo(340, 260);
       ctx.bezierCurveTo(310, 380, 330, 520, 380, 620);
       ctx.stroke();
+    } else if (templateId === 'fiery' || templateId === 'habanero') {
+      // Spicy Orange-Red Fire Gradient
+      const fireGrad = ctx.createLinearGradient(270, 205, 520, 720);
+      fireGrad.addColorStop(0, '#f97316');
+      fireGrad.addColorStop(0.35, '#ea580c');
+      fireGrad.addColorStop(0.7, '#dc2626');
+      fireGrad.addColorStop(1, '#7f1d1d');
+      ctx.fillStyle = fireGrad;
+      ctx.fill();
+
+      ctx.strokeStyle = '#9a3412';
+      ctx.lineWidth = 6;
+      ctx.stroke();
+
+      // Glossy highlight
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+      ctx.lineWidth = 12;
+      ctx.beginPath();
+      ctx.moveTo(330, 280);
+      ctx.bezierCurveTo(300, 400, 320, 530, 370, 630);
+      ctx.stroke();
+    } else {
+      // Signature 3D Red Cabai (Rich glossy red with 3D gradient depth)
+      const grad = ctx.createLinearGradient(280, 205, 500, 720);
+      grad.addColorStop(0, '#ef4444');
+      grad.addColorStop(0.3, '#dc2626');
+      grad.addColorStop(0.65, '#af101a');
+      grad.addColorStop(0.9, '#7f1d1d');
+      grad.addColorStop(1, '#450a0a');
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // Outer bezel line
+      ctx.strokeStyle = '#7f1d1d';
+      ctx.lineWidth = 5;
+      ctx.stroke();
+
+      // Realistic 3D Curvature Specular Reflection
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+      ctx.lineWidth = 14;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(340, 260);
+      ctx.bezierCurveTo(310, 380, 330, 520, 380, 620);
+      ctx.stroke();
+
+      // Secondary fine specular glint
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.moveTo(343, 275);
+      ctx.bezierCurveTo(318, 380, 336, 490, 375, 570);
+      ctx.stroke();
     }
+
+    // 4. If Mascot, draw cute facial expressions
+    if (templateId === 'mascot') {
+      // Big kawaii eyes
+      ctx.fillStyle = '#0f172a';
+      // Left eye
+      ctx.beginPath();
+      ctx.arc(360, 370, 16, 0, Math.PI * 2);
+      ctx.fill();
+      // Right eye
+      ctx.beginPath();
+      ctx.arc(430, 365, 16, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Eye catchlights
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(355, 364, 6, 0, Math.PI * 2);
+      ctx.arc(425, 359, 6, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Rosy blush cheeks
+      ctx.fillStyle = 'rgba(251, 113, 133, 0.6)';
+      ctx.beginPath();
+      ctx.arc(335, 395, 14, 0, Math.PI * 2);
+      ctx.arc(455, 390, 14, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Joyful open smile
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.arc(395, 395, 20, 0.2, Math.PI - 0.2);
+      ctx.stroke();
+    }
+
+    // 5. Watermark Badge in Canvas Bottom Right
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+    ctx.font = "bold 13px 'Plus Jakarta Sans', sans-serif";
+    ctx.textAlign = 'right';
+    ctx.fillText('CABAI ENTERPRISE™ 3D MAKER CANVAS', CANVAS_WIDTH - 25, CANVAS_HEIGHT - 25);
 
     ctx.restore();
 
-    // Save snapshot
+    // Immediately save initial snapshot
     if (canvasRef.current) {
       const snap = canvasRef.current.toDataURL('image/png');
       setHistory([snap]);
       setHistoryStep(0);
+      onCanvasChange?.(snap);
     }
-  };
+  }, [CANVAS_HEIGHT, CANVAS_WIDTH, onCanvasChange]);
 
   // Initialize Canvas
   useEffect(() => {

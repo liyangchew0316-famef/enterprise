@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { ProductImage } from '../components/ProductImage';
 import { ProductCategory, MaterialType } from '../types';
-import { Filter, Star, SlidersHorizontal, ArrowUpDown } from 'lucide-react';
+import { Filter, Star, SlidersHorizontal, ArrowUpDown, Palette, Sparkles, PenTool, ArrowRight } from 'lucide-react';
 
 export const ShopView: React.FC = () => {
   const { 
@@ -10,20 +10,28 @@ export const ShopView: React.FC = () => {
     activeCategory, 
     setActiveCategory, 
     openProductDetail, 
-    addToCart 
+    addToCart,
+    setCurrentView
   } = useApp();
 
   const [selectedMaterial, setSelectedMaterial] = useState<MaterialType | 'ALL'>('ALL');
+  const [onlyDrawable, setOnlyDrawable] = useState<boolean>(false);
   const [maxPrice, setMaxPrice] = useState<number>(50);
   const [sortBy, setSortBy] = useState<'featured' | 'price-asc' | 'price-desc' | 'rating'>('featured');
 
   // Filter logic
   let filtered = products.filter(p => {
-    // Category check
-    if (activeCategory !== 'all' && p.category !== activeCategory) {
+    // Only drawable filter toggle
+    if (onlyDrawable && !p.tags.includes('Drawable') && !p.name.toLowerCase().includes('draw')) {
       return false;
     }
-    // Material check
+    // Category check
+    if (activeCategory === 'custom') {
+      if (!p.tags.includes('Drawable') && p.category !== 'custom') return false;
+    } else if (activeCategory !== 'all' && p.category !== activeCategory) {
+      return false;
+    }
+    // Material check (all PLA)
     if (selectedMaterial !== 'ALL' && !p.materials.includes(selectedMaterial as MaterialType)) {
       return false;
     }
@@ -45,23 +53,66 @@ export const ShopView: React.FC = () => {
 
   const categories: { id: ProductCategory; label: string; icon: string }[] = [
     { id: 'all', label: 'All Products', icon: '🛍️' },
+    { id: 'custom', label: 'Draw Custom Chili 🌶️', icon: '🎨' },
     { id: 'keychains', label: 'Cabai Keychains', icon: '🌶️' },
-    { id: 'organizers', label: 'Desk Organizers', icon: '🐝' },
+    { id: 'organizers', label: 'Desk & Stationery', icon: '🐝' },
     { id: 'desk', label: 'Phone Stands', icon: '📱' },
-    { id: 'home', label: 'Home & Decor', icon: '🪴' }
+    { id: 'home', label: 'Home & Magnets', icon: '🪴' }
   ];
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       
-      {/* Page Title */}
+      {/* Featured Banner for Draw Custom Chili */}
+      <div className="relative overflow-hidden bg-gradient-to-r from-[#1a1c1c] via-[#2d0f12] to-[#af101a] text-white p-6 sm:p-8 rounded-3xl border border-red-900/50 shadow-xl">
+        <div className="absolute -right-8 -bottom-10 opacity-20 pointer-events-none text-9xl">🌶️</div>
+        
+        <div className="relative z-10 max-w-2xl space-y-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-red-600/40 backdrop-blur-md rounded-full text-xs font-black uppercase tracking-wider text-red-200 border border-red-400/30">
+            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+            <span>Interactive 3D Drawing Studio</span>
+          </div>
+
+          <h2 className="font-heading font-black text-2xl sm:text-3xl text-white tracking-tight">
+            Draw Custom Chili 🌶️ on Canvas
+          </h2>
+
+          <p className="text-gray-300 text-xs sm:text-sm leading-relaxed">
+            Paint your own chili artwork, add custom facial expressions, emojis, or embossed names directly onto the 3D chili canvas, then we 3D print your custom chili in premium PLA!
+          </p>
+
+          <div className="flex flex-wrap items-center gap-3 pt-2">
+            <button
+              onClick={() => {
+                const drawProd = products.find(p => p.id === 'prod-draw-custom-chili') || products[0];
+                openProductDetail(drawProd);
+              }}
+              className="px-5 py-2.5 bg-white text-[#af101a] hover:bg-gray-100 font-extrabold text-xs rounded-xl shadow-lg flex items-center gap-2 transition-transform hover:scale-102"
+            >
+              <Palette className="w-4 h-4 text-[#af101a]" />
+              <span>Draw Custom Chili (RM5.00)</span>
+            </button>
+
+            <button
+              onClick={() => setCurrentView('custom-print')}
+              className="px-5 py-2.5 bg-black/40 hover:bg-black/60 text-white font-bold text-xs rounded-xl border border-white/20 flex items-center gap-2 transition-colors"
+            >
+              <PenTool className="w-4 h-4 text-amber-400" />
+              <span>Open Full Drawing Studio</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Page Title & Sort Row */}
       <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="font-heading font-extrabold text-2xl sm:text-3xl text-[#1a1c1c]">
             3D Shop Catalog
           </h1>
-          <p className="text-gray-500 text-sm mt-1">
-            Browse our full range of 3D printed keychains, desk accessories, and custom maker creations.
+          <p className="text-gray-500 text-xs sm:text-sm mt-1">
+            Browse our full range of 3D printed cabai keychains, DIY drawable products, and desk accessories in 100% PLA.
           </p>
         </div>
 
@@ -87,10 +138,13 @@ export const ShopView: React.FC = () => {
         {categories.map((cat) => (
           <button
             key={cat.id}
-            onClick={() => setActiveCategory(cat.id)}
+            onClick={() => {
+              setActiveCategory(cat.id);
+              if (cat.id === 'custom') setOnlyDrawable(true);
+            }}
             className={`px-4 py-2.5 rounded-xl text-xs font-extrabold whitespace-nowrap transition-all flex items-center gap-2 ${
               activeCategory === cat.id
-                ? 'bg-[#af101a] text-white shadow-md shadow-red-900/20'
+                ? 'bg-[#af101a] text-white shadow-md shadow-red-900/20 ring-2 ring-red-300'
                 : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
             }`}
           >
@@ -114,13 +168,32 @@ export const ShopView: React.FC = () => {
               </h3>
             </div>
 
+            {/* Quick Drawable Toggle */}
+            <div className="p-3 bg-purple-50 rounded-xl border border-purple-200 space-y-2">
+              <label className="flex items-center gap-2.5 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={onlyDrawable}
+                  onChange={(e) => setOnlyDrawable(e.target.checked)}
+                  className="w-4 h-4 accent-purple-700 rounded cursor-pointer"
+                />
+                <span className="text-xs font-bold text-purple-950 flex items-center gap-1">
+                  <Palette className="w-3.5 h-3.5 text-purple-700" />
+                  Only Drawable Products
+                </span>
+              </label>
+              <p className="text-[11px] text-purple-700">
+                Products you can draw &amp; customize on canvas!
+              </p>
+            </div>
+
             {/* Material Filter */}
             <div className="space-y-2">
               <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block">
                 Filament Material
               </label>
               <div className="space-y-1.5 text-xs text-gray-600 font-medium">
-                {['ALL', 'PLA', 'PETG', 'TPU'].map((mat) => (
+                {['ALL', 'PLA'].map((mat) => (
                   <label 
                     key={mat} 
                     className="flex items-center gap-2.5 p-1.5 rounded hover:bg-gray-50 cursor-pointer"
@@ -132,7 +205,7 @@ export const ShopView: React.FC = () => {
                       onChange={() => setSelectedMaterial(mat as any)}
                       className="accent-[#af101a]"
                     />
-                    <span>{mat === 'ALL' ? 'All Materials' : mat}</span>
+                    <span>{mat === 'ALL' ? 'All (100% PLA)' : 'Pure PLA Filament'}</span>
                   </label>
                 ))}
               </div>
@@ -146,15 +219,15 @@ export const ShopView: React.FC = () => {
               </div>
               <input
                 type="range"
-                min="5"
+                min="2.5"
                 max="50"
-                step="1"
+                step="0.5"
                 value={maxPrice}
                 onChange={(e) => setMaxPrice(Number(e.target.value))}
                 className="w-full accent-[#af101a]"
               />
               <div className="flex justify-between text-[10px] text-gray-400 font-mono">
-                <span>RM 5.00</span>
+                <span>RM 2.50</span>
                 <span>RM 50.00</span>
               </div>
             </div>
@@ -164,6 +237,7 @@ export const ShopView: React.FC = () => {
               onClick={() => {
                 setActiveCategory('all');
                 setSelectedMaterial('ALL');
+                setOnlyDrawable(false);
                 setMaxPrice(50);
               }}
               className="w-full py-2 bg-gray-100 text-gray-700 font-bold text-xs rounded-lg hover:bg-gray-200 transition-colors"
@@ -180,11 +254,12 @@ export const ShopView: React.FC = () => {
             <div className="bg-white p-12 rounded-2xl border border-gray-200 text-center space-y-4">
               <div className="text-4xl">🔍</div>
               <h3 className="font-heading font-bold text-lg text-gray-800">No products match your filters</h3>
-              <p className="text-xs text-gray-500">Try adjusting the material type or price range slider.</p>
+              <p className="text-xs text-gray-500">Try resetting filters to see our full PLA catalog.</p>
               <button
                 onClick={() => {
                   setActiveCategory('all');
                   setSelectedMaterial('ALL');
+                  setOnlyDrawable(false);
                   setMaxPrice(50);
                 }}
                 className="px-5 py-2 bg-[#af101a] text-white font-bold text-xs rounded-lg"
@@ -194,93 +269,116 @@ export const ShopView: React.FC = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-              {filtered.map((product) => (
-                <div
-                  key={product.id}
-                  className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-xs hover:shadow-lg transition-all flex flex-col group"
-                >
-                  {/* Thumbnail */}
+              {filtered.map((product) => {
+                const isProductDrawable = product.tags.includes('Drawable') || product.name.toLowerCase().includes('draw');
+
+                return (
                   <div
-                    onClick={() => openProductDetail(product)}
-                    className="relative h-56 bg-gray-100 overflow-hidden cursor-pointer"
+                    key={product.id}
+                    className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-xs hover:shadow-lg transition-all flex flex-col group"
                   >
-                    <ProductImage
-                      src={product.images[0]}
-                      productId={product.id}
-                      alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
+                    {/* Thumbnail */}
+                    <div
+                      onClick={() => openProductDetail(product)}
+                      className="relative h-56 bg-gray-100 overflow-hidden cursor-pointer"
+                    >
+                      <ProductImage
+                        src={product.images[0]}
+                        productId={product.id}
+                        alt={product.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
 
-                    {product.isBestSeller && (
-                      <span className="absolute top-3 left-3 bg-[#af101a] text-white text-[11px] font-extrabold px-2.5 py-1 rounded-md shadow-xs">
-                        Best Seller 🌶️
-                      </span>
-                    )}
-
-                    <span className="absolute bottom-3 right-3 bg-black/70 text-white text-[10px] font-medium px-2 py-0.5 rounded backdrop-blur-xs">
-                      {product.specifications.material}
-                    </span>
-                  </div>
-
-                  {/* Body */}
-                  <div className="p-5 flex-1 flex flex-col justify-between">
-                    <div>
-                      <div className="text-xs font-semibold text-gray-500 mb-1">
-                        {product.subtitle}
-                      </div>
-                      <h3
-                        onClick={() => openProductDetail(product)}
-                        className="font-heading font-bold text-base text-[#1a1c1c] hover:text-[#af101a] cursor-pointer transition-colors line-clamp-1"
-                      >
-                        {product.name}
-                      </h3>
-
-                      {/* Color Palette Indicators */}
-                      <div className="flex items-center gap-1.5 mt-2">
-                        {product.colors.map(color => (
-                          <span
-                            key={color.name}
-                            title={color.name}
-                            className="w-3 h-3 rounded-full border border-gray-300 inline-block"
-                            style={{ backgroundColor: color.hex }}
-                          />
-                        ))}
-                      </div>
-
-                      <div className="flex items-center gap-2 mt-2">
-                        <div className="flex items-center text-amber-500 text-xs font-bold">
-                          <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400 mr-1" />
-                          {product.rating}
-                        </div>
-                        <span className="text-xs text-gray-400">({product.reviewsCount})</span>
-                      </div>
-                    </div>
-
-                    {/* Footer price & action */}
-                    <div className="pt-4 border-t border-gray-100 mt-4 flex items-center justify-between">
-                      <div>
-                        <span className="font-heading font-extrabold text-lg text-[#af101a]">
-                          RM {product.price.toFixed(2)}
+                      {product.isBestSeller && (
+                        <span className="absolute top-3 left-3 bg-[#af101a] text-white text-[11px] font-extrabold px-2.5 py-1 rounded-md shadow-xs">
+                          Best Seller 🌶️
                         </span>
-                        {product.originalPrice && (
-                          <span className="text-xs text-gray-400 line-through ml-1.5">
-                            RM {product.originalPrice.toFixed(2)}
-                          </span>
-                        )}
+                      )}
+
+                      {isProductDrawable && (
+                        <span className="absolute top-3 right-3 bg-purple-700 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-md shadow-xs flex items-center gap-1">
+                          <Palette className="w-3 h-3" />
+                          Drawable 🎨
+                        </span>
+                      )}
+
+                      <span className="absolute bottom-3 right-3 bg-black/70 text-white text-[10px] font-medium px-2 py-0.5 rounded backdrop-blur-xs">
+                        {product.specifications.material}
+                      </span>
+                    </div>
+
+                    {/* Body */}
+                    <div className="p-5 flex-1 flex flex-col justify-between">
+                      <div>
+                        <div className="text-xs font-semibold text-gray-500 mb-1">
+                          {product.subtitle}
+                        </div>
+                        <h3
+                          onClick={() => openProductDetail(product)}
+                          className="font-heading font-bold text-base text-[#1a1c1c] hover:text-[#af101a] cursor-pointer transition-colors line-clamp-1"
+                        >
+                          {product.name}
+                        </h3>
+
+                        {/* Color Palette Indicators */}
+                        <div className="flex items-center gap-1.5 mt-2">
+                          {product.colors.map(color => (
+                            <span
+                              key={color.name}
+                              title={color.name}
+                              className="w-3 h-3 rounded-full border border-gray-300 inline-block"
+                              style={{ backgroundColor: color.hex }}
+                            />
+                          ))}
+                        </div>
+
+                        <div className="flex items-center gap-2 mt-2">
+                          <div className="flex items-center text-amber-500 text-xs font-bold">
+                            <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400 mr-1" />
+                            {product.rating}
+                          </div>
+                          <span className="text-xs text-gray-400">({product.reviewsCount})</span>
+                        </div>
                       </div>
 
-                      <button
-                        onClick={() => addToCart(product)}
-                        className="px-3.5 py-2 bg-[#1a1c1c] hover:bg-[#af101a] text-white text-xs font-bold rounded-lg transition-colors"
-                      >
-                        + Add to Cart
-                      </button>
+                      {/* Footer price & action */}
+                      <div className="pt-4 border-t border-gray-100 mt-4 flex items-center justify-between gap-2">
+                        <div>
+                          <span className="font-heading font-extrabold text-lg text-[#af101a]">
+                            RM {product.price.toFixed(2)}
+                          </span>
+                          {product.originalPrice && (
+                            <span className="text-xs text-gray-400 line-through ml-1.5">
+                              RM {product.originalPrice.toFixed(2)}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex items-center gap-1.5">
+                          {isProductDrawable ? (
+                            <button
+                              onClick={() => openProductDetail(product)}
+                              className="px-3.5 py-2 bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-800 hover:to-indigo-800 text-white text-xs font-extrabold rounded-lg shadow-xs flex items-center gap-1.5 transition-all"
+                            >
+                              <Palette className="w-3.5 h-3.5" />
+                              <span>Draw 🌶️</span>
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => addToCart(product)}
+                              className="px-3.5 py-2 bg-[#1a1c1c] hover:bg-[#af101a] text-white text-xs font-bold rounded-lg transition-colors"
+                            >
+                              + Add to Cart
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
                     </div>
 
                   </div>
-
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
