@@ -2,24 +2,18 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { 
   X, 
-  LogIn, 
-  UserPlus, 
-  Mail, 
   Lock, 
-  User, 
-  Sparkles, 
+  Crown, 
+  LogOut, 
+  ShoppingBag, 
+  KeyRound, 
   ShieldCheck, 
   ArrowRight, 
   Eye, 
   EyeOff, 
   CheckCircle2, 
-  Flame,
-  Crown,
-  LogOut,
-  ShoppingBag,
-  KeyRound,
-  BadgePercent,
-  Check
+  Sparkles,
+  User
 } from 'lucide-react';
 import { imageConfig } from '../config/assets';
 
@@ -30,8 +24,6 @@ export const AuthModal: React.FC = () => {
     setIsAuthModalOpen,
     isInitialLoginGateOpen,
     loginWithVipPasscode,
-    loginWithEmail,
-    signUpWithEmail,
     loginWithGoogle,
     logout,
     orders,
@@ -39,11 +31,10 @@ export const AuthModal: React.FC = () => {
   } = useApp();
 
   const isOpen = isInitialLoginGateOpen || isAuthModalOpen;
-  const isGateMode = !currentUser;
 
-  const [activeTab, setActiveTab] = useState<'vip' | 'google'>('vip');
+  const [activeTab, setActiveTab] = useState<'google' | 'vip'>('google');
   
-  // VIP Login Form State (Password only)
+  // VIP Login Form State (Passcode only)
   const [vipPasscode, setVipPasscode] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   
@@ -65,7 +56,7 @@ export const AuthModal: React.FC = () => {
     setErrorMessage('');
     
     if (!vipPasscode.trim()) {
-      setErrorMessage('Please enter the VIP access password.');
+      setErrorMessage('Please enter your VIP access passcode.');
       return;
     }
 
@@ -93,21 +84,21 @@ export const AuthModal: React.FC = () => {
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fadeIn overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn overflow-y-auto"
       onClick={currentUser ? handleClose : undefined}
     >
       <div 
-        className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden my-8 transform transition-all animate-scaleUp"
+        className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl border border-gray-200 overflow-hidden my-8 transform transition-all animate-scaleUp"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Top Header Background Banner */}
-        <div className="relative bg-gradient-to-br from-[#1a1c1c] via-[#260e12] to-[#af101a] text-white p-6 sm:p-7 text-center">
+        <div className="relative bg-gradient-to-br from-[#1a1c1c] via-[#2a0e12] to-[#af101a] text-white p-6 sm:p-7 text-center">
           {/* Close button: ONLY visible when already logged in */}
           {currentUser && (
             <button
               onClick={handleClose}
-              className="absolute top-4 right-4 p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white/80 hover:text-white transition-colors"
-              title="Close Profile"
+              className="absolute top-4 right-4 p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white/80 hover:text-white transition-colors cursor-pointer"
+              title="Close Modal"
             >
               <X className="w-5 h-5" />
             </button>
@@ -115,7 +106,7 @@ export const AuthModal: React.FC = () => {
 
           {/* Studio Brand Icon & Title */}
           <div className="flex flex-col items-center">
-            <div className="w-14 h-14 rounded-2xl bg-black border-2 border-red-500/50 p-1 shadow-xl shadow-black/50 mb-3 flex items-center justify-center">
+            <div className="w-14 h-14 rounded-2xl bg-black border-2 border-red-500/40 p-1 shadow-xl shadow-black/60 mb-3 flex items-center justify-center">
               <img 
                 src={imageConfig.logos.header} 
                 alt="Cabai Enterprise Logo" 
@@ -127,34 +118,39 @@ export const AuthModal: React.FC = () => {
               />
             </div>
 
-            <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-red-950/80 border border-red-500/40 text-amber-300 text-[11px] font-extrabold tracking-wide uppercase mb-1.5 shadow-xs">
+            <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-black/40 border border-white/15 text-amber-300 text-[11px] font-extrabold tracking-wide uppercase mb-1.5 shadow-xs">
               {currentUser?.role === 'vip' ? (
                 <>
                   <Crown className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                  <span>Cabai VIP Member</span>
+                  <span>VIP Access Active</span>
                 </>
-              ) : currentUser?.role === 'admin' ? (
+              ) : currentUser ? (
                 <>
-                  <ShieldCheck className="w-3.5 h-3.5 text-red-400" />
-                  <span>Studio Admin</span>
+                  <svg className="w-3 h-3" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                  </svg>
+                  <span>Google Member Account</span>
                 </>
               ) : (
                 <>
-                  <Flame className="w-3.5 h-3.5 text-red-400 fill-red-400" />
-                  <span>Cabai Auth Portal</span>
+                  <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                  <span>Cabai Studio Access</span>
                 </>
               )}
             </div>
 
             <h2 className="font-heading font-extrabold text-2xl tracking-tight text-white">
               {currentUser 
-                ? (currentUser.role === 'vip' ? 'VIP' : 'Your Member Profile')
-                : 'Authentication Required'}
+                ? (currentUser.role === 'vip' ? 'VIP Member Hub' : 'Member Account')
+                : 'Welcome to Cabai Enterprise'}
             </h2>
             <p className="text-xs text-gray-200 mt-1 max-w-xs leading-relaxed">
               {currentUser 
-                ? (currentUser.role === 'vip' ? 'VIP access unlocked with authorized passcode.' : 'Manage your 3D printing orders, slicing parameters, and account.') 
-                : 'Please enter the VIP password or log in to access the studio catalog.'}
+                ? (currentUser.role === 'vip' ? 'VIP membership unlocked with authorized passcode.' : 'Signed in with your verified Google account.') 
+                : 'Sign in with Google or enter your VIP passcode to access the studio.'}
             </p>
           </div>
         </div>
@@ -162,56 +158,68 @@ export const AuthModal: React.FC = () => {
         {/* Modal Body */}
         <div className="p-6 sm:p-7">
           {currentUser ? (
-            /* Logged-In User Profile Card */
+            /* Logged-In User Profile View */
             <div className="space-y-5">
-              <div className="flex items-center gap-3.5 p-4 bg-red-50/80 border border-red-100 rounded-xl">
-                <div className="w-12 h-12 rounded-full bg-[#af101a] text-white font-extrabold text-lg flex items-center justify-center shadow-md">
-                  {currentUser.role === 'vip' ? '👑' : (currentUser.displayName ? currentUser.displayName.charAt(0).toUpperCase() : 'U')}
-                </div>
+              <div className="flex items-center gap-3.5 p-4 bg-gray-50 border border-gray-200 rounded-2xl">
+                {currentUser.photoURL ? (
+                  <img 
+                    src={currentUser.photoURL} 
+                    alt={currentUser.displayName || 'User'} 
+                    className="w-12 h-12 rounded-full border-2 border-red-200 object-cover shadow-sm"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <div className={`w-12 h-12 rounded-full font-extrabold text-lg flex items-center justify-center shadow-md ${
+                    currentUser.role === 'vip' ? 'bg-[#1a1c1c] text-amber-300' : 'bg-[#af101a] text-white'
+                  }`}>
+                    {currentUser.role === 'vip' ? '👑' : (currentUser.displayName ? currentUser.displayName.charAt(0).toUpperCase() : 'U')}
+                  </div>
+                )}
+                
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-2">
                     <h3 className="font-bold text-gray-900 text-base truncate">
-                      {currentUser.role === 'vip' ? 'VIP' : (currentUser.displayName || 'Member')}
+                      {currentUser.role === 'vip' ? 'VIP' : (currentUser.displayName || 'Google Member')}
                     </h3>
                     {currentUser.role === 'vip' ? (
-                      <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded text-[10px] font-extrabold bg-[#1a1c1c] text-amber-400">
-                        <Crown className="w-2.5 h-2.5" />
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-black text-amber-300 border border-amber-400/40">
+                        <Crown className="w-2.5 h-2.5 text-amber-400 fill-amber-400" />
                         <span>VIP</span>
                       </span>
-                    ) : currentUser.role === 'admin' ? (
-                      <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded text-[10px] font-extrabold bg-red-900 text-white">
-                        <ShieldCheck className="w-2.5 h-2.5" />
-                        <span>Admin</span>
-                      </span>
                     ) : (
-                      <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded text-[10px] font-bold bg-gray-200 text-gray-800">
-                        <User className="w-2.5 h-2.5" />
-                        <span>Member</span>
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                        <svg className="w-2.5 h-2.5" viewBox="0 0 24 24">
+                          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                        </svg>
+                        <span>Google</span>
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-gray-600 truncate mt-0.5 font-medium">
-                    {currentUser.role === 'vip' ? 'VIP' : (currentUser.email || 'Registered Member')}
+                  <p className="text-xs text-gray-500 truncate mt-0.5 font-medium">
+                    {currentUser.role === 'vip' ? 'VIP Member Access' : (currentUser.email || 'Google Account Connected')}
                   </p>
                 </div>
               </div>
 
-              {/* User Quick Stats & Actions */}
+              {/* Stats Overview */}
               <div className="grid grid-cols-2 gap-3 text-center">
                 <div className="p-3 bg-gray-50 border border-gray-100 rounded-xl">
                   <div className="text-xl font-heading font-extrabold text-[#af101a]">
                     {userOrdersCount}
                   </div>
                   <div className="text-xs font-semibold text-gray-600 mt-0.5">
-                    Your Orders
+                    Orders Tracked
                   </div>
                 </div>
                 <div className="p-3 bg-gray-50 border border-gray-100 rounded-xl">
                   <div className="text-xl font-heading font-extrabold text-green-700">
-                    Free
+                    Active
                   </div>
                   <div className="text-xs font-semibold text-gray-600 mt-0.5">
-                    Delivery &gt; RM80
+                    Membership Status
                   </div>
                 </div>
               </div>
@@ -225,17 +233,15 @@ export const AuthModal: React.FC = () => {
                   className="w-full py-2.5 px-4 bg-gray-900 hover:bg-black text-white text-xs font-bold rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm cursor-pointer"
                 >
                   <ShoppingBag className="w-4 h-4 text-red-400" />
-                  <span>View My Orders &amp; Purchases</span>
+                  <span>View My Orders &amp; Track Status</span>
                 </button>
 
                 <button
-                  onClick={() => {
-                    logout();
-                  }}
+                  onClick={() => logout()}
                   className="w-full py-2 px-4 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-xs font-bold rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer"
                 >
                   <LogOut className="w-3.5 h-3.5" />
-                  <span>Sign Out of Account</span>
+                  <span>Sign Out</span>
                 </button>
               </div>
 
@@ -243,127 +249,70 @@ export const AuthModal: React.FC = () => {
                 onClick={handleClose}
                 className="w-full py-3 bg-[#af101a] hover:bg-[#8d0a12] text-white font-extrabold text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
-                <span>Continue Shopping in Store</span>
+                <span>Continue to Store</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
           ) : (
-            /* Auth Login / VIP Gate */
-            <div className="space-y-4">
-              {/* Tab Selector */}
+            /* Sign-in Gate: Google Sign In & VIP Passcode ONLY */
+            <div className="space-y-5">
+              {/* Tab Selector: Google & VIP */}
               <div className="flex bg-gray-100 p-1 rounded-xl">
                 <button
                   type="button"
-                  onClick={() => { setActiveTab('vip'); setErrorMessage(''); }}
-                  className={`flex-1 py-2 text-xs font-extrabold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
-                    activeTab === 'vip' 
-                      ? 'bg-gradient-to-r from-[#af101a] to-[#8d0a12] text-white shadow-xs' 
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  <Crown className="w-3.5 h-3.5 text-amber-300" />
-                  <span>VIP Passcode</span>
-                </button>
-                <button
-                  type="button"
                   onClick={() => { setActiveTab('google'); setErrorMessage(''); }}
-                  className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+                  className={`flex-1 py-2.5 text-xs font-extrabold rounded-lg transition-all flex items-center justify-center gap-2 cursor-pointer ${
                     activeTab === 'google' 
                       ? 'bg-white text-[#1a1c1c] shadow-xs' 
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
-                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                     <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
                     <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
                     <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
                   </svg>
-                  <span>Google Account</span>
+                  <span>Google Sign In</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => { setActiveTab('vip'); setErrorMessage(''); }}
+                  className={`flex-1 py-2.5 text-xs font-extrabold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                    activeTab === 'vip' 
+                      ? 'bg-gradient-to-r from-[#af101a] to-[#8d0a12] text-white shadow-xs' 
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <Crown className="w-4 h-4 text-amber-300 fill-amber-300 shrink-0" />
+                  <span>VIP Passcode</span>
                 </button>
               </div>
 
-              {/* Error Alert */}
+              {/* Error Notification */}
               {errorMessage && (
-                <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl font-semibold flex items-center gap-2">
+                <div className="p-3.5 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl font-semibold flex items-center gap-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-red-600 shrink-0" />
                   <span>{errorMessage}</span>
                 </div>
               )}
 
-              {/* 1. VIP PASSCODE TAB */}
-              {activeTab === 'vip' && (
-                <form onSubmit={handleVipSubmit} className="space-y-4">
-                  <div className="p-3.5 bg-amber-50/80 border border-amber-200/90 rounded-xl text-left">
-                    <div className="flex items-center gap-2 text-amber-900 font-bold text-xs mb-1">
-                      <KeyRound className="w-4 h-4 text-amber-700" />
-                      <span>VIP Member Passcode Access</span>
-                    </div>
-                    <p className="text-[11px] text-amber-800 leading-relaxed">
-                      Enter your authorized VIP password to unlock immediate full access to CABAI ENTERPRISE™ catalog and custom tools.
-                    </p>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                      VIP Access Password <span className="text-[#af101a]">*</span>
-                    </label>
-                    <div className="relative">
-                      <Lock className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                      <input
-                        type={showPassword ? 'text' : 'password'}
-                        value={vipPasscode}
-                        onChange={(e) => setVipPasscode(e.target.value)}
-                        placeholder="Enter VIP password"
-                        className="w-full pl-10 pr-10 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-[#af101a] focus:ring-1 focus:ring-[#af101a] outline-hidden transition-all"
-                        required
-                        autoFocus
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
-                        title={showPassword ? "Hide password" : "Show password"}
-                      >
-                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* VIP Unlock Button */}
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full py-3.5 bg-gradient-to-r from-[#af101a] to-[#8d0a12] hover:brightness-110 active:scale-98 text-white font-extrabold text-sm rounded-xl shadow-lg shadow-red-900/20 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-2"
-                  >
-                    {loading ? (
-                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    ) : (
-                      <>
-                        <Crown className="w-4 h-4 text-amber-300 fill-amber-300" />
-                        <span>Unlock VIP Access &amp; Enter</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </>
-                    )}
-                  </button>
-                </form>
-              )}
-
-              {/* 2. GOOGLE ACCOUNT TAB */}
+              {/* 1. GOOGLE SIGN IN TAB */}
               {activeTab === 'google' && (
                 <div className="space-y-4">
-                  <div className="p-3.5 bg-blue-50/80 border border-blue-200/90 rounded-xl text-left">
+                  <div className="p-4 bg-blue-50/80 border border-blue-200/90 rounded-2xl text-left">
                     <div className="flex items-center gap-2 text-blue-900 font-bold text-xs mb-1">
-                      <svg className="w-4 h-4" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                         <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                         <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
                         <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
                         <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
                       </svg>
-                      <span>Google Account Authentication</span>
+                      <span>One-Click Google Authentication</span>
                     </div>
                     <p className="text-[11px] text-blue-800 leading-relaxed">
-                      Sign in directly with your Google Account for real-time order history tracking and synchronized 3D print saves.
+                      Instant access with your Google account. Automatically sync your 3D orders, custom quotes, and delivery notifications.
                     </p>
                   </div>
 
@@ -383,18 +332,76 @@ export const AuthModal: React.FC = () => {
                           <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
                           <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
                         </svg>
-                        <span>Sign In with Google Account</span>
+                        <span>Continue with Google</span>
                       </>
                     )}
                   </button>
                 </div>
               )}
 
-              {/* Trust Badges */}
+              {/* 2. VIP PASSCODE TAB */}
+              {activeTab === 'vip' && (
+                <form onSubmit={handleVipSubmit} className="space-y-4">
+                  <div className="p-4 bg-amber-50/80 border border-amber-200/90 rounded-2xl text-left">
+                    <div className="flex items-center gap-2 text-amber-900 font-bold text-xs mb-1">
+                      <KeyRound className="w-4 h-4 text-amber-700" />
+                      <span>VIP Member Passcode Access</span>
+                    </div>
+                    <p className="text-[11px] text-amber-800 leading-relaxed">
+                      Enter your authorized VIP passcode to unlock full access to the studio and custom tools.
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                      VIP Access Passcode <span className="text-[#af101a]">*</span>
+                    </label>
+                    <div className="relative">
+                      <Lock className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        value={vipPasscode}
+                        onChange={(e) => setVipPasscode(e.target.value)}
+                        placeholder="Enter VIP passcode"
+                        className="w-full pl-10 pr-10 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-[#af101a] focus:ring-1 focus:ring-[#af101a] outline-hidden transition-all"
+                        required
+                        autoFocus
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1 cursor-pointer"
+                        title={showPassword ? "Hide passcode" : "Show passcode"}
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* VIP Unlock Button */}
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-3.5 bg-gradient-to-r from-[#af101a] to-[#8d0a12] hover:brightness-110 active:scale-98 text-white font-extrabold text-sm rounded-xl shadow-lg shadow-red-900/20 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-2"
+                  >
+                    {loading ? (
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                      <>
+                        <Crown className="w-4 h-4 text-amber-300 fill-amber-300" />
+                        <span>Unlock VIP Access</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </>
+                    )}
+                  </button>
+                </form>
+              )}
+
+              {/* Trust Footer */}
               <div className="pt-3 border-t border-gray-100 flex items-center justify-center gap-3 text-[11px] font-medium text-gray-400">
                 <span className="flex items-center gap-1">
                   <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
-                  <span>VIP Access System</span>
+                  <span>Google Auth &amp; VIP System</span>
                 </span>
                 <span>•</span>
                 <span className="flex items-center gap-1">

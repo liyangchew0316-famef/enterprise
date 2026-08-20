@@ -3,7 +3,7 @@ import { imageConfig } from '../config/assets';
 
 export const STUDIO_INFO = {
   name: 'CABAI ENTERPRISE™',
-  location: 'Inside your computer',
+  location: 'Bukit Mertajam, Penang, Malaysia',
   phone: '+60 12-905 8515',
   whatsappNumber: '60129058515',
   whatsappUrl: 'https://wa.me/60129058515',

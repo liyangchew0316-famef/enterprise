@@ -1,6 +1,6 @@
 {
   "name": "CABAI ENTERPRISE™",
-  "description": "3D Printing & Custom Maker Studio in Malaysia - 3D Printed Keychains, Custom Chili Drawing Canvas, Organizers & Firebase Cloud Sync",
+  "description": "Cabai Enterprise - Professional 3D Printing in Malaysia (Penang & Bukit Mertajam). 3D printed products, custom keychains, badges, toys, desk accessories, and interactive CAD/drawing maker studio.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

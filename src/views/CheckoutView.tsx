@@ -472,6 +472,18 @@ export const CheckoutView: React.FC = () => {
             </div>
           )}
 
+          <div className="text-[11px] text-gray-500 text-center leading-relaxed">
+            By proceeding with payment, you agree to Cabai Enterprise's{' '}
+            <button
+              type="button"
+              onClick={() => setCurrentView('terms')}
+              className="text-[#af101a] font-bold underline hover:text-[#8d0a12] cursor-pointer"
+            >
+              Terms &amp; Conditions
+            </button>
+            .
+          </div>
+
           <button
             type="submit"
             disabled={isSubmitting}

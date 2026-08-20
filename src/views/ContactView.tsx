@@ -105,9 +105,9 @@ export const ContactView: React.FC = () => {
                 <MapPin className="w-5 h-5 text-[#af101a]" />
               </div>
               <div>
-                <strong className="text-gray-900 block font-bold text-sm">Studio Location</strong>
-                <span className="text-gray-600 font-medium">Inside your computer</span>
-                <span className="block text-[11px] text-gray-400 mt-0.5">Express courier shipping across Malaysia 🇲🇾</span>
+                <strong className="text-gray-900 block font-bold text-sm">Studio Location &amp; Dispatch</strong>
+                <span className="text-gray-600 font-medium">Bukit Mertajam, Penang, Malaysia</span>
+                <span className="block text-[11px] text-gray-400 mt-0.5">Express courier shipping to Penang, KL, Selangor &amp; all Malaysian states 🇲🇾</span>
               </div>
             </div>
 

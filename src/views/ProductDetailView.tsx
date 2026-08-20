@@ -863,9 +863,9 @@ export const ProductDetailView: React.FC = () => {
 
       {/* Specifications Sheet Table */}
       <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-xs space-y-4">
-        <h3 className="font-heading font-extrabold text-lg text-[#1a1c1c] uppercase tracking-wider border-b border-gray-100 pb-3">
-          3D Printing Specifications
-        </h3>
+        <h2 className="font-heading font-extrabold text-lg text-[#1a1c1c] uppercase tracking-wider border-b border-gray-100 pb-3">
+          3D Printing Specifications &amp; Craftsmanship
+        </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-xs text-gray-700">
           <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
@@ -889,8 +889,8 @@ export const ProductDetailView: React.FC = () => {
             <strong className="text-gray-900 text-sm">{selectedProduct.specifications.weight}</strong>
           </div>
           <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
-            <span className="text-gray-400 font-bold block mb-1">Manufacturing Note</span>
-            <strong className="text-gray-900 text-sm">Precision FDM Bambu Lab CoreXY</strong>
+            <span className="text-gray-400 font-bold block mb-1">Manufacturing Studio</span>
+            <strong className="text-gray-900 text-sm">Cabai Enterprise (Penang &amp; Bukit Mertajam)</strong>
           </div>
         </div>
       </div>

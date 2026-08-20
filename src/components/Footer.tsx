@@ -24,7 +24,7 @@ export const Footer: React.FC = () => {
               <div className="w-12 h-12 rounded-xl bg-black border border-red-900/50 overflow-hidden shadow-lg shadow-red-950/40 flex items-center justify-center shrink-0">
                 <img 
                   src={imageConfig.logos.footer} 
-                  alt="CABAI ENTERPRISE Logo" 
+                  alt="Cabai Enterprise - 3D Printing Malaysia Logo" 
                   className="w-full h-full object-cover"
                   referrerPolicy="no-referrer"
                   onError={(e) => {
@@ -37,18 +37,18 @@ export const Footer: React.FC = () => {
               </div>
             </div>
             <p className="text-gray-400 text-sm leading-relaxed">
-              Malaysia’s premier 3D printing studio. Turning digital CAD concepts and STL files into physical precision products with premium PLA+, PETG, and flexible TPU materials.
+              Malaysia’s dedicated 3D printing maker studio based in Penang &amp; Bukit Mertajam. Turning CAD concepts and creative designs into precision physical products with eco-friendly PLA+ and PETG materials.
             </p>
 
             <div className="pt-2 space-y-1.5 text-xs text-gray-400">
               <div className="flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-[#af101a] shrink-0" />
-                <span>Inside your computer</span>
+                <span>Bukit Mertajam, Penang, Malaysia 🇲🇾</span>
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="w-4 h-4 text-[#af101a] shrink-0" />
                 <a href="https://wa.me/60129058515" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 font-semibold transition-colors">
-                  +60 12-905 8515 (WhatsApp)
+                  +60 12-905 8515 (WhatsApp Fast Chat)
                 </a>
               </div>
               <div className="flex items-center gap-2">
@@ -62,34 +62,39 @@ export const Footer: React.FC = () => {
 
           {/* Col 2: Quick Links */}
           <div className="space-y-3">
-            <h4 className="font-heading font-bold text-base text-white uppercase tracking-wider">
-              Explore Products
-            </h4>
+            <h3 className="font-heading font-bold text-base text-white uppercase tracking-wider">
+              3D Printed Products
+            </h3>
             <ul className="space-y-2 text-sm text-gray-400">
               <li>
                 <button onClick={() => navTo('shop')} className="hover:text-[#af101a] transition-colors">
-                  Full Catalog
+                  3D Shop Catalog (All)
                 </button>
               </li>
               <li>
                 <button onClick={() => navTo('shop', 'keychains')} className="hover:text-[#af101a] transition-colors flex items-center gap-1.5">
-                  <span>Cabai Keychains</span>
+                  <span>3D Printed Keychains</span>
                   <span className="text-[10px] bg-red-900/60 text-red-300 px-1.5 py-0.5 rounded-full font-bold">Best Seller</span>
                 </button>
               </li>
               <li>
+                <button onClick={() => navTo('shop', 'badges')} className="hover:text-[#af101a] transition-colors">
+                  Custom 3D Badges &amp; Pins
+                </button>
+              </li>
+              <li>
                 <button onClick={() => navTo('shop', 'organizers')} className="hover:text-[#af101a] transition-colors">
-                  Desk Organizers
+                  Desk Organizers &amp; Pen Stands
                 </button>
               </li>
               <li>
                 <button onClick={() => navTo('shop', 'desk')} className="hover:text-[#af101a] transition-colors">
-                  Phone Stands & Holders
+                  Phone Stands &amp; Holders
                 </button>
               </li>
               <li>
                 <button onClick={() => navTo('custom_print')} className="hover:text-[#af101a] transition-colors font-medium text-white flex items-center gap-1">
-                  <span>Draw Custom Chili 🌶️</span>
+                  <span>Custom 3D Printing &amp; Drawing 🌶️</span>
                   <ArrowRight className="w-3.5 h-3.5 text-[#af101a]" />
                 </button>
               </li>
@@ -98,9 +103,9 @@ export const Footer: React.FC = () => {
 
           {/* Col 3: Customer Care & Hall of Glory */}
           <div className="space-y-3">
-            <h4 className="font-heading font-bold text-base text-white uppercase tracking-wider">
-              Support & Company
-            </h4>
+            <h3 className="font-heading font-bold text-base text-white uppercase tracking-wider">
+              About &amp; Customer Support
+            </h3>
             <ul className="space-y-2 text-sm text-gray-400">
               <li>
                 <button onClick={() => navTo('order_tracking')} className="hover:text-[#af101a] transition-colors">
@@ -115,12 +120,17 @@ export const Footer: React.FC = () => {
               </li>
               <li>
                 <button onClick={() => navTo('about')} className="hover:text-[#af101a] transition-colors">
-                  Our Story & Mission
+                  Our Story &amp; Mission
                 </button>
               </li>
               <li>
                 <button onClick={() => navTo('contact')} className="hover:text-[#af101a] transition-colors">
                   Contact Maker Studio
+                </button>
+              </li>
+              <li>
+                <button onClick={() => navTo('terms')} className="hover:text-[#af101a] transition-colors">
+                  Terms &amp; Conditions
                 </button>
               </li>
               <li>
@@ -139,9 +149,9 @@ export const Footer: React.FC = () => {
 
           {/* Col 4: Payments & Guarantee */}
           <div className="space-y-3">
-            <h4 className="font-heading font-bold text-base text-white uppercase tracking-wider">
-              Payments Accepted
-            </h4>
+            <h3 className="font-heading font-bold text-base text-white uppercase tracking-wider">
+              Payments Accepted (Malaysia)
+            </h3>
 
             <div className="pt-1">
               <div className="flex flex-wrap gap-2 text-xs font-bold text-gray-300">
@@ -161,9 +171,9 @@ export const Footer: React.FC = () => {
             © 2026 CABAI ENTERPRISE™. All Rights Reserved. Crafted with 🌶️ in Malaysia.
           </div>
           <div className="flex items-center gap-4">
-            <button onClick={() => navTo('about')} className="hover:underline">Privacy Policy</button>
+            <button onClick={() => navTo('about')} className="hover:underline cursor-pointer">About Us</button>
             <span>•</span>
-            <button onClick={() => navTo('about')} className="hover:underline">Terms of Service</button>
+            <button onClick={() => navTo('terms')} className="hover:underline cursor-pointer">Terms &amp; Conditions</button>
           </div>
         </div>
 

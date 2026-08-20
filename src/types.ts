@@ -253,5 +253,6 @@ export type ViewMode =
   | 'order_tracking'
   | 'boss_admin'
   | 'about'
-  | 'contact';
+  | 'contact'
+  | 'terms';
 

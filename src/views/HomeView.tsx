@@ -322,6 +322,47 @@ export const HomeView: React.FC = () => {
         </div>
       </section>
 
+      {/* SEO Natural Story & Studio Capabilities Section */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-8">
+        <div className="bg-white rounded-3xl p-8 lg:p-10 border border-gray-200 shadow-xs">
+          <div className="max-w-3xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-red-50 text-[#af101a] rounded-full text-xs font-bold mb-3">
+              <span>🇲🇾 Dedicated 3D Printing Maker Studio in Malaysia</span>
+            </div>
+            <h2 className="font-heading font-extrabold text-2xl sm:text-3xl text-gray-900 mb-4">
+              Cabai Enterprise: Precision 3D Printing & Custom Maker Craftsmanship
+            </h2>
+            <p className="text-gray-600 text-sm sm:text-base leading-relaxed mb-4">
+              Welcome to <strong>Cabai Enterprise</strong> (Cabai 3D Printing), your trusted destination for <strong>3D printed products in Malaysia</strong>. Based in Penang and servicing Bukit Mertajam and all states across Malaysia, we transform creative concepts into durable, high-detail physical items using high-grade PLA+ and PETG materials.
+            </p>
+            <p className="text-gray-600 text-sm leading-relaxed mb-6">
+              From our studio-signature <strong>Cabai keychains</strong>, articulated 3D printed toys, and modular desk accessories to personalized 3D pins and custom corporate badges, each piece is sliced at 0.12–0.16mm ultra-fine resolution for smooth layer finishes and structural integrity.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-6 border-t border-gray-100 text-xs">
+            <div className="space-y-1.5">
+              <h3 className="font-bold text-sm text-gray-900">Custom 3D Printing Malaysia</h3>
+              <p className="text-gray-500 leading-relaxed">
+                Upload images, customize embossed text on keyboard clickers and badges, or draw directly on our interactive 3D canvas for personalized fabrication.
+              </p>
+            </div>
+            <div className="space-y-1.5">
+              <h3 className="font-bold text-sm text-gray-900">Penang & Bukit Mertajam Fulfillment</h3>
+              <p className="text-gray-500 leading-relaxed">
+                Operating a multi-station CoreXY printing fleet to guarantee 24–48 hour rapid dispatch via express courier to every doorstep in Malaysia.
+              </p>
+            </div>
+            <div className="space-y-1.5">
+              <h3 className="font-bold text-sm text-gray-900">3D Printed Toys & Accessories</h3>
+              <p className="text-gray-500 leading-relaxed">
+                Explore mechanical switch fidgets, flexi dragons, phone stands, honeycomb pen pots, and unique stationery items designed for makers and creators.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </div>
   );
 };

@@ -1,0 +1,8 @@
+# robots.txt for Cabai Enterprise (https://cabai.store)
+User-agent: *
+Allow: /
+Disallow: /api/
+
+# Sitemap location
+Sitemap: https://cabai.store/sitemap.xml
+Host: https://cabai.store

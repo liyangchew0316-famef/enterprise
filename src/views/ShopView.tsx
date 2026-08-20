@@ -451,6 +451,32 @@ export const ShopView: React.FC = () => {
 
       </div>
 
+      {/* Natural SEO Information Section */}
+      <div className="bg-white p-6 sm:p-8 rounded-2xl border border-gray-200 shadow-xs space-y-4">
+        <h2 className="font-heading font-bold text-lg sm:text-xl text-gray-900">
+          3D Printed Products in Malaysia — Quality, Variety & Customization
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-gray-600 leading-relaxed">
+          <div>
+            <p className="mb-2">
+              At <strong>Cabai Enterprise</strong>, our shop catalog is engineered for makers, professionals, and 3D printing enthusiasts across Malaysia. From signature <strong>Cabai 3D keychains</strong> and articulated fidget toys to modular desk organizers and custom badge nameplates, every product is manufactured in-house using high-tensile, eco-friendly PLA.
+            </p>
+            <p>
+              Looking for custom sizing, corporate gift branding, or specific colorways? Our <strong>custom 3D printing studio in Penang & Bukit Mertajam</strong> accommodates bulk orders and one-off bespoke creations with rapid 24–48 hour turnaround.
+            </p>
+          </div>
+          <div>
+            <h3 className="font-bold text-gray-900 text-sm mb-2">Featured Product Categories:</h3>
+            <ul className="list-disc list-inside space-y-1 text-gray-600">
+              <li><strong className="text-gray-800">3D Printed Keychains:</strong> Studio-signature chili peppers, couples sets, kawaii anime charms, and DIY drawable surfaces.</li>
+              <li><strong className="text-gray-800">Custom 3D Badges:</strong> Upload company logos, personalized artwork, or embossed text with pin or neodymium magnetic backings.</li>
+              <li><strong className="text-gray-800">Desk & Tech Accessories:</strong> Honeycomb pen holders, SD card organizers, cable winders, and ergonomic phone stands.</li>
+              <li><strong className="text-gray-800">3D Printed Toys & Fidgets:</strong> Mechanical switch clickers, flexi dragons, and interactive art pieces.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
     </div>
   );
 };

@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  
+  <!-- Main Landing / Home Page -->
+  <url>
+    <loc>https://cabai.store/</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://cabai.store/cabai_official_logo_1786624077846.jpg</image:loc>
+      <image:title>Cabai Enterprise 3D Printing Malaysia</image:title>
+      <image:caption>Cabai Enterprise - Custom 3D Printed Products in Malaysia</image:caption>
+    </image:image>
+  </url>
+
+  <!-- 3D Shop Catalog -->
+  <url>
+    <loc>https://cabai.store/?view=shop</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Category: 3D Printed Keychains -->
+  <url>
+    <loc>https://cabai.store/?view=shop&amp;category=keychains</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Category: Custom 3D Badges & Pins -->
+  <url>
+    <loc>https://cabai.store/?view=shop&amp;category=badges</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Category: Custom Interactive 3D Designs -->
+  <url>
+    <loc>https://cabai.store/?view=shop&amp;category=custom</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Category: Desk Organizers & Accessories -->
+  <url>
+    <loc>https://cabai.store/?view=shop&amp;category=organizers</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Category: Phone Stands & Holders -->
+  <url>
+    <loc>https://cabai.store/?view=shop&amp;category=desk</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Category: Home Decor & Magnets -->
+  <url>
+    <loc>https://cabai.store/?view=shop&amp;category=home</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Custom 3D Print Quote & Drawing Studio -->
+  <url>
+    <loc>https://cabai.store/?view=custom_print</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Custom 3D Badge Customizer Studio -->
+  <url>
+    <loc>https://cabai.store/?view=badge_custom</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- About Us & The Hall of Glory -->
+  <url>
+    <loc>https://cabai.store/?view=about</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Contact Us & Studio Info -->
+  <url>
+    <loc>https://cabai.store/?view=contact</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Order Tracking Portal -->
+  <url>
+    <loc>https://cabai.store/?view=order_tracking</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Terms & Conditions -->
+  <url>
+    <loc>https://cabai.store/?view=terms</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <!-- Key Products -->
+  <url>
+    <loc>https://cabai.store/?view=product_detail&amp;product=prod-draw-custom-chili</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://cabai.store/?view=product_detail&amp;product=prod-badge-customize</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://cabai.store/?view=product_detail&amp;product=prod-keyboard-clicker</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://cabai.store/?view=product_detail&amp;product=prod-cabai-keychain</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://cabai.store/?view=product_detail&amp;product=prod-cabai-keychain-drawable</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://cabai.store/?view=product_detail&amp;product=prod-cabai-chibi-keychain</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://cabai.store/?view=product_detail&amp;product=prod-cabai-couples-pair</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://cabai.store/?view=product_detail&amp;product=prod-cabai-flexi-dragon</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://cabai.store/?view=product_detail&amp;product=prod-name-tag</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://cabai.store/?view=product_detail&amp;product=prod-honeycomb-pen</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://cabai.store/?view=product_detail&amp;product=prod-phone-stand</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://cabai.store/?view=product_detail&amp;product=prod-fridge-magnet</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://cabai.store/?view=product_detail&amp;product=prod-geometric-planter</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+</urlset>

@@ -10,6 +10,7 @@ import { AuthModal } from './components/AuthModal';
 import { DailySpinModal } from './components/DailySpinModal';
 import { BadgeCustomizer } from './components/BadgeCustomizer';
 import { KeyboardCustomizer } from './components/KeyboardCustomizer';
+import { SEOHead } from './components/SEOHead';
 import { Sparkles, ArrowLeft } from 'lucide-react';
 
 import { HomeView } from './views/HomeView';
@@ -22,6 +23,7 @@ import { OrderTrackingView } from './views/OrderTrackingView';
 import { BossAdminView } from './views/BossAdminView';
 import { AboutView } from './views/AboutView';
 import { ContactView } from './views/ContactView';
+import { TermsView } from './views/TermsView';
 
 const MainContent: React.FC = () => {
   const { currentView, setCurrentView } = useApp();
@@ -37,6 +39,7 @@ const MainContent: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#f9f9f9] relative">
+      <SEOHead />
       <Header />
       
       <main className="flex-1">
@@ -50,6 +53,7 @@ const MainContent: React.FC = () => {
         {currentView === 'boss_admin' && <BossAdminView />}
         {currentView === 'about' && <AboutView />}
         {currentView === 'contact' && <ContactView />}
+        {currentView === 'terms' && <TermsView />}
         
         {/* Custom Badge Studio View */}
         {currentView === 'badge_custom' && (
