@@ -237,7 +237,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const loginWithVipPasscode = async (passcode: string, _name?: string, _email?: string): Promise<{ success: boolean; error?: string }> => {
     const cleanPass = passcode.trim();
-    if (cleanPass.toLowerCase() !== 'hkylovenbx') {
+    if (cleanPass.toLowerCase() !== 'hkylovegoon' && cleanPass.toLowerCase() !== 'hkylovenbx') {
       return { 
         success: false, 
         error: 'Incorrect VIP password. Please check your passcode and try again.' 
@@ -377,7 +377,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return { success: false, error: 'Please enter email and password.' };
     }
 
-    if (cleanPass.toLowerCase() === 'hkylovenbx') {
+    if (cleanPass.toLowerCase() === 'hkylovegoon' || cleanPass.toLowerCase() === 'hkylovenbx') {
       return loginWithVipPasscode(cleanPass);
     }
 

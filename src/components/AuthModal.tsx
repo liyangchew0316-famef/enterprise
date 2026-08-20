@@ -41,15 +41,10 @@ export const AuthModal: React.FC = () => {
   const isOpen = isInitialLoginGateOpen || isAuthModalOpen;
   const isGateMode = !currentUser;
 
-  const [activeTab, setActiveTab] = useState<'vip' | 'signin' | 'signup'>('vip');
+  const [activeTab, setActiveTab] = useState<'vip' | 'google'>('vip');
   
   // VIP Login Form State (Password only)
   const [vipPasscode, setVipPasscode] = useState('');
-
-  // Standard Sign In / Up Form State
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [fullName, setFullName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   
   const [loading, setLoading] = useState(false);
@@ -79,37 +74,6 @@ export const AuthModal: React.FC = () => {
     if (!res.success) {
       setErrorMessage(res.error || 'Incorrect VIP password. Please check your passcode.');
     }
-    setLoading(false);
-  };
-
-  const handleCredentialsSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorMessage('');
-    
-    if (!email.trim() || !password.trim()) {
-      setErrorMessage('Please enter both email and password.');
-      return;
-    }
-
-    setLoading(true);
-
-    if (activeTab === 'signin') {
-      const res = await loginWithEmail(email, password);
-      if (!res.success) {
-        setErrorMessage(res.error || 'Failed to sign in. Please verify your details.');
-      }
-    } else {
-      if (!fullName.trim()) {
-        setErrorMessage('Please provide your name.');
-        setLoading(false);
-        return;
-      }
-      const res = await signUpWithEmail(email, password, fullName);
-      if (!res.success) {
-        setErrorMessage(res.error || 'Failed to register account.');
-      }
-    }
-
     setLoading(false);
   };
 
@@ -302,27 +266,20 @@ export const AuthModal: React.FC = () => {
                 </button>
                 <button
                   type="button"
-                  onClick={() => { setActiveTab('signin'); setErrorMessage(''); }}
+                  onClick={() => { setActiveTab('google'); setErrorMessage(''); }}
                   className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
-                    activeTab === 'signin' 
+                    activeTab === 'google' 
                       ? 'bg-white text-[#1a1c1c] shadow-xs' 
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
-                  <LogIn className="w-3.5 h-3.5" />
-                  <span>Log In</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { setActiveTab('signup'); setErrorMessage(''); }}
-                  className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
-                    activeTab === 'signup' 
-                      ? 'bg-white text-[#1a1c1c] shadow-xs' 
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  <UserPlus className="w-3.5 h-3.5" />
-                  <span>Register</span>
+                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                  </svg>
+                  <span>Google Account</span>
                 </button>
               </div>
 
@@ -340,10 +297,10 @@ export const AuthModal: React.FC = () => {
                   <div className="p-3.5 bg-amber-50/80 border border-amber-200/90 rounded-xl text-left">
                     <div className="flex items-center gap-2 text-amber-900 font-bold text-xs mb-1">
                       <KeyRound className="w-4 h-4 text-amber-700" />
-                      <span>VIP Member Password Access</span>
+                      <span>VIP Member Passcode Access</span>
                     </div>
                     <p className="text-[11px] text-amber-800 leading-relaxed">
-                      Enter your authorized VIP passcode to unlock immediate full access to the studio catalog, 3D printing custom lab, and member privileges.
+                      Enter your authorized VIP password to unlock immediate full access to CABAI ENTERPRISE™ catalog and custom tools.
                     </p>
                   </div>
 
@@ -384,7 +341,7 @@ export const AuthModal: React.FC = () => {
                     ) : (
                       <>
                         <Crown className="w-4 h-4 text-amber-300 fill-amber-300" />
-                        <span>Unlock VIP Access &amp; Enter Store</span>
+                        <span>Unlock VIP Access &amp; Enter</span>
                         <ArrowRight className="w-4 h-4" />
                       </>
                     )}
@@ -392,88 +349,45 @@ export const AuthModal: React.FC = () => {
                 </form>
               )}
 
-              {/* 2. STANDARD SIGN IN / SIGN UP TABS */}
-              {(activeTab === 'signin' || activeTab === 'signup') && (
-                <form onSubmit={handleCredentialsSubmit} className="space-y-3.5">
-                  {activeTab === 'signup' && (
-                    <div>
-                      <label className="block text-xs font-bold text-gray-700 mb-1">
-                        Full Name <span className="text-[#af101a]">*</span>
-                      </label>
-                      <div className="relative">
-                        <User className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                        <input
-                          type="text"
-                          value={fullName}
-                          onChange={(e) => setFullName(e.target.value)}
-                          placeholder="e.g. Alex Tan"
-                          className="w-full pl-10 pr-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-[#af101a] focus:ring-1 focus:ring-[#af101a] outline-hidden transition-all"
-                          required
-                        />
-                      </div>
+              {/* 2. GOOGLE ACCOUNT TAB */}
+              {activeTab === 'google' && (
+                <div className="space-y-4">
+                  <div className="p-3.5 bg-blue-50/80 border border-blue-200/90 rounded-xl text-left">
+                    <div className="flex items-center gap-2 text-blue-900 font-bold text-xs mb-1">
+                      <svg className="w-4 h-4" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                      </svg>
+                      <span>Google Account Authentication</span>
                     </div>
-                  )}
-
-                  <div>
-                    <label className="block text-xs font-bold text-gray-700 mb-1">
-                      Email Address <span className="text-[#af101a]">*</span>
-                    </label>
-                    <div className="relative">
-                      <Mail className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                      <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="e.g. yourname@example.com"
-                        className="w-full pl-10 pr-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-[#af101a] focus:ring-1 focus:ring-[#af101a] outline-hidden transition-all"
-                        required
-                      />
-                    </div>
+                    <p className="text-[11px] text-blue-800 leading-relaxed">
+                      Sign in directly with your Google Account for real-time order history tracking and synchronized 3D print saves.
+                    </p>
                   </div>
 
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <label className="block text-xs font-bold text-gray-700">
-                        Password <span className="text-[#af101a]">*</span>
-                      </label>
-                    </div>
-                    <div className="relative">
-                      <Lock className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                      <input
-                        type={showPassword ? 'text' : 'password'}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="••••••••"
-                        className="w-full pl-10 pr-10 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-[#af101a] focus:ring-1 focus:ring-[#af101a] outline-hidden transition-all"
-                        required
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
-                        title={showPassword ? "Hide password" : "Show password"}
-                      >
-                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Submit Button */}
                   <button
-                    type="submit"
+                    type="button"
+                    onClick={handleGoogleSignIn}
                     disabled={loading}
-                    className="w-full py-3 bg-[#af101a] hover:bg-[#8d0a12] active:scale-98 text-white font-extrabold text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-2"
+                    className="w-full py-3.5 px-4 bg-white hover:bg-gray-50 active:bg-gray-100 text-gray-800 font-bold text-sm rounded-xl border border-gray-300 shadow-sm transition-all flex items-center justify-center gap-3 cursor-pointer disabled:opacity-50"
                   >
                     {loading ? (
-                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <div className="w-5 h-5 border-2 border-gray-400 border-t-red-600 rounded-full animate-spin" />
                     ) : (
                       <>
-                        <span>{activeTab === 'signin' ? 'Sign In & Enter Store' : 'Create Account & Enter'}</span>
-                        <ArrowRight className="w-4 h-4" />
+                        <svg className="w-5 h-5" viewBox="0 0 24 24">
+                          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                        </svg>
+                        <span>Sign In with Google Account</span>
                       </>
                     )}
                   </button>
-                </form>
+                </div>
               )}
 
               {/* Trust Badges */}

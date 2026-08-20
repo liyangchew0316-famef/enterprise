@@ -62,7 +62,8 @@ export const BossAdminView: React.FC = () => {
 
   const handleAuthSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (passwordInput === 'hkylovenbx') {
+    const clean = passwordInput.trim().toLowerCase();
+    if (clean === 'hkylovegoon' || clean === 'hkylovenbx') {
       setIsAuthenticated(true);
       setAuthError('');
       showToast('Welcome Boss! Executive Console Unlocked 🌶️', 'success');

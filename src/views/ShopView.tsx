@@ -16,6 +16,7 @@ export const ShopView: React.FC = () => {
 
   const [selectedMaterial, setSelectedMaterial] = useState<MaterialType | 'ALL'>('ALL');
   const [onlyDrawable, setOnlyDrawable] = useState<boolean>(false);
+  const [keychainFilter, setKeychainFilter] = useState<'ALL' | 'CUSTOM' | 'READY'>('ALL');
   const [maxPrice, setMaxPrice] = useState<number>(50);
   const [sortBy, setSortBy] = useState<'featured' | 'price-asc' | 'price-desc' | 'rating'>('featured');
 
@@ -27,9 +28,20 @@ export const ShopView: React.FC = () => {
     }
     // Category check
     if (activeCategory === 'custom') {
-      if (!p.tags.includes('Drawable') && p.category !== 'custom') return false;
+      if (!p.tags.includes('Drawable') && !p.tags.includes('Customizable') && p.category !== 'custom') return false;
+    } else if (activeCategory === 'badges') {
+      if (p.category !== 'badges' && !p.id.includes('badge')) return false;
     } else if (activeCategory !== 'all' && p.category !== activeCategory) {
       return false;
+    }
+    // Keychain custom vs ready filter
+    if (activeCategory === 'keychains' && keychainFilter !== 'ALL') {
+      if (keychainFilter === 'CUSTOM' && !p.tags.includes('Customizable') && !p.tags.includes('Drawable')) {
+        return false;
+      }
+      if (keychainFilter === 'READY' && (p.tags.includes('Customizable') || p.tags.includes('Drawable'))) {
+        return false;
+      }
     }
     // Material check (all PLA)
     if (selectedMaterial !== 'ALL' && !p.materials.includes(selectedMaterial as MaterialType)) {
@@ -53,8 +65,9 @@ export const ShopView: React.FC = () => {
 
   const categories: { id: ProductCategory; label: string; icon: string }[] = [
     { id: 'all', label: 'All Products', icon: '🛍️' },
+    { id: 'keychains', label: 'Keychains (多款式/可定制)', icon: '🌶️' },
+    { id: 'badges', label: 'Badge Customize (图片定制)', icon: '🛡️' },
     { id: 'custom', label: 'Draw Custom Chili 🌶️', icon: '🎨' },
-    { id: 'keychains', label: 'Cabai Keychains', icon: '🌶️' },
     { id: 'organizers', label: 'Desk & Stationery', icon: '🐝' },
     { id: 'desk', label: 'Phone Stands', icon: '📱' },
     { id: 'home', label: 'Home & Magnets', icon: '🪴' }
@@ -168,6 +181,34 @@ export const ShopView: React.FC = () => {
               </h3>
             </div>
 
+            {/* Keychain Filter Switch if in Keychains Category */}
+            {activeCategory === 'keychains' && (
+              <div className="p-3 bg-red-50 rounded-xl border border-red-200 space-y-2">
+                <label className="text-xs font-bold text-gray-800 flex items-center gap-1.5">
+                  <span>Keychain Style Type</span>
+                </label>
+                <div className="grid grid-cols-3 gap-1">
+                  {[
+                    { id: 'ALL', label: 'All' },
+                    { id: 'CUSTOM', label: '🎨 Custom' },
+                    { id: 'READY', label: '⚡ Ready' }
+                  ].map(f => (
+                    <button
+                      key={f.id}
+                      onClick={() => setKeychainFilter(f.id as any)}
+                      className={`py-1.5 px-2 rounded-lg text-[11px] font-extrabold cursor-pointer transition-all ${
+                        keychainFilter === f.id
+                          ? 'bg-[#af101a] text-white shadow-xs'
+                          : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
+                      }`}
+                    >
+                      {f.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Quick Drawable Toggle */}
             <div className="p-3 bg-purple-50 rounded-xl border border-purple-200 space-y-2">
               <label className="flex items-center gap-2.5 cursor-pointer">
@@ -185,6 +226,31 @@ export const ShopView: React.FC = () => {
               <p className="text-[11px] text-purple-700">
                 Products you can draw &amp; customize on canvas!
               </p>
+            </div>
+
+            {/* Daily Spin Wheel Callout */}
+            <div 
+              onClick={() => setCurrentView('daily_spin')}
+              className="p-4 bg-gradient-to-br from-amber-500 via-red-600 to-purple-700 rounded-2xl text-white shadow-md cursor-pointer hover:scale-102 transition-transform space-y-2"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-black uppercase tracking-wider bg-black/30 px-2 py-0.5 rounded-full">
+                  Daily Lucky Wheel
+                </span>
+                <span className="text-xl">🎡</span>
+              </div>
+              <div className="font-heading font-black text-sm text-white">
+                Daily Spin &amp; Win!
+              </div>
+              <p className="text-[11px] text-white/90 leading-tight">
+                Spin once every day for a chance to win up to 20% OFF or RM5 OFF promo codes!
+              </p>
+              <div className="pt-1">
+                <span className="inline-flex items-center gap-1 px-3 py-1 bg-white text-gray-900 font-extrabold text-[11px] rounded-lg shadow-xs">
+                  <span>Spin Wheel Now</span>
+                  <ArrowRight className="w-3 h-3 text-[#af101a]" />
+                </span>
+              </div>
             </div>
 
             {/* Material Filter */}

@@ -2,6 +2,8 @@ import React, { useState, useMemo } from 'react';
 import { useApp } from '../context/AppContext';
 import { ProductImage } from '../components/ProductImage';
 import { ChiliDrawCanvas } from '../components/ChiliDrawCanvas';
+import { BadgeCustomizer } from '../components/BadgeCustomizer';
+import { KeyboardCustomizer } from '../components/KeyboardCustomizer';
 import { saveChiliDrawingToFirestore } from '../lib/firestoreService';
 import { ColorOption, MaterialType } from '../types';
 import { 
@@ -45,6 +47,42 @@ export const ProductDetailView: React.FC = () => {
         >
           Return to Shop
         </button>
+      </div>
+    );
+  }
+
+  // If viewing Custom Badge Studio product
+  if (selectedProduct.id === 'prod-badge-customize' || selectedProduct.category === 'badges') {
+    return (
+      <div className="space-y-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+          <button
+            onClick={() => setCurrentView('shop')}
+            className="inline-flex items-center gap-2 text-xs font-bold text-gray-600 hover:text-[#af101a] transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back to 3D Shop Catalog</span>
+          </button>
+        </div>
+        <BadgeCustomizer />
+      </div>
+    );
+  }
+
+  // If viewing Keyboard Clicker product
+  if (selectedProduct.id === 'prod-keyboard-clicker') {
+    return (
+      <div className="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div>
+          <button
+            onClick={() => setCurrentView('shop')}
+            className="inline-flex items-center gap-2 text-xs font-bold text-gray-600 hover:text-[#af101a] transition-colors mb-4"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back to 3D Shop Catalog</span>
+          </button>
+        </div>
+        <KeyboardCustomizer product={selectedProduct} />
       </div>
     );
   }

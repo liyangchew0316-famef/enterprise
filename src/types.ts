@@ -1,4 +1,4 @@
-export type ProductCategory = 'all' | 'keychains' | 'organizers' | 'desk' | 'home' | 'custom';
+export type ProductCategory = 'all' | 'keychains' | 'organizers' | 'desk' | 'home' | 'custom' | 'badges';
 
 export type MaterialType = 'PLA' | 'PETG' | 'TPU';
 
@@ -7,6 +7,42 @@ export interface ColorOption {
   hex: string;
   bgClass?: string;
   imageUrl?: string;
+}
+
+export interface BadgeCustomization {
+  id?: string;
+  shape: 'circle' | 'shield' | 'hexagon' | 'square' | 'chili';
+  attachment: 'pin' | 'magnet' | 'keychain';
+  topText?: string;
+  bottomText?: string;
+  centerText?: string;
+  imageUrl?: string;
+  baseColor: ColorOption;
+  rimColor: ColorOption;
+  textColor: ColorOption;
+  material: MaterialType;
+  quantity: number;
+}
+
+export interface KeycapCustomConfig {
+  keyIndex: number;
+  type: 'letter' | 'emoji' | 'image';
+  value: string; // letter char, emoji string, or dataUrl
+  imageUrl?: string;
+}
+
+export interface SpinPrize {
+  id: number;
+  type: 'discount_10' | 'discount_20' | 'rm5_off' | 'no_prize';
+  label: string;
+  description: string;
+  promoCode?: string;
+  discountType?: 'percent' | 'flat';
+  discountValue?: number;
+  icon: string;
+  isWin: boolean;
+  color: string;
+  textColor: string;
 }
 
 export interface Product {
@@ -210,6 +246,8 @@ export type ViewMode =
   | 'shop'
   | 'product_detail'
   | 'custom_print'
+  | 'badge_custom'
+  | 'daily_spin'
   | 'checkout'
   | 'tng_payment'
   | 'order_tracking'
