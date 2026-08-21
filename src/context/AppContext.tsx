@@ -25,6 +25,7 @@ import {
   saveSpoolToFirestore,
   updateSpoolStockInFirestore,
   saveProductToFirestore,
+  subscribeToProducts,
   seedFirestoreInitialData,
   saveUserToFirestore
 } from '../lib/firestoreService';
@@ -514,9 +515,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         return { success: false, error: 'Sign-in request was cancelled. Please try again.' };
       }
       if (err?.code === 'auth/unauthorized-domain') {
+        const currentDomain = window.location.hostname;
         return { 
           success: false, 
-          error: `Current preview domain (${window.location.hostname}) needs to be authorized in Firebase Console -> Authentication -> Authorized domains, or use VIP passcode.` 
+          error: `Domain "${currentDomain}" needs to be added to Firebase Console -> Authentication -> Settings -> Authorized Domains. In the meantime, you can sign in instantly using the VIP Passcode tab!` 
         };
       }
       return { success: false, error: err?.message || 'Google authentication failed. Please try again.' };
@@ -536,8 +538,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     showToast('You have been signed out. Please log in with VIP password to enter.', 'info');
   };
 
-  // Fetch initial data from Firestore database & Express API
+  // Fetch and synchronize data from Firestore database in real-time
   useEffect(() => {
+    // 1. Set up real-time live listener for products from Firestore database
+    const unsubscribeProducts = subscribeToProducts((firestoreProducts) => {
+      if (firestoreProducts && firestoreProducts.length > 0) {
+        const normalized = normalizeProducts(firestoreProducts);
+        setProducts(normalized);
+        setSelectedProduct(prev => {
+          if (!prev) return normalized[0];
+          const matched = normalized.find(p => p.id === prev.id);
+          return matched || prev;
+        });
+      }
+    });
+
+    // 2. Fetch initial data and seed Firestore database if needed
     const fetchData = async () => {
       try {
         const [prodRes, ordRes, spoolRes] = await Promise.all([
@@ -556,7 +572,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (fsData.products && fsData.products.length > 0) {
           const normalized = normalizeProducts(fsData.products);
           setProducts(normalized);
-          setSelectedProduct(normalized[0]);
+          setSelectedProduct(prev => prev || normalized[0]);
         }
         if (fsData.orders && fsData.orders.length > 0) {
           setOrders(fsData.orders);
@@ -570,6 +586,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
 
     fetchData();
+
+    return () => {
+      unsubscribeProducts();
+    };
   }, []);
 
   const openProductDetail = (product: Product) => {

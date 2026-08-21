@@ -13,6 +13,74 @@ const DB_FILE = path.join(process.cwd(), 'server', 'db.json');
 
 const DEFAULT_PRODUCTS: Product[] = [
   {
+    id: 'prod-draw-custom-chili',
+    name: 'Draw Custom Chili 🌶️',
+    subtitle: 'Interactive 3D Chili Drawing Canvas • RM5',
+    price: 5.00,
+    originalPrice: 8.00,
+    rating: 5.00,
+    reviewsCount: 382,
+    category: 'custom',
+    tags: ['Drawable', 'Interactive Canvas', 'Custom Art', 'Top Pick', '3D Chili', 'Customizable'],
+    description: 'Interactive custom chili drawing & coloring studio! Paint your own pepper artwork, add funny facial expressions, stamps, or embossed lettering directly on the 3D chili canvas, then we 3D print your custom chili in rigid PLA!',
+    images: [
+      '/regenerated_image_1786627928894.png'
+    ],
+    specifications: {
+      material: 'Pure PLA (Drawing Ready Surface)',
+      weight: '16g',
+      dimensions: '60mm x 22mm x 18mm',
+      printTime: '30 mins',
+      layerHeight: '0.16mm (Fine Detail)',
+      madeToOrder: true
+    },
+    colors: [
+      { name: 'Chili Red', hex: '#af101a', bgClass: 'bg-[#af101a]' },
+      { name: 'Matte Black', hex: '#1a1c1c', bgClass: 'bg-[#1a1c1c]' },
+      { name: 'Signal Yellow', hex: '#eab308', bgClass: 'bg-yellow-500' },
+      { name: 'Emerald Green', hex: '#059669', bgClass: 'bg-emerald-600' }
+    ],
+    materials: ['PLA'],
+    isBestSeller: true,
+    isNew: true,
+    inStock: true,
+    stockQuantity: 150
+  },
+  {
+    id: 'prod-badge-customize',
+    name: 'Custom Circle Safety Namebadge (自定义安全胸章)',
+    subtitle: '12+ Templates • Safety Pin Clasp • 100% PLA',
+    price: 5.00,
+    originalPrice: 8.50,
+    rating: 5.00,
+    reviewsCount: 142,
+    category: 'badges',
+    tags: ['Customizable', 'Safety Namebadge', 'Circle Badge', '12+ Templates', 'Safety Pin', 'New Launch'],
+    description: 'Design your own circular 3D printed safety namebadge! Select from 12+ pre-designed templates (Student ID, Medical Staff, Barista, Corporate Executive, Cyberpunk, Cute Pets) or upload your custom logo, embossed in 100% rigid PLA with a secure safety pin clasp.',
+    images: [
+      '/regenerated_image_1786627928894.png'
+    ],
+    specifications: {
+      material: '100% Eco PLA+ (Safety Pin Clasp)',
+      weight: '14g',
+      dimensions: '52mm Diameter x 5mm Thickness',
+      printTime: '40 mins',
+      layerHeight: '0.16mm (Precision Relief)',
+      madeToOrder: true
+    },
+    colors: [
+      { name: 'Chili Red', hex: '#af101a', bgClass: 'bg-[#af101a]' },
+      { name: 'Matte Black', hex: '#1a1c1c', bgClass: 'bg-[#1a1c1c]' },
+      { name: 'Signal Yellow', hex: '#eab308', bgClass: 'bg-yellow-500' },
+      { name: 'Emerald Green', hex: '#059669', bgClass: 'bg-emerald-600' }
+    ],
+    materials: ['PLA'],
+    isBestSeller: true,
+    isNew: true,
+    inStock: true,
+    stockQuantity: 200
+  },
+  {
     id: 'prod-01',
     name: 'Cabai Keychain 🌶️',
     subtitle: 'Brand Signature Product',

@@ -76,13 +76,68 @@ export async function fetchProductsFromFirestore(): Promise<Product[]> {
   }
 }
 
+/**
+ * Real-time listener for the products collection.
+ * Triggers callback immediately and on any future product creation, update, or deletion in Firestore.
+ */
+export function subscribeToProducts(
+  onUpdate: (products: Product[]) => void,
+  onError?: (error: Error) => void
+): () => void {
+  try {
+    const productsRef = collection(db, PRODUCTS_COL);
+    const unsubscribe = onSnapshot(
+      productsRef,
+      (querySnapshot) => {
+        const products: Product[] = [];
+        querySnapshot.forEach((docSnap) => {
+          products.push(docSnap.data() as Product);
+        });
+        onUpdate(products);
+      },
+      (err) => {
+        console.error('[Firestore onSnapshot] Error listening to products collection:', err);
+        onError?.(err);
+      }
+    );
+    return unsubscribe;
+  } catch (err: any) {
+    console.error('[Firestore onSnapshot] Setup failed for products collection:', err);
+    return () => {};
+  }
+}
+
 export async function saveProductToFirestore(product: Product): Promise<boolean> {
   try {
     const cleanProduct = sanitizeForFirestore(product);
     await setDoc(doc(db, PRODUCTS_COL, product.id), cleanProduct, { merge: true });
     return true;
   } catch (error) {
-    handleFirestoreError('saveProductToFirestore', error);
+    handleFirestoreError(`saveProductToFirestore(${product.id})`, error);
+    return false;
+  }
+}
+
+export async function updateProductInFirestore(productId: string, updates: Partial<Product>): Promise<boolean> {
+  try {
+    const cleanUpdates = sanitizeForFirestore({
+      ...updates,
+      updatedAt: new Date().toISOString()
+    });
+    await updateDoc(doc(db, PRODUCTS_COL, productId), cleanUpdates);
+    return true;
+  } catch (error) {
+    handleFirestoreError(`updateProductInFirestore(${productId})`, error);
+    return false;
+  }
+}
+
+export async function deleteProductFromFirestore(productId: string): Promise<boolean> {
+  try {
+    await deleteDoc(doc(db, PRODUCTS_COL, productId));
+    return true;
+  } catch (error) {
+    handleFirestoreError(`deleteProductFromFirestore(${productId})`, error);
     return false;
   }
 }
@@ -449,11 +504,28 @@ export async function seedFirestoreInitialData(
 ): Promise<{ products: Product[]; orders: Order[]; spools: MaterialSpool[] }> {
   try {
     let products = await fetchProductsFromFirestore();
+    
     if (products.length === 0 && defaultProducts.length > 0) {
+      console.log('[Firestore] Seeding initial product catalog into Firestore database...');
       for (const prod of defaultProducts) {
         await saveProductToFirestore(prod);
       }
-      products = defaultProducts;
+      products = await fetchProductsFromFirestore();
+      if (products.length === 0) products = defaultProducts;
+    } else if (products.length > 0 && defaultProducts.length > 0) {
+      // Sync any missing default products into database
+      const existingIds = new Set(products.map((p) => p.id));
+      let addedAny = false;
+      for (const prod of defaultProducts) {
+        if (!existingIds.has(prod.id)) {
+          console.log(`[Firestore] Syncing new product ${prod.id} to Firestore database...`);
+          await saveProductToFirestore(prod);
+          addedAny = true;
+        }
+      }
+      if (addedAny) {
+        products = await fetchProductsFromFirestore();
+      }
     }
 
     // Only load real orders from Firestore; do NOT seed fake orders into database
@@ -467,7 +539,8 @@ export async function seedFirestoreInitialData(
       for (const spool of defaultSpools) {
         await saveSpoolToFirestore(spool);
       }
-      spools = defaultSpools;
+      spools = await fetchSpoolsFromFirestore();
+      if (spools.length === 0) spools = defaultSpools;
     }
 
     return { products, orders, spools };

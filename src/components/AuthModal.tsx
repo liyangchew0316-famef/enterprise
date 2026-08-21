@@ -292,9 +292,25 @@ export const AuthModal: React.FC = () => {
 
               {/* Error Notification */}
               {errorMessage && (
-                <div className="p-3.5 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl font-semibold flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-red-600 shrink-0" />
-                  <span>{errorMessage}</span>
+                <div className="p-3.5 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl font-medium space-y-2">
+                  <div className="flex items-start gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-red-600 shrink-0 mt-1.5" />
+                    <span className="leading-relaxed">{errorMessage}</span>
+                  </div>
+                  {activeTab === 'google' && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActiveTab('vip');
+                        setErrorMessage('');
+                      }}
+                      className="w-full py-2 px-3 bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs rounded-lg transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                    >
+                      <Crown className="w-3.5 h-3.5 text-amber-300 fill-amber-300" />
+                      <span>Switch to VIP Passcode Access</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </button>
+                  )}
                 </div>
               )}
 
