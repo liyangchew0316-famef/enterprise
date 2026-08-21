@@ -40,6 +40,8 @@ export interface SpinPrize {
   discountType?: 'percent' | 'flat';
   discountValue?: number;
   icon: string;
+  image?: string; // Image URL / Data URI for the wheel slice picture
+  imageUrl?: string; // Optional alias
   isWin: boolean;
   color: string;
   textColor: string;

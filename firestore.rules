@@ -42,5 +42,19 @@ service cloud.firestore {
       allow update: if true;
       allow delete: if true;
     }
+
+    // Spin prizes collection (Daily Spin lucky wheel configuration)
+    match /spin_prizes/{prizeId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Spin records collection (User daily spin activity logs)
+    match /spin_records/{recordId} {
+      allow read: if true;
+      allow create: if true;
+      allow update: if true;
+      allow delete: if true;
+    }
   }
 }

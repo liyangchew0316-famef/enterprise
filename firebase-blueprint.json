@@ -90,6 +90,42 @@
         "authProvider": { "type": "string" }
       },
       "required": ["uid", "role"]
+    },
+    "spin_prizes": {
+      "title": "spin_prizes",
+      "description": "Daily lucky spin wheel prizes, labels, promo codes, and slice images",
+      "type": "object",
+      "properties": {
+        "id": { "type": "number" },
+        "type": { "type": "string" },
+        "label": { "type": "string" },
+        "description": { "type": "string" },
+        "promoCode": { "type": "string" },
+        "discountType": { "type": "string" },
+        "discountValue": { "type": "number" },
+        "icon": { "type": "string" },
+        "image": { "type": "string" },
+        "isWin": { "type": "boolean" },
+        "color": { "type": "string" },
+        "textColor": { "type": "string" }
+      },
+      "required": ["id", "label", "color"]
+    },
+    "spin_records": {
+      "title": "spin_records",
+      "description": "User daily spin events, winning vouchers, and timestamps",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "prizeId": { "type": "number" },
+        "prizeLabel": { "type": "string" },
+        "isWin": { "type": "boolean" },
+        "promoCode": { "type": "string" },
+        "dateKey": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "prizeId", "dateKey", "createdAt"]
     }
   }
 }

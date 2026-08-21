@@ -13,7 +13,8 @@ import {
   onSnapshot
 } from 'firebase/firestore';
 import { db } from './firebase';
-import { Product, Order, MaterialSpool, OrderStatus, PaymentStatus, ChiliDrawing, UserProfile } from '../types';
+import { Product, Order, MaterialSpool, OrderStatus, PaymentStatus, ChiliDrawing, UserProfile, SpinPrize } from '../types';
+import { DEFAULT_SPIN_PRIZES } from '../data/spinPrizesData';
 
 // Collection references
 const PRODUCTS_COL = 'products';
@@ -22,6 +23,8 @@ const SPOOLS_COL = 'spools';
 const QUOTES_COL = 'custom_quotes';
 const DRAWINGS_COL = 'chili_drawings';
 const USERS_COL = 'users';
+const SPIN_PRIZES_COL = 'spin_prizes';
+const SPIN_RECORDS_COL = 'spin_records';
 
 /**
  * Standardized Firestore error logger
@@ -495,13 +498,126 @@ export async function fetchAllUsersFromFirestore(): Promise<StoredUserData[]> {
 }
 
 // ==========================================
-// 6. INITIAL DATA FETCH & SEEDING (PRODUCTS ONLY)
+// 6. DAILY SPIN (Prizes, Configuration & Spin Logs)
+// ==========================================
+export interface SpinRecord {
+  id: string;
+  userId?: string;
+  prizeId: number;
+  prizeLabel: string;
+  isWin: boolean;
+  promoCode?: string;
+  discountType?: 'percent' | 'flat';
+  discountValue?: number;
+  dateKey: string; // YYYY-MM-DD
+  createdAt: string; // ISO timestamp
+}
+
+export async function fetchSpinPrizesFromFirestore(): Promise<SpinPrize[]> {
+  try {
+    const querySnapshot = await getDocs(collection(db, SPIN_PRIZES_COL));
+    const prizes: SpinPrize[] = [];
+    querySnapshot.forEach((docSnap) => {
+      prizes.push(docSnap.data() as SpinPrize);
+    });
+    if (prizes.length > 0) {
+      // Sort by id 0..9
+      return prizes.sort((a, b) => a.id - b.id);
+    }
+    return [];
+  } catch (error) {
+    handleFirestoreError('fetchSpinPrizesFromFirestore', error);
+    return [];
+  }
+}
+
+export function subscribeToSpinPrizes(
+  onUpdate: (prizes: SpinPrize[]) => void,
+  onError?: (error: Error) => void
+): () => void {
+  try {
+    const prizesRef = collection(db, SPIN_PRIZES_COL);
+    const unsubscribe = onSnapshot(
+      prizesRef,
+      (querySnapshot) => {
+        const prizes: SpinPrize[] = [];
+        querySnapshot.forEach((docSnap) => {
+          prizes.push(docSnap.data() as SpinPrize);
+        });
+        if (prizes.length > 0) {
+          onUpdate(prizes.sort((a, b) => a.id - b.id));
+        } else {
+          onUpdate(DEFAULT_SPIN_PRIZES);
+        }
+      },
+      (err) => {
+        console.error('[Firestore onSnapshot] Error listening to spin_prizes collection:', err);
+        onError?.(err);
+      }
+    );
+    return unsubscribe;
+  } catch (err: any) {
+    console.error('[Firestore onSnapshot] Setup failed for spin_prizes collection:', err);
+    return () => {};
+  }
+}
+
+export async function saveSpinPrizeToFirestore(prize: SpinPrize): Promise<boolean> {
+  try {
+    const docId = `prize-${prize.id}`;
+    const cleanPrize = sanitizeForFirestore(prize);
+    await setDoc(doc(db, SPIN_PRIZES_COL, docId), cleanPrize, { merge: true });
+    return true;
+  } catch (error) {
+    handleFirestoreError(`saveSpinPrizeToFirestore(${prize.id})`, error);
+    return false;
+  }
+}
+
+export async function saveSpinRecordToFirestore(record: SpinRecord): Promise<boolean> {
+  try {
+    const docId = record.id || `spin-${record.dateKey}-${record.userId || 'guest'}-${Date.now()}`;
+    const cleanRecord = sanitizeForFirestore({
+      ...record,
+      id: docId,
+      createdAt: record.createdAt || new Date().toISOString()
+    });
+    await setDoc(doc(db, SPIN_RECORDS_COL, docId), cleanRecord, { merge: true });
+    console.log('[Firestore] ✅ Saved daily spin event to spin_records:', docId);
+    return true;
+  } catch (error) {
+    handleFirestoreError(`saveSpinRecordToFirestore`, error);
+    return false;
+  }
+}
+
+export async function fetchUserTodaySpinFromFirestore(userId: string, dateKey: string): Promise<SpinRecord | null> {
+  if (!userId || !dateKey) return null;
+  try {
+    const q = query(
+      collection(db, SPIN_RECORDS_COL),
+      where('userId', '==', userId),
+      where('dateKey', '==', dateKey)
+    );
+    const querySnapshot = await getDocs(q);
+    if (!querySnapshot.empty) {
+      return querySnapshot.docs[0].data() as SpinRecord;
+    }
+    return null;
+  } catch (error) {
+    handleFirestoreError(`fetchUserTodaySpinFromFirestore(${userId}, ${dateKey})`, error);
+    return null;
+  }
+}
+
+// ==========================================
+// 7. INITIAL DATA FETCH & SEEDING (PRODUCTS, SPOOLS & SPIN PRIZES)
 // ==========================================
 export async function seedFirestoreInitialData(
   defaultProducts: Product[],
   defaultOrders: Order[],
   defaultSpools: MaterialSpool[]
-): Promise<{ products: Product[]; orders: Order[]; spools: MaterialSpool[] }> {
+): Promise<{ products: Product[]; orders: Order[]; spools: MaterialSpool[]; spinPrizes: SpinPrize[] }> {
   try {
     let products = await fetchProductsFromFirestore();
     
@@ -543,9 +659,20 @@ export async function seedFirestoreInitialData(
       if (spools.length === 0) spools = defaultSpools;
     }
 
-    return { products, orders, spools };
+    // Daily Spin Prizes database initialization
+    let spinPrizes = await fetchSpinPrizesFromFirestore();
+    if (spinPrizes.length === 0) {
+      console.log('[Firestore] Seeding initial Daily Spin prizes and wheel images into Firestore database...');
+      for (const prize of DEFAULT_SPIN_PRIZES) {
+        await saveSpinPrizeToFirestore(prize);
+      }
+      spinPrizes = await fetchSpinPrizesFromFirestore();
+      if (spinPrizes.length === 0) spinPrizes = DEFAULT_SPIN_PRIZES;
+    }
+
+    return { products, orders, spools, spinPrizes };
   } catch (error) {
     handleFirestoreError('seedFirestoreInitialData', error);
-    return { products: defaultProducts, orders: defaultOrders, spools: defaultSpools };
+    return { products: defaultProducts, orders: defaultOrders, spools: defaultSpools, spinPrizes: DEFAULT_SPIN_PRIZES };
   }
 }
