@@ -64,9 +64,9 @@ export const ShopView: React.FC = () => {
   }
 
   const categories: { id: ProductCategory; label: string; icon: string }[] = [
-    { id: 'all', label: 'All Products', icon: '🛍️' },
-    { id: 'custom', label: 'Draw Custom Chili 🌶️ (RM5)', icon: '🎨' },
-    { id: 'badges', label: 'Circle Safety Badge 🧷 (RM5)', icon: '🛡️' },
+    { id: 'all', label: 'All Products (全部产品)', icon: '🛍️' },
+    { id: 'badges', label: 'Safety Namebadges 🧷 (RM5)', icon: '🛡️' },
+    { id: 'custom', label: 'Custom & DIY 🎨 (RM5)', icon: '🎨' },
     { id: 'keychains', label: 'Keychains (钥匙扣系列)', icon: '🌶️' },
     { id: 'organizers', label: 'Desk & Stationery', icon: '🐝' },
     { id: 'desk', label: 'Phone Stands', icon: '📱' },
@@ -75,60 +75,19 @@ export const ShopView: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      
-      {/* Featured Banner for Draw Custom Chili */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-[#1a1c1c] via-[#2d0f12] to-[#af101a] text-white p-6 sm:p-8 rounded-3xl border border-red-900/50 shadow-xl">
-        <div className="absolute -right-8 -bottom-10 opacity-20 pointer-events-none text-9xl">🌶️</div>
-        
-        <div className="relative z-10 max-w-2xl space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-red-600/40 backdrop-blur-md rounded-full text-xs font-black uppercase tracking-wider text-red-200 border border-red-400/30">
-            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-            <span>Interactive 3D Drawing Studio</span>
-          </div>
-
-          <h2 className="font-heading font-black text-2xl sm:text-3xl text-white tracking-tight">
-            Draw Custom Chili 🌶️ on Canvas
-          </h2>
-
-          <p className="text-gray-300 text-xs sm:text-sm leading-relaxed">
-            Paint your own chili artwork, add custom facial expressions, emojis, or embossed names directly onto the 3D chili canvas, then we 3D print your custom chili in premium PLA!
-          </p>
-
-          <div className="flex flex-wrap items-center gap-3 pt-2">
-            <button
-              onClick={() => {
-                const drawProd = products.find(p => p.id === 'prod-draw-custom-chili') || products[0];
-                openProductDetail(drawProd);
-              }}
-              className="px-5 py-2.5 bg-white text-[#af101a] hover:bg-gray-100 font-extrabold text-xs rounded-xl shadow-lg flex items-center gap-2 transition-transform hover:scale-102 cursor-pointer"
-            >
-              <Palette className="w-4 h-4 text-[#af101a]" />
-              <span>Draw Custom Chili (RM5.00) 🌶️</span>
-            </button>
-
-            <button
-              onClick={() => {
-                const badgeProd = products.find(p => p.id === 'prod-badge-customize');
-                if (badgeProd) openProductDetail(badgeProd);
-                else setCurrentView('badge_custom');
-              }}
-              className="px-5 py-2.5 bg-purple-900/90 hover:bg-purple-800 text-white font-extrabold text-xs rounded-xl shadow-lg border border-purple-400/40 flex items-center gap-2 transition-transform hover:scale-102 cursor-pointer"
-            >
-              <span>🧷</span>
-              <span>Circle Safety Namebadge (RM5.00)</span>
-            </button>
-          </div>
-        </div>
-      </div>
 
       {/* Page Title & Sort Row */}
-      <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="font-heading font-extrabold text-2xl sm:text-3xl text-[#1a1c1c]">
-            3D Shop Catalog
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-50 text-[#af101a] border border-red-200 rounded-full text-xs font-black uppercase tracking-wider mb-1.5">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>100% Eco PLA+ 3D Studio Catalog</span>
+          </div>
+          <h1 className="font-heading font-black text-2xl sm:text-3xl text-[#1a1c1c]">
+            All 3D Printed Products
           </h1>
-          <p className="text-gray-500 text-xs sm:text-sm mt-1">
-            Browse our full range of 3D printed cabai keychains, DIY drawable products, and desk accessories in 100% PLA.
+          <p className="text-gray-500 text-xs sm:text-sm mt-0.5">
+            Explore our complete collection of custom namebadges, interactive DIY chili canvases, keychains, and desk accessories.
           </p>
         </div>
 
@@ -139,7 +98,7 @@ export const ShopView: React.FC = () => {
           <select
             value={sortBy}
             onChange={(e: any) => setSortBy(e.target.value)}
-            className="px-3 py-2 bg-gray-100 text-gray-800 text-xs font-bold rounded-lg border border-gray-300 focus:outline-hidden focus:border-[#af101a]"
+            className="px-3 py-2 bg-gray-100 text-gray-800 text-xs font-bold rounded-lg border border-gray-300 focus:outline-hidden focus:border-[#af101a] cursor-pointer"
           >
             <option value="featured">Featured</option>
             <option value="price-asc">Price: Low to High</option>
@@ -339,7 +298,10 @@ export const ShopView: React.FC = () => {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
               {filtered.map((product) => {
-                const isProductDrawable = product.tags.includes('Drawable') || product.name.toLowerCase().includes('draw');
+                const isProductDrawable = product.tags.includes('Drawable') || product.name.toLowerCase().includes('draw') || product.id.includes('draw');
+                const isBadge = product.category === 'badges' || product.id.includes('badge');
+                const isClicker = product.id === 'prod-keyboard-clicker';
+                const isCustomKeyring = product.tags.includes('Customizable') && !isProductDrawable && !isBadge && !isClicker;
 
                 return (
                   <div
@@ -364,10 +326,22 @@ export const ShopView: React.FC = () => {
                         </span>
                       )}
 
+                      {isBadge && (
+                        <span className="absolute top-3 right-3 bg-red-900 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-md shadow-xs flex items-center gap-1 border border-red-400/40">
+                          <span>🧷 12+ Templates</span>
+                        </span>
+                      )}
+
                       {isProductDrawable && (
                         <span className="absolute top-3 right-3 bg-purple-700 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-md shadow-xs flex items-center gap-1">
                           <Palette className="w-3 h-3" />
-                          Drawable 🎨
+                          <span>Draw Canvas 🎨</span>
+                        </span>
+                      )}
+
+                      {isClicker && (
+                        <span className="absolute top-3 right-3 bg-amber-600 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-md shadow-xs flex items-center gap-1">
+                          <span>⌨️ Custom Keys</span>
                         </span>
                       )}
 
@@ -424,18 +398,40 @@ export const ShopView: React.FC = () => {
                         </div>
 
                         <div className="flex items-center gap-1.5">
-                          {isProductDrawable ? (
+                          {isBadge ? (
                             <button
                               onClick={() => openProductDetail(product)}
-                              className="px-3.5 py-2 bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-800 hover:to-indigo-800 text-white text-xs font-extrabold rounded-lg shadow-xs flex items-center gap-1.5 transition-all"
+                              className="px-3.5 py-2 bg-[#af101a] hover:bg-[#8d0a12] text-white text-xs font-extrabold rounded-lg shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
+                            >
+                              <span>🧷</span>
+                              <span>Customize Badge</span>
+                            </button>
+                          ) : isProductDrawable ? (
+                            <button
+                              onClick={() => openProductDetail(product)}
+                              className="px-3.5 py-2 bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-800 hover:to-indigo-800 text-white text-xs font-extrabold rounded-lg shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
                             >
                               <Palette className="w-3.5 h-3.5" />
-                              <span>Draw 🌶️</span>
+                              <span>Draw Chili 🌶️</span>
+                            </button>
+                          ) : isClicker ? (
+                            <button
+                              onClick={() => openProductDetail(product)}
+                              className="px-3.5 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-extrabold rounded-lg shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
+                            >
+                              <span>⌨️ Customize</span>
+                            </button>
+                          ) : isCustomKeyring ? (
+                            <button
+                              onClick={() => openProductDetail(product)}
+                              className="px-3.5 py-2 bg-[#1a1c1c] hover:bg-[#af101a] text-white text-xs font-bold rounded-lg transition-colors cursor-pointer"
+                            >
+                              <span>✨ Customize</span>
                             </button>
                           ) : (
                             <button
                               onClick={() => addToCart(product)}
-                              className="px-3.5 py-2 bg-[#1a1c1c] hover:bg-[#af101a] text-white text-xs font-bold rounded-lg transition-colors"
+                              className="px-3.5 py-2 bg-[#1a1c1c] hover:bg-[#af101a] text-white text-xs font-bold rounded-lg transition-colors cursor-pointer"
                             >
                               + Add to Cart
                             </button>

@@ -470,60 +470,56 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const loginWithGoogle = async (): Promise<{ success: boolean; error?: string }> => {
     try {
       const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
       const cred = await signInWithPopup(auth, provider);
+      
       const profile: UserProfile = {
         uid: cred.user.uid,
         email: cred.user.email,
-        displayName: cred.user.displayName || 'Google User',
+        displayName: cred.user.displayName || cred.user.email?.split('@')[0] || 'Google User',
         photoURL: cred.user.photoURL,
         isAnonymous: false,
         role: 'customer'
       };
+
       setCurrentUser(profile);
       setCurrentUserId(profile.uid);
       try {
         localStorage.setItem('cabai_saved_user', JSON.stringify(profile));
       } catch (e) {}
 
-      // Save user to Firestore users collection
+      // Save real user profile to Firestore users collection
       try {
-        saveUserToFirestore({
+        await saveUserToFirestore({
           ...profile,
-          authProvider: 'google'
+          authProvider: 'google',
+          lastLoginAt: new Date().toISOString()
         });
       } catch (e) {}
 
       setIsAuthModalOpen(false);
       setIsInitialLoginGateOpen(false);
-      showToast(`Signed in as ${profile.displayName}! 🌶️`, 'success');
+      showToast(`Welcome to CABAI, ${profile.displayName}! 🌶️`, 'success');
       return { success: true };
     } catch (err: any) {
-      console.warn('Google sign-in popup note:', err);
-      // Fallback
-      const profile: UserProfile = {
-        uid: 'usr_google_' + Date.now(),
-        email: 'member@cabai.my',
-        displayName: 'Google Member',
-        isAnonymous: false,
-        role: 'customer'
-      };
-      setCurrentUser(profile);
-      setCurrentUserId(profile.uid);
-      try {
-        localStorage.setItem('cabai_saved_user', JSON.stringify(profile));
-      } catch (e) {}
-
-      try {
-        saveUserToFirestore({
-          ...profile,
-          authProvider: 'google'
-        });
-      } catch (e) {}
-
-      setIsAuthModalOpen(false);
-      setIsInitialLoginGateOpen(false);
-      showToast(`Signed in as ${profile.displayName}! 🌶️`, 'success');
-      return { success: true };
+      console.warn('Google sign-in error:', err);
+      
+      if (err?.code === 'auth/popup-closed-by-user') {
+        return { success: false, error: 'Google sign-in window was closed before completing. Please try again.' };
+      }
+      if (err?.code === 'auth/popup-blocked') {
+        return { success: false, error: 'Sign-in popup was blocked by your browser. Please allow popups for this site or open the app in a new tab.' };
+      }
+      if (err?.code === 'auth/cancelled-popup-request') {
+        return { success: false, error: 'Sign-in request was cancelled. Please try again.' };
+      }
+      if (err?.code === 'auth/unauthorized-domain') {
+        return { 
+          success: false, 
+          error: `Current preview domain (${window.location.hostname}) needs to be authorized in Firebase Console -> Authentication -> Authorized domains, or use VIP passcode.` 
+        };
+      }
+      return { success: false, error: err?.message || 'Google authentication failed. Please try again.' };
     }
   };
 
