@@ -84,7 +84,7 @@ export const Header: React.FC = () => {
           </button>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center gap-1 lg:gap-1.5">
+          <nav className="hidden md:flex items-center gap-1.5 lg:gap-2">
             <button
               onClick={() => handleNav('home')}
               className={`px-3 py-2 rounded-md text-sm font-semibold transition-colors ${
@@ -101,29 +101,6 @@ export const Header: React.FC = () => {
               }`}
             >
               Shop Catalog
-            </button>
-
-            <button
-              onClick={() => handleNav('custom_print')}
-              className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${
-                currentView === 'custom_print' 
-                  ? 'text-white bg-[#af101a] shadow-xs' 
-                  : 'text-[#af101a] bg-red-50 hover:bg-red-100 border border-red-200'
-              }`}
-            >
-              <Paintbrush className="w-3.5 h-3.5 text-[#af101a]" />
-              <span>Draw Chili 🌶️</span>
-            </button>
-
-            <button
-              onClick={() => handleNav('badge_custom')}
-              className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${
-                currentView === 'badge_custom' 
-                  ? 'text-white bg-[#af101a] shadow-xs' 
-                  : 'text-purple-900 bg-purple-50 hover:bg-purple-100 border border-purple-200'
-              }`}
-            >
-              <span>🛡️ Custom Badge</span>
             </button>
 
             <button
@@ -286,20 +263,6 @@ export const Header: React.FC = () => {
             className="w-full text-left px-3 py-2.5 rounded-lg text-base font-semibold text-gray-800 hover:bg-gray-50"
           >
             🛍️ Shop Catalog
-          </button>
-          <button
-            onClick={() => handleNav('custom_print')}
-            className="w-full text-left px-3 py-2.5 rounded-lg text-base font-semibold bg-red-50 text-[#af101a] flex items-center gap-2"
-          >
-            <Paintbrush className="w-5 h-5" />
-            <span>Draw Custom Chili 🌶️</span>
-          </button>
-          <button
-            onClick={() => handleNav('badge_custom')}
-            className="w-full text-left px-3 py-2.5 rounded-lg text-base font-semibold bg-purple-50 text-purple-900 flex items-center gap-2"
-          >
-            <span>🛡️</span>
-            <span>Badge Customize (上传图片定制)</span>
           </button>
           <button
             onClick={() => handleNav('daily_spin')}
