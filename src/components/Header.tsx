@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import TextMorph from './originkit/ui/textmorph-variant-2';
 import { 
   Search, 
   ShoppingBag, 
@@ -45,12 +46,17 @@ export const Header: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-xs transition-all">
-      {/* Top Banner Ticker */}
-      <div className="bg-[#1a1c1c] text-white text-xs py-1.5 px-4 text-center font-medium tracking-wide flex items-center justify-center gap-2">
-        <span className="inline-block animate-pulse">🌶️</span>
-        <span>
-          <strong className="text-[#af101a]">CABAI ENTERPRISE™</strong> — FREE Express Delivery across Malaysia on orders over <strong>RM 80</strong>!
-        </span>
+      {/* Top Banner Ticker with TextMorph */}
+      <div className="bg-[#1a1c1c] text-white text-xs py-1.5 px-4 text-center font-medium tracking-wide flex items-center justify-center gap-2 overflow-hidden border-b border-neutral-800">
+        <span className="inline-block animate-pulse shrink-0">🌶️</span>
+        <div className="h-5 min-w-[260px] sm:min-w-[420px] max-w-2xl flex items-center justify-center">
+          <TextMorph
+            words={"CABAI ENTERPRISE™ • 3D Print & Maker Studio\nFREE Express Delivery across Malaysia > RM 80\nCustom 3D Printing • Namebadges • Keychains • Decor\n100% Eco-Friendly PLA+ • Precision Crafted"}
+            color="#ffffff"
+            font={{ fontSize: 12, fontWeight: 700, textAlign: 'center', letterSpacing: '0.01em' }}
+            transition={{ duration: 0.7, delay: 2.2, ease: 'easeInOut' }}
+          />
+        </div>
       </div>
 
       {/* Main Header Content */}
