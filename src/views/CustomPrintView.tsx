@@ -288,51 +288,24 @@ export const CustomPrintView: React.FC = () => {
               <div className="flex items-center gap-2">
                 <span className="w-7 h-7 rounded-full bg-[#af101a] text-white text-xs font-extrabold flex items-center justify-center shadow-xs">2</span>
                 <h2 className="font-heading font-bold text-base text-[#1a1c1c]">
-                  Choose 3D Print Material
+                  3D Print Material: <strong className="text-[#af101a]">100% Eco PLA+</strong>
                 </h2>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                
-                <button
-                  onClick={() => setMaterial('PLA')}
-                  className={`p-4 rounded-2xl border text-left transition-all ${
-                    material === 'PLA'
-                      ? 'border-[#af101a] bg-red-50/50 ring-2 ring-red-200 shadow-xs'
-                      : 'border-gray-200 bg-white hover:border-gray-300'
-                  }`}
-                >
-                  <div className="font-extrabold text-sm text-[#1a1c1c]">PLA+ (Standard)</div>
-                  <div className="text-xs text-gray-500 mt-1">Vibrant glossy finish, rigid, ideal for keychains & daily carry.</div>
-                  <div className="mt-3 text-[11px] font-bold text-[#af101a]">RM 0.12 / gram</div>
-                </button>
-
-                <button
-                  onClick={() => setMaterial('PETG')}
-                  className={`p-4 rounded-2xl border text-left transition-all ${
-                    material === 'PETG'
-                      ? 'border-[#af101a] bg-red-50/50 ring-2 ring-red-200 shadow-xs'
-                      : 'border-gray-200 bg-white hover:border-gray-300'
-                  }`}
-                >
-                  <div className="font-extrabold text-sm text-[#1a1c1c]">PETG (Tough)</div>
-                  <div className="text-xs text-gray-500 mt-1">High impact and heat resistance up to 75°C for outdoor gear.</div>
-                  <div className="mt-3 text-[11px] font-bold text-[#af101a]">RM 0.16 / gram</div>
-                </button>
-
-                <button
-                  onClick={() => setMaterial('TPU')}
-                  className={`p-4 rounded-2xl border text-left transition-all ${
-                    material === 'TPU'
-                      ? 'border-[#af101a] bg-red-50/50 ring-2 ring-red-200 shadow-xs'
-                      : 'border-gray-200 bg-white hover:border-gray-300'
-                  }`}
-                >
-                  <div className="font-extrabold text-sm text-[#1a1c1c]">TPU (Flexible)</div>
-                  <div className="text-xs text-gray-500 mt-1">Rubberized bendable 95A material, soft-touch and unbreakable.</div>
-                  <div className="mt-3 text-[11px] font-bold text-[#af101a]">RM 0.22 / gram</div>
-                </button>
-
+              <div className="p-4 rounded-2xl border border-[#af101a] bg-red-50/50 ring-2 ring-red-200 shadow-xs flex items-center justify-between">
+                <div>
+                  <div className="font-extrabold text-sm text-[#1a1c1c] flex items-center gap-2">
+                    <span>Eco PLA+ (Food-Safe &amp; Rigid Decor)</span>
+                    <span className="px-2 py-0.5 rounded-md bg-[#af101a] text-white text-[10px] font-black uppercase">Selected</span>
+                  </div>
+                  <div className="text-xs text-gray-600 mt-1 max-w-xl">
+                    Ultra-smooth surface finish with zero warping, perfectly tuned for vivid color canvas drawings, keychain loops, and crisp dimensional relief.
+                  </div>
+                </div>
+                <div className="text-right shrink-0">
+                  <div className="text-[11px] font-bold text-[#af101a]">RM 0.12 / gram</div>
+                  <div className="text-[10px] text-gray-500">Pure Bio-Based PLA</div>
+                </div>
               </div>
             </div>
 

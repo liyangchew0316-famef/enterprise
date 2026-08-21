@@ -238,7 +238,7 @@ export const DailySpinModal: React.FC<DailySpinModalProps> = ({ isOpen, onClose 
     ctx.stroke();
     ctx.restore();
 
-    // Draw Slices
+    // Draw Slices with vibrant graphics, icons, and labels
     SPIN_PRIZES.forEach((prize, index) => {
       const startAngle = index * sliceAngle - Math.PI / 2;
       const endAngle = startAngle + sliceAngle;
@@ -251,20 +251,56 @@ export const DailySpinModal: React.FC<DailySpinModalProps> = ({ isOpen, onClose 
       ctx.fillStyle = prize.color;
       ctx.fill();
       ctx.lineWidth = 1.5;
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
       ctx.stroke();
 
-      // Text & Icon
+      // Inner radial slice shading
+      const midAngle = startAngle + sliceAngle / 2;
       ctx.save();
       ctx.translate(centerX, centerY);
-      ctx.rotate(startAngle + sliceAngle / 2);
-      ctx.textAlign = 'right';
+      ctx.rotate(midAngle);
+
+      // Slice inner badge background pill for picture/icon
+      const iconDist = radius * 0.72;
+      const textDist = radius * 0.38;
+
+      // Draw decorative glowing picture container circle
+      ctx.beginPath();
+      ctx.arc(iconDist, 0, 16, 0, 2 * Math.PI);
+      ctx.fillStyle = prize.isWin ? 'rgba(255, 255, 255, 0.95)' : 'rgba(0, 0, 0, 0.4)';
+      ctx.fill();
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = prize.isWin ? '#fbbf24' : 'rgba(255, 255, 255, 0.2)';
+      ctx.stroke();
+
+      // Draw Prize Picture / Emoji Icon
+      ctx.font = '18px "Segoe UI Emoji", "Apple Color Emoji", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(prize.icon, iconDist, 1);
+
+      // Draw Prize Title & Value
+      ctx.save();
       ctx.fillStyle = prize.textColor;
-      ctx.font = 'bold 13px system-ui, sans-serif';
+      ctx.font = 'bold 12px system-ui, -apple-system, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
       
-      // Draw Icon and Label
-      const displayText = `${prize.icon} ${prize.label}`;
-      ctx.fillText(displayText, radius - 20, 5);
+      // Draw shadow for text legibility
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+      ctx.shadowBlur = 4;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 1;
+      ctx.fillText(prize.label, textDist + 14, 0);
+      ctx.restore();
+
+      // Win indicator star
+      if (prize.isWin) {
+        ctx.fillStyle = '#fbbf24';
+        ctx.font = '10px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('★ WIN', radius * 0.92, 0);
+      }
 
       ctx.restore();
       ctx.restore();

@@ -65,9 +65,9 @@ export const ShopView: React.FC = () => {
 
   const categories: { id: ProductCategory; label: string; icon: string }[] = [
     { id: 'all', label: 'All Products', icon: '🛍️' },
-    { id: 'keychains', label: 'Keychains (多款式/可定制)', icon: '🌶️' },
-    { id: 'badges', label: 'Badge Customize (图片定制)', icon: '🛡️' },
-    { id: 'custom', label: 'Draw Custom Chili 🌶️', icon: '🎨' },
+    { id: 'custom', label: 'Draw Custom Chili 🌶️ (RM5)', icon: '🎨' },
+    { id: 'badges', label: 'Circle Safety Badge 🧷 (RM5)', icon: '🛡️' },
+    { id: 'keychains', label: 'Keychains (钥匙扣系列)', icon: '🌶️' },
     { id: 'organizers', label: 'Desk & Stationery', icon: '🐝' },
     { id: 'desk', label: 'Phone Stands', icon: '📱' },
     { id: 'home', label: 'Home & Magnets', icon: '🪴' }
@@ -100,19 +100,22 @@ export const ShopView: React.FC = () => {
                 const drawProd = products.find(p => p.id === 'prod-draw-custom-chili') || products[0];
                 openProductDetail(drawProd);
               }}
-              className="px-5 py-2.5 bg-white text-[#af101a] hover:bg-gray-100 font-extrabold text-xs rounded-xl shadow-lg flex items-center gap-2 transition-transform hover:scale-102"
+              className="px-5 py-2.5 bg-white text-[#af101a] hover:bg-gray-100 font-extrabold text-xs rounded-xl shadow-lg flex items-center gap-2 transition-transform hover:scale-102 cursor-pointer"
             >
               <Palette className="w-4 h-4 text-[#af101a]" />
-              <span>Draw Custom Chili (RM5.00)</span>
+              <span>Draw Custom Chili (RM5.00) 🌶️</span>
             </button>
 
             <button
-              onClick={() => setCurrentView('custom-print')}
-              className="px-5 py-2.5 bg-black/40 hover:bg-black/60 text-white font-bold text-xs rounded-xl border border-white/20 flex items-center gap-2 transition-colors"
+              onClick={() => {
+                const badgeProd = products.find(p => p.id === 'prod-badge-customize');
+                if (badgeProd) openProductDetail(badgeProd);
+                else setCurrentView('badge_custom');
+              }}
+              className="px-5 py-2.5 bg-purple-900/90 hover:bg-purple-800 text-white font-extrabold text-xs rounded-xl shadow-lg border border-purple-400/40 flex items-center gap-2 transition-transform hover:scale-102 cursor-pointer"
             >
-              <PenTool className="w-4 h-4 text-amber-400" />
-              <span>Open Full Drawing Studio</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <span>🧷</span>
+              <span>Circle Safety Namebadge (RM5.00)</span>
             </button>
           </div>
         </div>

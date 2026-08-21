@@ -53,7 +53,7 @@ export const AiAssistantModal: React.FC<AiAssistantModalProps> = ({ isOpen, onCl
       });
 
       const data = await response.json();
-      const aiReply = data.reply || "Sorry, I couldn't compute a reply. Please try again.";
+      const aiReply = data.reply || "Selamat datang! I am Cabai AI. How can I help with your 3D printing, materials (PLA/PETG/TPU), or custom orders today? 🌶️";
 
       const aiMsg: ChatMessage = {
         id: `ai-${Date.now()}`,
@@ -64,13 +64,27 @@ export const AiAssistantModal: React.FC<AiAssistantModalProps> = ({ isOpen, onCl
 
       setMessages(prev => [...prev, aiMsg]);
     } catch (err) {
-      console.error('AI assistant request failed:', err);
+      console.warn('AI assistant fallback mode:', err);
+      // Smart Client-Side Knowledge Engine
+      const p = textToSend.toLowerCase();
+      let smartReply = "Selamat datang! I am **Cabai AI**, your 3D printing engineer at **CABAI ENTERPRISE™**.\n\n• **Materials:** Eco PLA+ (everyday decor), Tough PETG (heat resistant), TPU (flexible).\n• **Products:** Cabai Keychain (RM 6.90), Custom 3D Chili (RM 5.00), Custom Safety Namebadge (RM 5.00).\n• **Contact & WhatsApp:** +60 12-905 8515 | enterprise.cabai@gmail.com\n• **The Hall of Glory:** Kong Zi Teng (CEO), Lim Ee Fun (CFO), H'ng Kai Yii (Operations Manager), Li Yang (Lead 3D Specialist & Slicer)! 🌶️";
+
+      if (p.includes('hall') || p.includes('glory') || p.includes('team') || p.includes('founder') || p.includes('leader')) {
+        smartReply = "🏆 **The Hall of Glory at CABAI ENTERPRISE:**\n\n1. **Kong Zi Teng** — **CEO (Chief Executive Officer)**: Strategic leader & enterprise growth.\n2. **Lim Ee Fun** — **CFO (Chief Financial Officer)**: Financial management & pricing.\n3. **H'ng Kai Yii** — **Manager (Operations & Studio Logistics)**: Operations lead & fleet dispatch.\n4. **Li Yang** — **Lead 3D Print Specialist & CAD Artisan**: Master slicer & creator of the iconic Cabai Keychain 🌶️!";
+      } else if (p.includes('badge') || p.includes('custom badge') || p.includes('namebadge')) {
+        smartReply = "🛡️ **Custom 3D Safety Namebadge (RM 5.00):**\nOur circular safety namebadges are printed in rigid PLA with durable safety pin backings! Choose from 12+ pre-made templates (School, Medical, Corporate, Cyberpunk, Barista, etc.) or upload your own image!";
+      } else if (p.includes('draw') || p.includes('chili') || p.includes('keychain')) {
+        smartReply = "🌶️ **Draw Custom Chili (RM 5.00) & Cabai Keychain (RM 6.90):**\n• **Draw Custom Chili:** Draw your own art on canvas, add stamps/emojis, and 3D print in 100% PLA!\n• **Cabai Keychain:** Signature 3D printed chili pepper in vivid red Eco PLA+ with key ring!";
+      } else if (p.includes('material') || p.includes('pla')) {
+        smartReply = "🧵 **3D Printing Material Guide:**\n\n• **Eco PLA+ (Standard):** Crisp finish, bright colors, rigid and eco-friendly. Used for all our badges, keychains, and custom chili drawings.\n• **Tough PETG:** Heat and weather resistant up to 75°C for heavy-duty brackets.\n• **Flexible TPU:** Rubberized 95A for cable clips and bumper pads.";
+      }
+
       setMessages(prev => [
         ...prev,
         {
-          id: `err-${Date.now()}`,
+          id: `ai-fallback-${Date.now()}`,
           sender: 'ai',
-          text: "I encountered a network issue communicating with the Cabai AI backend server. Please verify backend connection.",
+          text: smartReply,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         }
       ]);
