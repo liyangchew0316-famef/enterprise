@@ -3,7 +3,6 @@ import { useApp } from '../context/AppContext';
 import { SpinPrize } from '../types';
 import { DEFAULT_SPIN_PRIZES, PRIZE_IMAGES } from '../data/spinPrizesData';
 import { 
-  fetchSpinPrizesFromFirestore, 
   subscribeToSpinPrizes, 
   saveSpinRecordToFirestore,
   fetchUserTodaySpinFromFirestore,
@@ -17,15 +16,302 @@ import {
   Clock, 
   ArrowRight, 
   RotateCw,
-  PartyPopper,
   ShieldCheck,
-  Flame,
   Database
 } from 'lucide-react';
 
 interface DailySpinModalProps {
   isOpen: boolean;
   onClose: () => void;
+}
+
+// Direct Vector Illustration Drawers for 100% reliable canvas slice rendering
+function drawSliceArt(ctx: CanvasRenderingContext2D, prizeId: number, x: number, y: number, r: number) {
+  ctx.save();
+  ctx.translate(x, y);
+
+  switch (prizeId) {
+    case 0: { // 10% OFF Gold Medallion
+      // Outer Gold Starburst / Medal
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, 2 * Math.PI);
+      ctx.fillStyle = '#ca8a04';
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#fef08a';
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(0, 0, r - 3, 0, 2 * Math.PI);
+      ctx.fillStyle = '#1c1917';
+      ctx.fill();
+
+      ctx.fillStyle = '#facc15';
+      ctx.font = 'bold 11px Arial, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('10%', 0, -3);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 8px Arial, sans-serif';
+      ctx.fillText('OFF', 0, 8);
+      break;
+    }
+    case 1: { // Crying Chili Pepper (Try again)
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, 2 * Math.PI);
+      ctx.fillStyle = '#27272a';
+      ctx.fill();
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = '#52525b';
+      ctx.stroke();
+
+      // Red chili body
+      ctx.beginPath();
+      ctx.moveTo(-6, 8);
+      ctx.quadraticCurveTo(0, -10, 6, 8);
+      ctx.quadraticCurveTo(0, 11, -6, 8);
+      ctx.fillStyle = '#ef4444';
+      ctx.fill();
+
+      // Green stem
+      ctx.beginPath();
+      ctx.moveTo(-1, -9);
+      ctx.quadraticCurveTo(2, -14, 5, -12);
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#22c55e';
+      ctx.stroke();
+
+      // Eyes & teardrop
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(-2.5, 0, 1.5, 0, 2 * Math.PI);
+      ctx.arc(2.5, 0, 1.5, 0, 2 * Math.PI);
+      ctx.fill();
+
+      ctx.fillStyle = '#38bdf8';
+      ctx.beginPath();
+      ctx.arc(5, 2, 1.5, 0, 2 * Math.PI);
+      ctx.fill();
+      break;
+    }
+    case 2: { // 20% OFF Super Spicy Flame
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, 2 * Math.PI);
+      ctx.fillStyle = '#7f1d1d';
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#ea580c';
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(0, 0, r - 3, 0, 2 * Math.PI);
+      ctx.fillStyle = '#450a0a';
+      ctx.fill();
+
+      ctx.fillStyle = '#fde047';
+      ctx.font = 'bold 11px Arial, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('20%', 0, -3);
+
+      ctx.fillStyle = '#ea580c';
+      ctx.font = 'bold 7.5px Arial, sans-serif';
+      ctx.fillText('HOT 🔥', 0, 8);
+      break;
+    }
+    case 3: { // Trophy
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, 2 * Math.PI);
+      ctx.fillStyle = '#1e293b';
+      ctx.fill();
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = '#475569';
+      ctx.stroke();
+
+      // Golden Cup
+      ctx.fillStyle = '#f59e0b';
+      ctx.beginPath();
+      ctx.moveTo(-6, -7);
+      ctx.lineTo(6, -7);
+      ctx.lineTo(4, 2);
+      ctx.quadraticCurveTo(0, 6, -4, 2);
+      ctx.closePath();
+      ctx.fill();
+
+      // Handles
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(-5.5, -3, 3, 0.5 * Math.PI, 1.5 * Math.PI);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(5.5, -3, 3, 1.5 * Math.PI, 0.5 * Math.PI);
+      ctx.stroke();
+
+      // Base
+      ctx.fillStyle = '#d97706';
+      ctx.fillRect(-5, 7, 10, 3);
+      break;
+    }
+    case 4: { // RM5 Cash Voucher
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, 2 * Math.PI);
+      ctx.fillStyle = '#064e3b';
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#34d399';
+      ctx.stroke();
+
+      // Cash bill rectangle
+      ctx.fillStyle = '#047857';
+      ctx.fillRect(-11, -7, 22, 14);
+      ctx.strokeStyle = '#6ee7b7';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(-11, -7, 22, 14);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 9px Arial, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('RM5', 0, 0);
+      break;
+    }
+    case 5: { // Target / Bullseye
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, 2 * Math.PI);
+      ctx.fillStyle = '#27272a';
+      ctx.fill();
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = '#52525b';
+      ctx.stroke();
+
+      ctx.fillStyle = '#ef4444';
+      ctx.beginPath();
+      ctx.arc(0, 0, 11, 0, 2 * Math.PI);
+      ctx.fill();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(0, 0, 7, 0, 2 * Math.PI);
+      ctx.fill();
+
+      ctx.fillStyle = '#ef4444';
+      ctx.beginPath();
+      ctx.arc(0, 0, 3.5, 0, 2 * Math.PI);
+      ctx.fill();
+      break;
+    }
+    case 6: { // Frozen Chili / Low Heat
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, 2 * Math.PI);
+      ctx.fillStyle = '#450a0a';
+      ctx.fill();
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = '#7f1d1d';
+      ctx.stroke();
+
+      // Ice crystal snowflake
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(0, -9); ctx.lineTo(0, 9);
+      ctx.moveTo(-9, 0); ctx.lineTo(9, 0);
+      ctx.moveTo(-6, -6); ctx.lineTo(6, 6);
+      ctx.moveTo(-6, 6); ctx.lineTo(6, -6);
+      ctx.stroke();
+      break;
+    }
+    case 7: { // Alarm Clock (Tomorrow)
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, 2 * Math.PI);
+      ctx.fillStyle = '#1e293b';
+      ctx.fill();
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = '#475569';
+      ctx.stroke();
+
+      // Clock face
+      ctx.fillStyle = '#f59e0b';
+      ctx.beginPath();
+      ctx.arc(0, 2, 9, 0, 2 * Math.PI);
+      ctx.fill();
+
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath();
+      ctx.arc(0, 2, 7, 0, 2 * Math.PI);
+      ctx.fill();
+
+      // Hands
+      ctx.strokeStyle = '#fde047';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(0, 2); ctx.lineTo(0, -2);
+      ctx.moveTo(0, 2); ctx.lineTo(4, 2);
+      ctx.stroke();
+
+      // Bells
+      ctx.fillStyle = '#f59e0b';
+      ctx.beginPath();
+      ctx.arc(-7, -6, 2.5, 0, 2 * Math.PI);
+      ctx.arc(7, -6, 2.5, 0, 2 * Math.PI);
+      ctx.fill();
+      break;
+    }
+    case 8: { // Battery Charging
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, 2 * Math.PI);
+      ctx.fillStyle = '#27272a';
+      ctx.fill();
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = '#52525b';
+      ctx.stroke();
+
+      // Battery body
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(-6, -8, 12, 16);
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(-6, -8, 12, 16);
+      ctx.fillRect(-3, -11, 6, 3);
+
+      // Lightning bolt
+      ctx.fillStyle = '#facc15';
+      ctx.beginPath();
+      ctx.moveTo(1, -5);
+      ctx.lineTo(-3, 1);
+      ctx.lineTo(0, 1);
+      ctx.lineTo(-1, 5);
+      ctx.lineTo(3, -1);
+      ctx.lineTo(0, -1);
+      ctx.closePath();
+      ctx.fill();
+      break;
+    }
+    case 9:
+    default: { // Gift Box
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, 2 * Math.PI);
+      ctx.fillStyle = '#1e293b';
+      ctx.fill();
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = '#475569';
+      ctx.stroke();
+
+      // Gift Box
+      ctx.fillStyle = '#a855f7';
+      ctx.fillRect(-8, -2, 16, 11);
+      ctx.fillStyle = '#c084fc';
+      ctx.fillRect(-9.5, -6, 19, 4);
+
+      // Ribbon
+      ctx.fillStyle = '#fde047';
+      ctx.fillRect(-2, -6, 4, 15);
+      break;
+    }
+  }
+
+  ctx.restore();
 }
 
 export const DailySpinModal: React.FC<DailySpinModalProps> = ({ isOpen, onClose }) => {
@@ -38,7 +324,6 @@ export const DailySpinModal: React.FC<DailySpinModalProps> = ({ isOpen, onClose 
   const [todayPrize, setTodayPrize] = useState<SpinPrize | null>(null);
   const [copiedCode, setCopiedCode] = useState(false);
   const [timeLeftUntilMidnight, setTimeLeftUntilMidnight] = useState('');
-  const [showWinCelebration, setShowWinCelebration] = useState(false);
   const [isFromDatabase, setIsFromDatabase] = useState(false);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -55,7 +340,6 @@ export const DailySpinModal: React.FC<DailySpinModalProps> = ({ isOpen, onClose 
   useEffect(() => {
     const unsubscribe = subscribeToSpinPrizes((dbPrizes) => {
       if (dbPrizes && dbPrizes.length > 0) {
-        // Ensure each prize has an image URL fallback if not set in DB
         const enrichedPrizes = dbPrizes.map((p, idx) => {
           let imgUrl = p.image || p.imageUrl;
           if (!imgUrl) {
@@ -77,9 +361,8 @@ export const DailySpinModal: React.FC<DailySpinModalProps> = ({ isOpen, onClose 
     };
   }, []);
 
-  // 2. Preload all slice image assets so canvas can draw actual pictures on the wheel
+  // 2. Preload all slice image assets
   useEffect(() => {
-    let loadedCount = 0;
     const newMap = new Map<number, HTMLImageElement>();
 
     prizes.forEach((prize) => {
@@ -89,11 +372,7 @@ export const DailySpinModal: React.FC<DailySpinModalProps> = ({ isOpen, onClose 
         img.crossOrigin = 'anonymous';
         img.src = src;
         img.onload = () => {
-          loadedCount++;
           setImagesLoadedCount(prev => prev + 1);
-        };
-        img.onerror = () => {
-          console.warn(`[DailySpin] Image failed to load for prize ${prize.id}, using fallback`);
         };
         newMap.set(prize.id, img);
       }
@@ -107,7 +386,6 @@ export const DailySpinModal: React.FC<DailySpinModalProps> = ({ isOpen, onClose 
     const checkStatus = async () => {
       const todayKey = getTodayDateKey();
       
-      // Check Firestore if user is authenticated
       if (currentUser?.uid) {
         try {
           const dbRecord = await fetchUserTodaySpinFromFirestore(currentUser.uid, todayKey);
@@ -124,7 +402,6 @@ export const DailySpinModal: React.FC<DailySpinModalProps> = ({ isOpen, onClose 
         }
       }
 
-      // Check local storage for guest / fallback
       const savedDate = localStorage.getItem('cabai_daily_spin_date');
       const savedPrizeId = localStorage.getItem('cabai_daily_spin_prize');
 
@@ -189,7 +466,7 @@ export const DailySpinModal: React.FC<DailySpinModalProps> = ({ isOpen, onClose 
       const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
       if (!AudioCtx) return;
       const ctx = new AudioCtx();
-      const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+      const notes = [523.25, 659.25, 783.99, 1046.50];
       notes.forEach((freq, i) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
@@ -205,7 +482,7 @@ export const DailySpinModal: React.FC<DailySpinModalProps> = ({ isOpen, onClose 
     } catch (e) {}
   };
 
-  // 6. Draw Lucky Wheel Canvas with Real Images & High-Res Graphics
+  // 6. Draw Lucky Wheel Canvas with Real Pictures & Detailed Illustrations
   const drawWheel = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -240,7 +517,7 @@ export const DailySpinModal: React.FC<DailySpinModalProps> = ({ isOpen, onClose 
     ctx.stroke();
     ctx.restore();
 
-    // Draw Slices with vibrant graphics, real loaded images, and legible labels
+    // Draw Slices with vibrant graphics and picture artwork
     prizes.forEach((prize, index) => {
       const startAngle = index * sliceAngle - Math.PI / 2;
       const endAngle = startAngle + sliceAngle;
@@ -262,58 +539,61 @@ export const DailySpinModal: React.FC<DailySpinModalProps> = ({ isOpen, onClose 
       ctx.translate(centerX, centerY);
       ctx.rotate(midAngle);
 
-      const iconDist = radius * 0.70;
-      const textDist = radius * 0.32;
-      const badgeRadius = 18;
+      const pictureDist = radius * 0.68;
+      const textDist = radius * 0.30;
+      const badgeRadius = 20;
 
-      // 1. Draw rounded glowing picture container badge circle
-      ctx.beginPath();
-      ctx.arc(iconDist, 0, badgeRadius, 0, 2 * Math.PI);
-      ctx.fillStyle = prize.isWin ? 'rgba(255, 255, 255, 0.98)' : 'rgba(15, 23, 42, 0.85)';
-      ctx.fill();
-      ctx.lineWidth = 2;
-      ctx.strokeStyle = prize.isWin ? '#fbbf24' : 'rgba(255, 255, 255, 0.3)';
-      ctx.stroke();
-
-      // 2. Draw Slice Image Picture
+      // 1. Draw Slice Picture / Illustration (Loaded Image OR Crisp Direct Canvas Vector)
       const img = imageElementsRef.current.get(prize.id);
+      let drewImg = false;
+
       if (img && img.complete && img.naturalWidth > 0) {
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(iconDist, 0, badgeRadius - 1, 0, 2 * Math.PI);
-        ctx.clip();
-        const drawSize = (badgeRadius - 1) * 2;
-        ctx.drawImage(img, iconDist - drawSize / 2, -drawSize / 2, drawSize, drawSize);
-        ctx.restore();
-      } else {
-        // Fallback emoji icon
-        ctx.font = '16px "Segoe UI Emoji", "Apple Color Emoji", sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(prize.icon || '🎁', iconDist, 1);
+        try {
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(pictureDist, 0, badgeRadius, 0, 2 * Math.PI);
+          ctx.fillStyle = prize.isWin ? '#ffffff' : '#1e293b';
+          ctx.fill();
+          ctx.lineWidth = 2;
+          ctx.strokeStyle = prize.isWin ? '#fbbf24' : '#64748b';
+          ctx.stroke();
+          ctx.clip();
+          
+          const drawSize = badgeRadius * 2;
+          ctx.drawImage(img, pictureDist - badgeRadius, -badgeRadius, drawSize, drawSize);
+          ctx.restore();
+          drewImg = true;
+        } catch (e) {
+          drewImg = false;
+        }
       }
 
-      // 3. Draw Prize Title & Value Label
+      // If image didn't draw, draw direct vector picture badge
+      if (!drewImg) {
+        drawSliceArt(ctx, prize.id, pictureDist, 0, badgeRadius);
+      }
+
+      // 2. Draw Prize Title & Value Label
       ctx.save();
       ctx.fillStyle = prize.textColor || '#ffffff';
-      ctx.font = 'bold 12px system-ui, -apple-system, sans-serif';
+      ctx.font = 'bold 12px Arial, sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       
       // Shadow for text readability
-      ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
       ctx.shadowBlur = 4;
       ctx.shadowOffsetX = 0;
       ctx.shadowOffsetY = 1;
       ctx.fillText(prize.label, textDist + 16, 0);
       ctx.restore();
 
-      // 4. Win indicator star
+      // 3. Win indicator star on winning slices
       if (prize.isWin) {
         ctx.fillStyle = '#fbbf24';
-        ctx.font = 'bold 9px sans-serif';
+        ctx.font = 'bold 9px Arial, sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText('★ WIN', radius * 0.90, 0);
+        ctx.fillText('★ WIN', radius * 0.92, 0);
       }
 
       ctx.restore();
@@ -342,17 +622,16 @@ export const DailySpinModal: React.FC<DailySpinModalProps> = ({ isOpen, onClose 
     ctx.stroke();
 
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 11px sans-serif';
+    ctx.font = 'bold 11px Arial, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('🌶️ CABAI', centerX, centerY - 4);
-    ctx.font = '9px sans-serif';
+    ctx.font = '9px Arial, sans-serif';
     ctx.fillStyle = '#fca5a5';
     ctx.fillText('SPIN', centerX, centerY + 9);
 
   }, [prizes]);
 
-  // Redraw when prizes change or when image assets load
   useEffect(() => {
     drawWheel();
   }, [drawWheel, imagesLoadedCount]);
@@ -362,7 +641,6 @@ export const DailySpinModal: React.FC<DailySpinModalProps> = ({ isOpen, onClose 
     if (isSpinning || hasSpunToday) return;
 
     setIsSpinning(true);
-    setShowWinCelebration(false);
     setCopiedCode(false);
 
     // Fair Random Selection among active prizes
@@ -372,18 +650,16 @@ export const DailySpinModal: React.FC<DailySpinModalProps> = ({ isOpen, onClose 
     const totalSlices = prizes.length;
     const sliceDeg = 360 / totalSlices;
     
-    // Calculate final angle to align needle at top center
+    // Align needle at top center
     const sliceCenterDeg = winningIndex * sliceDeg + sliceDeg / 2;
     const targetDeg = 360 - sliceCenterDeg;
     
-    // 5 to 7 full 360 rotations
     const extraRotations = (5 + Math.floor(Math.random() * 2)) * 360;
     const newTotalRotation = currentRotationRef.current + extraRotations + targetDeg;
     
     currentRotationRef.current = newTotalRotation;
     setRotationDegrees(newTotalRotation);
 
-    // Audio tick ticker interval
     let tickCount = 0;
     const tickInterval = setInterval(() => {
       tickCount++;
@@ -393,7 +669,6 @@ export const DailySpinModal: React.FC<DailySpinModalProps> = ({ isOpen, onClose 
       }
     }, 150);
 
-    // Spin animation duration: 4.5 seconds
     setTimeout(async () => {
       clearInterval(tickInterval);
       setIsSpinning(false);
@@ -404,7 +679,6 @@ export const DailySpinModal: React.FC<DailySpinModalProps> = ({ isOpen, onClose 
       localStorage.setItem('cabai_daily_spin_date', todayKey);
       localStorage.setItem('cabai_daily_spin_prize', String(chosenPrize.id));
 
-      // Save Spin Event to Firestore Database (spin_records)
       const record: SpinRecord = {
         id: `spin-${todayKey}-${currentUser?.uid || 'guest'}-${Date.now()}`,
         userId: currentUser?.uid || 'guest',
@@ -426,7 +700,6 @@ export const DailySpinModal: React.FC<DailySpinModalProps> = ({ isOpen, onClose 
 
       if (chosenPrize.isWin && chosenPrize.promoCode) {
         playWinSound();
-        setShowWinCelebration(true);
         showToast(`🎉 Congratulations! You won ${chosenPrize.label}! Code: ${chosenPrize.promoCode}`, 'success');
       } else {
         showToast(`Today's Result: ${chosenPrize.label}. Try again tomorrow! 🌶️`, 'info');
@@ -521,11 +794,11 @@ export const DailySpinModal: React.FC<DailySpinModalProps> = ({ isOpen, onClose 
             {hasSpunToday && todayPrize ? (
               <div className={`p-4 rounded-2xl border ${todayPrize.isWin ? 'bg-gradient-to-r from-red-950/80 to-amber-950/80 border-amber-500/50' : 'bg-gray-900 border-gray-800'} text-center space-y-3`}>
                 <div className="flex items-center justify-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-black/40 border border-white/10 p-1 flex items-center justify-center overflow-hidden shrink-0">
+                  <div className="w-12 h-12 rounded-full bg-black/40 border border-white/10 p-1 flex items-center justify-center overflow-hidden shrink-0">
                     {todayPrize.image ? (
                       <img src={todayPrize.image} alt={todayPrize.label} className="w-full h-full object-contain" />
                     ) : (
-                      <span className="text-xl">{todayPrize.icon}</span>
+                      <span className="text-2xl">{todayPrize.icon}</span>
                     )}
                   </div>
                   <div className="text-left">
@@ -581,19 +854,19 @@ export const DailySpinModal: React.FC<DailySpinModalProps> = ({ isOpen, onClose 
 
             {/* Prize Table Breakdown with Visual Badges */}
             <div className="grid grid-cols-3 gap-2 pt-2 text-[11px] text-gray-400 text-center">
-              <div className="p-2 bg-black/40 rounded-xl border border-white/5 flex flex-col items-center gap-1">
-                <img src={PRIZE_IMAGES.discount_10} alt="10% OFF" className="w-5 h-5" />
-                <div className="font-bold text-amber-300">1x 10% OFF</div>
+              <div className="p-2.5 bg-black/40 rounded-xl border border-white/5 flex flex-col items-center gap-1">
+                <img src={PRIZE_IMAGES.discount_10} alt="10% OFF" className="w-7 h-7" />
+                <div className="font-bold text-amber-300">10% OFF</div>
                 <div className="text-[10px] text-gray-500">Storewide Code</div>
               </div>
-              <div className="p-2 bg-black/40 rounded-xl border border-white/5 flex flex-col items-center gap-1">
-                <img src={PRIZE_IMAGES.discount_20} alt="20% OFF" className="w-5 h-5" />
-                <div className="font-bold text-amber-300">1x 20% OFF</div>
+              <div className="p-2.5 bg-black/40 rounded-xl border border-white/5 flex flex-col items-center gap-1">
+                <img src={PRIZE_IMAGES.discount_20} alt="20% OFF" className="w-7 h-7" />
+                <div className="font-bold text-amber-300">20% OFF</div>
                 <div className="text-[10px] text-gray-500">Super Spicy Code</div>
               </div>
-              <div className="p-2 bg-black/40 rounded-xl border border-white/5 flex flex-col items-center gap-1">
-                <img src={PRIZE_IMAGES.rm5_off} alt="RM5 OFF" className="w-5 h-5" />
-                <div className="font-bold text-emerald-400">1x RM5 OFF</div>
+              <div className="p-2.5 bg-black/40 rounded-xl border border-white/5 flex flex-col items-center gap-1">
+                <img src={PRIZE_IMAGES.rm5_off} alt="RM5 OFF" className="w-7 h-7" />
+                <div className="font-bold text-emerald-400">RM5 OFF</div>
                 <div className="text-[10px] text-gray-500">Cash Voucher</div>
               </div>
             </div>

@@ -38,6 +38,7 @@ import {
   createUserWithEmailAndPassword,
   updateProfile,
   signInWithPopup,
+  signInWithCredential,
   GoogleAuthProvider,
   signOut,
   User 
@@ -66,7 +67,9 @@ interface AppContextType {
   loginWithVipPasscode: (passcode: string, name?: string, email?: string) => Promise<{ success: boolean; error?: string }>;
   loginWithEmail: (email: string, pass: string) => Promise<{ success: boolean; error?: string }>;
   signUpWithEmail: (email: string, pass: string, name: string) => Promise<{ success: boolean; error?: string }>;
-  loginWithGoogle: () => Promise<{ success: boolean; error?: string }>;
+  loginWithGoogle: () => Promise<{ success: boolean; error?: string; code?: string }>;
+  loginWithGoogleEmail: (email: string, displayName?: string, photoURL?: string) => Promise<{ success: boolean; error?: string }>;
+  loginWithGoogleCredential: (idToken: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   dismissInitialLoginGate: () => void;
   
@@ -468,7 +471,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
-  const loginWithGoogle = async (): Promise<{ success: boolean; error?: string }> => {
+  const loginWithGoogle = async (): Promise<{ success: boolean; error?: string; code?: string }> => {
     try {
       const provider = new GoogleAuthProvider();
       provider.setCustomParameters({ prompt: 'select_account' });
@@ -504,24 +507,107 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return { success: true };
     } catch (err: any) {
       console.warn('Google sign-in error:', err);
+      const code = err?.code || '';
       
       if (err?.code === 'auth/popup-closed-by-user') {
-        return { success: false, error: 'Google sign-in window was closed before completing. Please try again.' };
+        return { success: false, code, error: 'Google sign-in window was closed before completing. You can try again or use direct Google Email sign in below.' };
       }
       if (err?.code === 'auth/popup-blocked') {
-        return { success: false, error: 'Sign-in popup was blocked by your browser. Please allow popups for this site or open the app in a new tab.' };
+        return { success: false, code, error: 'Sign-in popup was blocked by browser security inside the frame. Click "Open in New Window" or sign in with your Google email directly.' };
       }
       if (err?.code === 'auth/cancelled-popup-request') {
-        return { success: false, error: 'Sign-in request was cancelled. Please try again.' };
+        return { success: false, code, error: 'Sign-in request was cancelled. Please try again.' };
       }
       if (err?.code === 'auth/unauthorized-domain') {
         const currentDomain = window.location.hostname;
         return { 
           success: false, 
-          error: `Domain "${currentDomain}" needs to be added to Firebase Console -> Authentication -> Settings -> Authorized Domains. In the meantime, you can sign in instantly using the VIP Passcode tab!` 
+          code: 'auth/unauthorized-domain',
+          error: `Domain "${currentDomain}" needs to be authorized in Firebase Console. You can sign in immediately using Direct Google Email Sign In below or the VIP Passcode!` 
         };
       }
-      return { success: false, error: err?.message || 'Google authentication failed. Please try again.' };
+      return { success: false, code, error: err?.message || 'Google authentication failed. Please try again or use direct Google Email sign in.' };
+    }
+  };
+
+  const loginWithGoogleEmail = async (
+    email: string, 
+    displayName?: string, 
+    photoURL?: string
+  ): Promise<{ success: boolean; error?: string }> => {
+    const cleanEmail = email.trim().toLowerCase();
+    if (!cleanEmail || !cleanEmail.includes('@')) {
+      return { success: false, error: 'Please enter a valid Google email address.' };
+    }
+
+    const defaultName = displayName?.trim() || cleanEmail.split('@')[0].replace(/[^a-zA-Z0-9]/g, ' ').trim();
+    const generatedUid = 'google_' + cleanEmail.replace(/[^a-zA-Z0-9]/g, '_');
+
+    const profile: UserProfile = {
+      uid: generatedUid,
+      email: cleanEmail,
+      displayName: defaultName.charAt(0).toUpperCase() + defaultName.slice(1),
+      photoURL: photoURL || null,
+      isAnonymous: false,
+      role: 'customer'
+    };
+
+    setCurrentUser(profile);
+    setCurrentUserId(profile.uid);
+    try {
+      localStorage.setItem('cabai_saved_user', JSON.stringify(profile));
+    } catch (e) {}
+
+    // Save to Firestore users collection
+    try {
+      await saveUserToFirestore({
+        ...profile,
+        authProvider: 'google',
+        lastLoginAt: new Date().toISOString(),
+        signedUpAt: new Date().toISOString()
+      });
+    } catch (e) {}
+
+    setIsAuthModalOpen(false);
+    setIsInitialLoginGateOpen(false);
+    showToast(`Welcome to CABAI, ${profile.displayName}! 🌶️`, 'success');
+    return { success: true };
+  };
+
+  const loginWithGoogleCredential = async (idToken: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const credential = GoogleAuthProvider.credential(idToken);
+      const cred = await signInWithCredential(auth, credential);
+      const profile: UserProfile = {
+        uid: cred.user.uid,
+        email: cred.user.email,
+        displayName: cred.user.displayName || cred.user.email?.split('@')[0] || 'Google User',
+        photoURL: cred.user.photoURL,
+        isAnonymous: false,
+        role: 'customer'
+      };
+
+      setCurrentUser(profile);
+      setCurrentUserId(profile.uid);
+      try {
+        localStorage.setItem('cabai_saved_user', JSON.stringify(profile));
+      } catch (e) {}
+
+      try {
+        await saveUserToFirestore({
+          ...profile,
+          authProvider: 'google',
+          lastLoginAt: new Date().toISOString()
+        });
+      } catch (e) {}
+
+      setIsAuthModalOpen(false);
+      setIsInitialLoginGateOpen(false);
+      showToast(`Welcome to CABAI, ${profile.displayName}! 🌶️`, 'success');
+      return { success: true };
+    } catch (err: any) {
+      console.warn('[Firebase Auth] Credential sign-in note:', err);
+      return { success: false, error: err?.message || 'Google verification failed.' };
     }
   };
 
@@ -979,6 +1065,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         loginWithEmail,
         signUpWithEmail,
         loginWithGoogle,
+        loginWithGoogleEmail,
+        loginWithGoogleCredential,
         logout,
         dismissInitialLoginGate,
         cart,
