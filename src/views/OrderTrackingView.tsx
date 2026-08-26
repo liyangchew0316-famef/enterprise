@@ -38,46 +38,94 @@ function normalizePhone(phoneStr?: string): string {
 }
 
 export const OrderTrackingView: React.FC = () => {
-  const { orders, trackedOrderId, setTrackedOrderId, showToast, setCurrentView } = useApp();
+  const { orders, trackedOrderId, setTrackedOrderId, showToast, setCurrentView, currentUser, setIsAuthModalOpen } = useApp();
 
   // Search input state for quick filtering
   const [filterQuery, setFilterQuery] = useState<string>('');
   const [selectedOrderId, setSelectedOrderId] = useState<string>(trackedOrderId || '');
 
-  // Filter orders based on user filter query (if typed), otherwise show all user orders
+  // Calculate authorized base orders for this user session
+  const isPrivileged = currentUser?.role === 'boss' || currentUser?.role === 'admin';
+
+  const userBaseOrders = useMemo(() => {
+    if (isPrivileged) {
+      return orders;
+    }
+    if (currentUser) {
+      return orders.filter(ord => 
+        (currentUser.uid && ord.userId === currentUser.uid) ||
+        (currentUser.email && ord.customer?.email?.toLowerCase() === currentUser.email.toLowerCase())
+      );
+    }
+    // For non-logged-in guest: only show the order they just created in this session (trackedOrderId)
+    if (trackedOrderId) {
+      return orders.filter(ord => ord.id === trackedOrderId);
+    }
+    return [];
+  }, [orders, currentUser, isPrivileged, trackedOrderId]);
+
+  // Filter orders based on user query
   const displayedOrders = useMemo(() => {
     const q = filterQuery.trim().toLowerCase();
-    if (!q) return orders;
+
+    // If query is empty, return user's authorized base orders
+    if (!q) {
+      return userBaseOrders;
+    }
 
     const normQPhone = normalizePhone(q);
 
+    // If user is logged in or privileged, filter within their orders (or allow exact order ID lookup)
+    if (currentUser) {
+      return orders.filter(ord => {
+        const isUserOrder = isPrivileged || 
+          (currentUser.uid && ord.userId === currentUser.uid) ||
+          (currentUser.email && ord.customer?.email?.toLowerCase() === currentUser.email.toLowerCase());
+
+        // 1. Check within user's own orders
+        if (isUserOrder) {
+          if (ord.id.toLowerCase().includes(q) || (ord.orderId && ord.orderId.toLowerCase().includes(q))) {
+            return true;
+          }
+          if (ord.customer?.fullName && ord.customer.fullName.toLowerCase().includes(q)) {
+            return true;
+          }
+          if (normQPhone.length >= 3) {
+            const ordPhoneNorm = normalizePhone(ord.customer?.phone);
+            if (ordPhoneNorm && ordPhoneNorm.includes(normQPhone)) {
+              return true;
+            }
+          }
+          if (ord.trackingNumber && ord.trackingNumber.toLowerCase().includes(q)) {
+            return true;
+          }
+        }
+
+        // 2. Allow looking up a specific order by exact ID if it matches
+        if (ord.id.toLowerCase() === q || (ord.orderId && ord.orderId.toLowerCase() === q)) {
+          return true;
+        }
+
+        return false;
+      });
+    }
+
+    // If guest (not logged in), ONLY allow exact Order ID or exact Phone Number lookup
     return orders.filter(ord => {
-      // 1. Check Order ID
-      if (ord.id.toLowerCase().includes(q) || (ord.orderId && ord.orderId.toLowerCase().includes(q))) {
+      // Exact or direct Order ID match
+      if (ord.id.toLowerCase() === q || (ord.orderId && ord.orderId.toLowerCase() === q)) {
         return true;
       }
-
-      // 2. Check Customer Name
-      if (ord.customer?.fullName && ord.customer.fullName.toLowerCase().includes(q)) {
-        return true;
-      }
-
-      // 3. Check Phone
-      if (normQPhone.length >= 3) {
+      // Exact Phone match (minimum 7 digits for security)
+      if (normQPhone.length >= 7) {
         const ordPhoneNorm = normalizePhone(ord.customer?.phone);
-        if (ordPhoneNorm && ordPhoneNorm.includes(normQPhone)) {
+        if (ordPhoneNorm === normQPhone) {
           return true;
         }
       }
-
-      // 4. Check Tracking code
-      if (ord.trackingNumber && ord.trackingNumber.toLowerCase().includes(q)) {
-        return true;
-      }
-
       return false;
     });
-  }, [orders, filterQuery]);
+  }, [orders, userBaseOrders, filterQuery, currentUser, isPrivileged]);
 
   // Keep selected order in sync
   useEffect(() => {
@@ -189,57 +237,104 @@ export const OrderTrackingView: React.FC = () => {
         </div>
       </div>
 
-      {/* Orders List / Empty State */}
-      {orders.length === 0 ? (
-        <div className="bg-white p-12 rounded-3xl border border-gray-200 text-center space-y-5 shadow-xs">
-          <div className="w-16 h-16 rounded-full bg-red-50 text-[#af101a] flex items-center justify-center mx-auto text-3xl">
-            📦
-          </div>
-          <div className="space-y-1.5 max-w-md mx-auto">
-            <h3 className="font-heading font-bold text-gray-900 text-lg">No Orders Made Yet</h3>
-            <p className="text-xs text-gray-500 leading-relaxed">
-              You haven't placed any 3D print orders yet. Browse our signature products like the Keyboard Clicker or design a custom Name Tag!
-            </p>
-          </div>
-          <div className="flex justify-center gap-3 pt-2">
-            <button
-              onClick={() => {
-                setCurrentView('shop');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              className="px-6 py-3 bg-[#af101a] hover:bg-[#8d0a12] text-white font-extrabold text-xs sm:text-sm rounded-xl transition-all shadow-md flex items-center gap-2"
-            >
-              <ShoppingBag className="w-4 h-4" />
-              <span>Explore 3D Products</span>
-            </button>
-            <button
-              onClick={() => {
-                setCurrentView('lab');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              className="px-6 py-3 bg-gray-900 hover:bg-gray-800 text-white font-extrabold text-xs sm:text-sm rounded-xl transition-all"
-            >
-              <span>Custom Draw Lab</span>
-            </button>
-          </div>
-        </div>
-      ) : displayedOrders.length === 0 ? (
-        <div className="bg-white p-10 rounded-3xl border border-gray-200 text-center space-y-4 shadow-xs">
-          <div className="w-12 h-12 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mx-auto text-xl">
-            🔍
-          </div>
-          <div className="space-y-1 max-w-md mx-auto">
-            <h3 className="font-heading font-bold text-gray-800 text-base">No Orders Match "{filterQuery}"</h3>
-            <p className="text-xs text-gray-500 leading-relaxed">
-              We couldn't find any orders matching your search query. Try searching by Order ID (e.g. CBI-1001) or clearing the search box.
-            </p>
-          </div>
-          <button
-            onClick={() => setFilterQuery('')}
-            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs rounded-xl transition-colors"
-          >
-            Show All Orders ({orders.length})
-          </button>
+      {/* Orders List / Empty State / Guest Tracker */}
+      {displayedOrders.length === 0 ? (
+        <div className="bg-white p-8 sm:p-12 rounded-3xl border border-gray-200 text-center space-y-6 shadow-xs">
+          {!currentUser ? (
+            /* Guest Not Logged In & No Order Query */
+            <div className="space-y-6 max-w-lg mx-auto">
+              <div className="w-16 h-16 rounded-3xl bg-red-50 text-[#af101a] flex items-center justify-center mx-auto text-3xl shadow-xs">
+                🔍
+              </div>
+              <div className="space-y-2">
+                <h3 className="font-heading font-extrabold text-gray-900 text-xl">
+                  {filterQuery ? 'Order Not Found' : 'Track Your 3D Print Order'}
+                </h3>
+                <p className="text-xs text-gray-500 leading-relaxed">
+                  {filterQuery 
+                    ? `No order found matching "${filterQuery}". Please verify your Order ID (e.g. CBI-1001) or phone number.`
+                    : 'Enter your specific Order ID or Phone Number to check your 3D print progress, or sign in with your Google account.'}
+                </p>
+              </div>
+
+              {/* Quick Lookup Input for Guest */}
+              <div className="flex flex-col sm:flex-row gap-2 max-w-md mx-auto">
+                <input
+                  type="text"
+                  placeholder="Enter Order ID (e.g. CBI-1001) or Phone..."
+                  value={filterQuery}
+                  onChange={(e) => setFilterQuery(e.target.value)}
+                  className="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-[#af101a] outline-hidden"
+                />
+                {filterQuery && (
+                  <button
+                    onClick={() => setFilterQuery('')}
+                    className="px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold rounded-xl transition-colors"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+
+              {/* Sign In Callout */}
+              <div className="p-4 bg-gradient-to-r from-red-50 to-amber-50 rounded-2xl border border-red-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-left">
+                <div className="text-xs">
+                  <div className="font-bold text-gray-900">Signed in before?</div>
+                  <div className="text-gray-600 text-[11px]">Sign in with your Google account to automatically view all your orders.</div>
+                </div>
+                <button
+                  onClick={() => setIsAuthModalOpen(true)}
+                  className="px-4 py-2 bg-[#af101a] hover:bg-[#8d0a12] text-white text-xs font-extrabold rounded-xl transition-all shadow-xs shrink-0 cursor-pointer"
+                >
+                  Sign In with Google
+                </button>
+              </div>
+            </div>
+          ) : userBaseOrders.length === 0 ? (
+            /* Logged in user with 0 orders */
+            <div className="space-y-5 max-w-md mx-auto">
+              <div className="w-16 h-16 rounded-full bg-red-50 text-[#af101a] flex items-center justify-center mx-auto text-3xl">
+                📦
+              </div>
+              <div className="space-y-1.5">
+                <h3 className="font-heading font-bold text-gray-900 text-lg">No Orders Placed Yet</h3>
+                <p className="text-xs text-gray-500 leading-relaxed">
+                  You haven't placed any 3D print orders on this account yet. Browse our shop catalog or design your own custom item!
+                </p>
+              </div>
+              <div className="flex justify-center gap-3 pt-2">
+                <button
+                  onClick={() => {
+                    setCurrentView('shop');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className="px-6 py-3 bg-[#af101a] hover:bg-[#8d0a12] text-white font-extrabold text-xs rounded-xl transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                >
+                  <ShoppingBag className="w-4 h-4" />
+                  <span>Browse Shop</span>
+                </button>
+              </div>
+            </div>
+          ) : (
+            /* Logged in user with filter query that didn't match their orders */
+            <div className="space-y-4 max-w-md mx-auto">
+              <div className="w-12 h-12 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mx-auto text-xl">
+                🔍
+              </div>
+              <div className="space-y-1">
+                <h3 className="font-heading font-bold text-gray-800 text-base">No Orders Match "{filterQuery}"</h3>
+                <p className="text-xs text-gray-500 leading-relaxed">
+                  We couldn't find any orders in your account matching this query.
+                </p>
+              </div>
+              <button
+                onClick={() => setFilterQuery('')}
+                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs rounded-xl transition-colors cursor-pointer"
+              >
+                Show My Orders ({userBaseOrders.length})
+              </button>
+            </div>
+          )}
         </div>
       ) : (
         <div className="space-y-6">

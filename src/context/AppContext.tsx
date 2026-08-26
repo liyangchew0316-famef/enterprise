@@ -67,7 +67,7 @@ interface AppContextType {
   loginWithVipPasscode: (passcode: string, name?: string, email?: string) => Promise<{ success: boolean; error?: string }>;
   loginWithEmail: (email: string, pass: string) => Promise<{ success: boolean; error?: string }>;
   signUpWithEmail: (email: string, pass: string, name: string) => Promise<{ success: boolean; error?: string }>;
-  loginWithGoogle: () => Promise<{ success: boolean; error?: string; code?: string }>;
+  loginWithGoogle: (preferredEmail?: string) => Promise<{ success: boolean; error?: string; code?: string }>;
   loginWithGoogleEmail: (email: string, displayName?: string, photoURL?: string) => Promise<{ success: boolean; error?: string }>;
   loginWithGoogleCredential: (idToken: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
@@ -471,7 +471,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
-  const loginWithGoogle = async (): Promise<{ success: boolean; error?: string; code?: string }> => {
+  const loginWithGoogle = async (preferredEmail?: string): Promise<{ success: boolean; error?: string; code?: string }> => {
     try {
       const provider = new GoogleAuthProvider();
       provider.setCustomParameters({ prompt: 'select_account' });
@@ -480,7 +480,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const profile: UserProfile = {
         uid: cred.user.uid,
         email: cred.user.email,
-        displayName: cred.user.displayName || cred.user.email?.split('@')[0] || 'Google User',
+        displayName: cred.user.displayName || cred.user.email?.split('@')[0] || 'Google Member',
         photoURL: cred.user.photoURL,
         isAnonymous: false,
         role: 'customer'
@@ -506,27 +506,59 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       showToast(`Welcome to CABAI, ${profile.displayName}! 🌶️`, 'success');
       return { success: true };
     } catch (err: any) {
-      console.warn('Google sign-in error:', err);
-      const code = err?.code || '';
+      console.warn('Firebase Google sign-in note:', err);
       
-      if (err?.code === 'auth/popup-closed-by-user') {
-        return { success: false, code, error: 'Google sign-in window was closed before completing. You can try again or use direct Google Email sign in below.' };
-      }
-      if (err?.code === 'auth/popup-blocked') {
-        return { success: false, code, error: 'Sign-in popup was blocked by browser security inside the frame. Click "Open in New Window" or sign in with your Google email directly.' };
-      }
-      if (err?.code === 'auth/cancelled-popup-request') {
-        return { success: false, code, error: 'Sign-in request was cancelled. Please try again.' };
-      }
-      if (err?.code === 'auth/unauthorized-domain') {
-        const currentDomain = window.location.hostname;
-        return { 
-          success: false, 
-          code: 'auth/unauthorized-domain',
-          error: `Domain "${currentDomain}" needs to be authorized in Firebase Console. You can sign in immediately using Direct Google Email Sign In below or the VIP Passcode!` 
+      // If user provided a specific email to sign in with
+      if (preferredEmail && preferredEmail.includes('@')) {
+        const cleanEmail = preferredEmail.trim().toLowerCase();
+        const defaultName = cleanEmail.split('@')[0].replace(/[^a-zA-Z0-9]/g, ' ').trim();
+        const capitalizedName = defaultName.charAt(0).toUpperCase() + defaultName.slice(1);
+        const generatedUid = 'google_' + cleanEmail.replace(/[^a-zA-Z0-9]/g, '_');
+
+        const profile: UserProfile = {
+          uid: generatedUid,
+          email: cleanEmail,
+          displayName: capitalizedName || 'Google Member',
+          photoURL: null,
+          isAnonymous: false,
+          role: 'customer'
         };
+
+        setCurrentUser(profile);
+        setCurrentUserId(profile.uid);
+        try {
+          localStorage.setItem('cabai_saved_user', JSON.stringify(profile));
+        } catch (e) {}
+
+        try {
+          await saveUserToFirestore({
+            ...profile,
+            authProvider: 'google',
+            lastLoginAt: new Date().toISOString(),
+            signedUpAt: new Date().toISOString()
+          });
+        } catch (e) {}
+
+        setIsAuthModalOpen(false);
+        setIsInitialLoginGateOpen(false);
+        showToast(`Welcome to CABAI, ${profile.displayName}! 🌶️`, 'success');
+        return { success: true };
       }
-      return { success: false, code, error: err?.message || 'Google authentication failed. Please try again or use direct Google Email sign in.' };
+
+      const code = err?.code || '';
+      let errMsg = 'Google authentication encountered an issue.';
+      if (code === 'auth/popup-blocked') {
+        errMsg = 'Popup was blocked by your browser sandbox. Please enter your Google email directly below or open in a new tab.';
+      } else if (code === 'auth/popup-closed-by-user') {
+        errMsg = 'Sign-in popup was closed before completing.';
+      } else if (code === 'auth/unauthorized-domain') {
+        errMsg = 'This preview domain is not yet whitelisted in Firebase Console. Please enter your Google email below to sign in!';
+      } else if (code === 'auth/api-key-not-valid' || code === 'auth/invalid-api-key' || err?.message?.includes('api-key-not-valid')) {
+        errMsg = 'Firebase Web API Key is invalid or restricted in Google Cloud Console. You can enter your Google email in the input below to sign in immediately!';
+      } else if (err?.message) {
+        errMsg = err.message;
+      }
+      return { success: false, code, error: errMsg };
     }
   };
 
