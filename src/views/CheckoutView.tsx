@@ -33,7 +33,7 @@ export const CheckoutView: React.FC = () => {
   const [customer, setCustomer] = useState<CustomerInfo>(() => ({
     fullName: currentUser?.displayName || '',
     email: currentUser?.email || '',
-    phone: '',
+    phone: currentUser?.phone || currentUser?.phoneNumber || (typeof localStorage !== 'undefined' ? localStorage.getItem('cabai_customer_phone') || '' : ''),
     address: '',
     city: '',
     state: 'Selangor',

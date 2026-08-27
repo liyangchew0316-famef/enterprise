@@ -185,7 +185,7 @@ export const Header: React.FC = () => {
                     ? 'bg-amber-50/90 hover:bg-amber-100/90 text-amber-900 border border-amber-300' 
                     : 'bg-red-50/80 hover:bg-red-100/80 text-gray-900 border border-red-200'
                 }`}
-                title={currentUser.role === 'vip' ? 'Signed in as VIP' : `Signed in as ${currentUser.displayName || currentUser.email}`}
+                title={currentUser.role === 'vip' ? `Signed in as VIP${currentUser.phone ? ` (${currentUser.phone})` : ''}` : `Signed in as ${currentUser.displayName || currentUser.email}`}
               >
                 <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-extrabold shadow-xs ${
                   currentUser.role === 'vip' ? 'bg-[#af101a] text-amber-300' : 'bg-gray-900 text-white'

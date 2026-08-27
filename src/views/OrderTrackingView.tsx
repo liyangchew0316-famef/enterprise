@@ -52,10 +52,16 @@ export const OrderTrackingView: React.FC = () => {
       return orders;
     }
     if (currentUser) {
-      return orders.filter(ord => 
-        (currentUser.uid && ord.userId === currentUser.uid) ||
-        (currentUser.email && ord.customer?.email?.toLowerCase() === currentUser.email.toLowerCase())
-      );
+      const userPhoneNorm = normalizePhone(currentUser.phone || currentUser.phoneNumber);
+      return orders.filter(ord => {
+        if (currentUser.uid && ord.userId === currentUser.uid) return true;
+        if (currentUser.email && ord.customer?.email?.toLowerCase() === currentUser.email.toLowerCase()) return true;
+        if (userPhoneNorm && userPhoneNorm.length >= 7) {
+          const ordPhoneNorm = normalizePhone(ord.customer?.phone);
+          if (ordPhoneNorm === userPhoneNorm) return true;
+        }
+        return false;
+      });
     }
     // For non-logged-in guest: only show the order they just created in this session (trackedOrderId)
     if (trackedOrderId) {
@@ -74,13 +80,15 @@ export const OrderTrackingView: React.FC = () => {
     }
 
     const normQPhone = normalizePhone(q);
+    const userPhoneNorm = normalizePhone(currentUser?.phone || currentUser?.phoneNumber);
 
     // If user is logged in or privileged, filter within their orders (or allow exact order ID lookup)
     if (currentUser) {
       return orders.filter(ord => {
         const isUserOrder = isPrivileged || 
           (currentUser.uid && ord.userId === currentUser.uid) ||
-          (currentUser.email && ord.customer?.email?.toLowerCase() === currentUser.email.toLowerCase());
+          (currentUser.email && ord.customer?.email?.toLowerCase() === currentUser.email.toLowerCase()) ||
+          (userPhoneNorm && userPhoneNorm.length >= 7 && normalizePhone(ord.customer?.phone) === userPhoneNorm);
 
         // 1. Check within user's own orders
         if (isUserOrder) {

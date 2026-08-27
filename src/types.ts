@@ -239,6 +239,8 @@ export interface HallOfGloryMember {
 export interface UserProfile {
   uid: string;
   email: string | null;
+  phone?: string;
+  phoneNumber?: string;
   firstName?: string;
   lastName?: string;
   username?: string;

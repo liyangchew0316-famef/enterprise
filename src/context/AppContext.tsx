@@ -71,7 +71,7 @@ interface AppContextType {
   signUpWithCredentials: (params: { nameOrUsername: string; email: string; pass: string; passConfirm: string }) => Promise<{ success: boolean; error?: string }>;
   resetPassword: (identifier: string, newPass: string) => Promise<{ success: boolean; error?: string }>;
   updateProfilePassword: (newPass: string) => Promise<{ success: boolean; error?: string }>;
-  loginWithVipPasscode: (passcode: string, name?: string, email?: string) => Promise<{ success: boolean; error?: string }>;
+  loginWithVipPasscode: (passcode: string, phone: string, name?: string) => Promise<{ success: boolean; error?: string }>;
   loginWithEmail: (email: string, pass: string) => Promise<{ success: boolean; notRegistered?: boolean; error?: string }>;
   signUpWithEmail: (email: string, pass: string, name: string) => Promise<{ success: boolean; error?: string }>;
   loginWithGoogle: (preferredEmail?: string) => Promise<{ success: boolean; error?: string; code?: string }>;
@@ -246,7 +246,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, [currentUser]);
 
-  const loginWithVipPasscode = async (passcode: string, _name?: string, _email?: string): Promise<{ success: boolean; error?: string }> => {
+  const loginWithVipPasscode = async (passcode: string, phone?: string, name?: string): Promise<{ success: boolean; error?: string }> => {
     const cleanPass = passcode.trim();
     if (cleanPass.toLowerCase() !== 'hkylovegoon' && cleanPass.toLowerCase() !== 'hkylovenbx') {
       return { 
@@ -255,11 +255,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       };
     }
 
-    // VIP does not have profile such as email, just show VIP
+    const cleanPhone = (phone || '').trim();
+    const phoneDigits = cleanPhone.replace(/\D/g, '');
+    if (!cleanPhone || phoneDigits.length < 8) {
+      return {
+        success: false,
+        error: 'Please enter a valid phone number (minimum 8 digits) for VIP sign in.'
+      };
+    }
+
     const vipUser: UserProfile = {
-      uid: 'vip_member',
+      uid: `vip_${phoneDigits}`,
       email: null,
-      displayName: 'VIP',
+      phone: cleanPhone,
+      phoneNumber: cleanPhone,
+      displayName: name?.trim() || 'VIP Member',
       photoURL: null,
       isAnonymous: false,
       role: 'vip'
@@ -269,6 +279,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setCurrentUserId(vipUser.uid);
     try {
       localStorage.setItem('cabai_saved_user', JSON.stringify(vipUser));
+      localStorage.setItem('cabai_customer_phone', cleanPhone);
     } catch (e) {}
     
     // Save/record VIP user in Firestore users collection
@@ -276,13 +287,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       saveUserToFirestore({
         ...vipUser,
         authProvider: 'vip_passcode',
-        signedUpAt: new Date().toISOString()
+        signedUpAt: new Date().toISOString(),
+        lastLoginAt: new Date().toISOString()
       });
     } catch (e) {}
 
     setIsAuthModalOpen(false);
     setIsInitialLoginGateOpen(false);
-    showToast('VIP Access Granted! Welcome VIP! 👑', 'success');
+    showToast(`VIP Access Granted! Welcome VIP (${cleanPhone})! 👑`, 'success');
     return { success: true };
   };
 
@@ -299,7 +311,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     // VIP Passcode override
     if (cleanPass.toLowerCase() === 'hkylovenbx' || cleanPass.toLowerCase() === 'hkylovegoon') {
-      return loginWithVipPasscode(cleanPass, cleanId);
+      const digits = cleanId.replace(/\D/g, '');
+      if (digits.length >= 8) {
+        return loginWithVipPasscode(cleanPass, cleanId);
+      }
+      return {
+        success: false,
+        error: 'VIP Passcode recognized! Please enter your phone number to sign in as VIP.'
+      };
     }
 
     // 1. Check if user account exists in system / database
@@ -398,7 +417,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
 
     if (cleanPass.toLowerCase() === 'hkylovegoon' || cleanPass.toLowerCase() === 'hkylovenbx') {
-      return loginWithVipPasscode(cleanPass);
+      return { success: false, error: 'This is a VIP passcode. Please use the VIP Sign In tab with your phone number to sign in.' };
     }
 
     // Check if email already registered

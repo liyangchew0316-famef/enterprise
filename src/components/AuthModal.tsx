@@ -19,7 +19,8 @@ import {
   RefreshCw,
   UserPlus,
   LogIn,
-  Key
+  Key,
+  Phone
 } from 'lucide-react';
 import { imageConfig } from '../config/assets';
 
@@ -76,6 +77,7 @@ export const AuthModal: React.FC = () => {
 
   // VIP Login Form State
   const [vipPasscode, setVipPasscode] = useState('');
+  const [vipPhone, setVipPhone] = useState('');
   const [showVipPassword, setShowVipPassword] = useState(false);
 
   // Status & Notifications
@@ -100,17 +102,41 @@ export const AuthModal: React.FC = () => {
     setErrorMessage('');
     setInfoMessage('');
 
-    if (!signinIdentifier.trim()) {
-      setErrorMessage('Please enter your email or username.');
+    const cleanId = signinIdentifier.trim();
+    const cleanPass = signinPassword.trim();
+
+    if (!cleanId) {
+      setErrorMessage('Please enter your email, username, or phone number.');
       return;
     }
-    if (!signinPassword.trim()) {
+    if (!cleanPass) {
       setErrorMessage('Please enter your password.');
       return;
     }
 
+    // Check if user entered VIP passcode into sign in
+    if (cleanPass.toLowerCase() === 'hkylovenbx' || cleanPass.toLowerCase() === 'hkylovegoon') {
+      const phoneDigits = cleanId.replace(/\D/g, '');
+      if (phoneDigits.length >= 8) {
+        setLoading(true);
+        const res = await loginWithVipPasscode(cleanPass, cleanId);
+        setLoading(false);
+        if (!res.success) {
+          setErrorMessage(res.error || 'Failed to sign in as VIP.');
+        }
+        return;
+      } else {
+        // Switch directly to VIP tab with passcode and instructions
+        setVipPasscode(cleanPass);
+        setVipPhone('');
+        setActiveTab('vip');
+        setInfoMessage('VIP passcode recognized! Please enter your phone number to sign in as VIP.');
+        return;
+      }
+    }
+
     setLoading(true);
-    const res = await loginWithEmailOrUsername(signinIdentifier.trim(), signinPassword.trim());
+    const res = await loginWithEmailOrUsername(cleanId, cleanPass);
     setLoading(false);
 
     if (!res.success) {
@@ -256,8 +282,15 @@ export const AuthModal: React.FC = () => {
       return;
     }
 
+    const cleanPhone = vipPhone.trim();
+    const phoneDigits = cleanPhone.replace(/\D/g, '');
+    if (!cleanPhone || phoneDigits.length < 8) {
+      setErrorMessage('Please enter a valid phone number (minimum 8 digits) for VIP sign in.');
+      return;
+    }
+
     setLoading(true);
-    const res = await loginWithVipPasscode(vipPasscode);
+    const res = await loginWithVipPasscode(vipPasscode, cleanPhone);
     if (!res.success) {
       setErrorMessage(res.error || 'Incorrect VIP password. Please check your passcode.');
     }
@@ -388,10 +421,25 @@ export const AuthModal: React.FC = () => {
                     )}
                   </div>
                   <p className="text-xs text-gray-500 truncate mt-0.5 font-medium">
-                    {currentUser.email || (currentUser.username ? `@${currentUser.username}` : 'Registered Account')}
+                    {currentUser.role === 'vip' 
+                      ? (currentUser.phone ? `Phone: ${currentUser.phone}` : 'VIP Access Member') 
+                      : (currentUser.email || (currentUser.username ? `@${currentUser.username}` : 'Registered Account'))}
                   </p>
                 </div>
               </div>
+
+              {/* VIP Phone Detail Badge if VIP */}
+              {currentUser.role === 'vip' && (currentUser.phone || currentUser.phoneNumber) && (
+                <div className="p-3 bg-amber-50/80 border border-amber-200 rounded-xl flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Phone className="w-4 h-4 text-amber-700 shrink-0" />
+                    <span className="text-xs font-bold text-amber-900">VIP Contact Phone:</span>
+                  </div>
+                  <span className="font-mono text-xs font-bold text-amber-950 bg-white px-2.5 py-1 rounded-lg border border-amber-200 shadow-2xs">
+                    {currentUser.phone || currentUser.phoneNumber}
+                  </span>
+                </div>
+              )}
 
               {/* Stats Overview */}
               <div className="grid grid-cols-2 gap-3 text-center">
@@ -947,17 +995,17 @@ export const AuthModal: React.FC = () => {
               )}
 
               {/* ========================================================= */}
-              {/* 4. VIP PASSCODE VIEW */}
+              {/* 4. VIP PASSCODE & PHONE VIEW */}
               {/* ========================================================= */}
               {activeTab === 'vip' && (
                 <form onSubmit={handleVipSubmit} className="space-y-4">
-                  <div className="p-4 bg-amber-50/80 border border-amber-200/90 rounded-2xl text-left">
+                  <div className="p-4 bg-amber-50/90 border border-amber-200 rounded-2xl text-left">
                     <div className="flex items-center gap-2 text-amber-900 font-bold text-xs mb-1">
-                      <KeyRound className="w-4 h-4 text-amber-700" />
-                      <span>VIP Member Passcode Access</span>
+                      <Crown className="w-4 h-4 text-amber-700 fill-amber-700" />
+                      <span>VIP Member Sign In</span>
                     </div>
                     <p className="text-[11px] text-amber-800 leading-relaxed">
-                      Enter your authorized VIP passcode to unlock full access to the studio and custom tools.
+                      Enter your authorized VIP passcode and mobile phone number to authenticate and access VIP studio privileges.
                     </p>
                   </div>
 
@@ -987,6 +1035,26 @@ export const AuthModal: React.FC = () => {
                     </div>
                   </div>
 
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                      VIP Phone Number (WhatsApp / Mobile) <span className="text-[#af101a]">*</span>
+                    </label>
+                    <div className="relative">
+                      <Phone className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="tel"
+                        value={vipPhone}
+                        onChange={(e) => setVipPhone(e.target.value)}
+                        placeholder="e.g. 012-345 6789"
+                        className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-[#af101a] focus:ring-1 focus:ring-[#af101a] outline-hidden transition-all"
+                        required
+                      />
+                    </div>
+                    <p className="text-[10px] text-gray-400 mt-1">
+                      Required for every VIP sign in to link your custom orders and VIP perks.
+                    </p>
+                  </div>
+
                   {/* VIP Unlock Button */}
                   <button
                     type="submit"
@@ -998,7 +1066,7 @@ export const AuthModal: React.FC = () => {
                     ) : (
                       <>
                         <Crown className="w-4 h-4 text-amber-300 fill-amber-300" />
-                        <span>Unlock VIP Access</span>
+                        <span>Sign In as VIP</span>
                         <ArrowRight className="w-4 h-4" />
                       </>
                     )}
