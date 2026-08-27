@@ -102,6 +102,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     category: 'custom',
     tags: ['Drawable', 'Interactive Canvas', 'Custom Art', 'Top Pick', '3D Chili', 'Customizable'],
     description: 'Interactive custom chili drawing & coloring studio! Paint your own pepper artwork, add funny facial expressions, stamps, or embossed lettering directly on the 3D chili canvas, then we 3D print your custom chili in rigid PLA!',
+    heroImage: imageConfig.heroCutouts.cabaiKeychainDrawable,
     images: [
       imageConfig.products.cabaiKeychainDrawable,
       imageConfig.products.cabaiKeychain
@@ -132,6 +133,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     category: 'badges',
     tags: ['Customizable', 'Safety Namebadge', 'Circle Badge', '12+ Templates', 'Safety Pin', 'New Launch'],
     description: 'Design your own circular 3D printed safety namebadge! Select from 12+ pre-designed templates (Student ID, Medical Staff, Barista, Corporate Executive, Cyberpunk, Cute Pets) or upload your custom logo, embossed in 100% rigid PLA with a secure safety pin clasp.',
+    heroImage: imageConfig.heroCutouts.nameTag,
     images: [
       imageConfig.products.cabaiKeychain,
       imageConfig.products.cabaiFridgeMagnet
@@ -162,6 +164,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     category: 'custom',
     tags: ['Customizable', 'Mechanical Key', 'Fidget Toy', 'Emoji Keycaps', 'Best Seller'],
     description: '3D printed mechanical keyboard switch clicker fidget toy. Custom-configure with 1 to 5 keys, customize keycaps with Alphabet letters, Emojis, or uploaded image decals! Tested with authentic Blue/Brown/Red switch acoustics.',
+    heroImage: imageConfig.heroCutouts.keyboardClicker,
     images: [
       imageConfig.products.keyboardClicker
     ],
@@ -191,6 +194,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     category: 'keychains',
     tags: ['Ready Made', 'RM3 Classic', 'Studio Signature', 'Best Seller', 'Pocket Size'],
     description: 'Our studio signature classic 3D printed Malaysian chili pepper keychain. Vibrant red finish with green stem, sleek surface, and durable split ring in rigid PLA.',
+    heroImage: imageConfig.heroCutouts.cabaiKeychain,
     images: [
       imageConfig.products.cabaiKeychain
     ],
@@ -220,6 +224,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     category: 'keychains',
     tags: ['Customizable', 'Drawable', 'DIY Art', 'Chili Signature', 'Best Seller'],
     description: 'Customizable 3D printed chili pepper keychain with smooth white matte drawing canvas. Color your own expressions, facial details, or personalized patterns on the printable PLA surface.',
+    heroImage: imageConfig.heroCutouts.cabaiKeychainDrawable,
     images: [
       imageConfig.products.cabaiKeychainDrawable,
       imageConfig.products.cabaiKeychain
@@ -250,6 +255,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     category: 'keychains',
     tags: ['Ready Made', 'Kawaii', 'Cute Edition', 'Pocket Charm'],
     description: 'Adorable 3D printed Chibi chili pepper keychain with embossed cute anime blushing eyes and leaf cap. Highly detailed smooth surface in PLA.',
+    heroImage: imageConfig.heroCutouts.cabaiKeychain,
     images: [
       imageConfig.products.cabaiKeychain,
       imageConfig.products.cabaiKeychainDrawable
@@ -280,6 +286,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     category: 'keychains',
     tags: ['Customizable', 'Couples Edition', 'Magnetic Lock', 'Gift Idea'],
     description: 'Special 2-in-1 interlocking chili keychain pair with internal neodymium magnets that click together into a spicy heart! Custom engraved initial letters available.',
+    heroImage: imageConfig.heroCutouts.cabaiKeychain,
     images: [
       imageConfig.products.cabaiKeychain,
       imageConfig.products.cabaiKeychainDrawable
@@ -310,6 +317,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     category: 'keychains',
     tags: ['Ready Made', 'Flexi Toy', 'Articulated', 'Fidget Keyring'],
     description: 'Print-in-place flexible articulated chili dragon keychain. Fully movable jointed segments that wiggle and bend smoothly in your pocket.',
+    heroImage: imageConfig.heroCutouts.cabaiKeychain,
     images: [
       imageConfig.products.cabaiKeychain
     ],
@@ -339,6 +347,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     category: 'keychains',
     tags: ['Customizable', 'Custom Text', 'Name Keyring', 'Embossed 3D', 'Personalized'],
     description: 'Personalized 3D printed embossed name tag keyring. RM0.50 per letter (minimum 5 letters = RM2.50 base). High-contrast dual-tone raised lettering tailored to your custom name in PLA.',
+    heroImage: imageConfig.heroCutouts.nameTag,
     images: [
       imageConfig.products.nameTag
     ],
@@ -368,6 +377,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     category: 'home',
     tags: ['Customizable', 'Drawable', 'Fridge Magnet', 'DIY Canvas', 'Popular'],
     description: 'Cute 3D printed chili pepper fridge magnet with embedded strong neodymium magnet and smooth drawable front face. Customize with markers or online canvas before ordering!',
+    heroImage: imageConfig.heroCutouts.cabaiFridgeMagnet,
     images: [
       imageConfig.products.cabaiFridgeMagnet
     ],
@@ -397,6 +407,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     category: 'organizers',
     tags: ['Customizable', 'Drawable', 'Phone Stand', 'Desk Setup', 'Ergonomic', 'Durable'],
     description: 'Ergonomic 3D printed chili-inspired desktop smartphone holder with front doodle canvas face. Holds smartphones securely in portrait or landscape orientation.',
+    heroImage: imageConfig.heroCutouts.cabaiPhoneHolder,
     images: [
       imageConfig.products.cabaiPhoneHolder
     ],
@@ -426,6 +437,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     category: 'organizers',
     tags: ['Customizable', 'Drawable', 'Novelty Pen', 'Chili Design', 'Stationery'],
     description: 'Fun novelty 3D printed chili pepper casing ballpoint pen with customizable barrel. Includes removable green stem cap and smooth 0.5mm replaceable black gel ink core in durable PLA.',
+    heroImage: imageConfig.heroCutouts.cabaiPen,
     images: [
       imageConfig.products.cabaiPen
     ],

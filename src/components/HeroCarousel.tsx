@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Product } from '../types';
 import { useApp } from '../context/AppContext';
 import { ArrowLeft, ArrowRight, Sparkles, Tag, Eye } from 'lucide-react';
-import { imageConfig } from '../config/assets';
+import { imageConfig, resolveHeroCutoutUrl } from '../config/assets';
 
 interface HeroProductItem extends Product {
   bg: string;
@@ -64,15 +64,13 @@ export const HeroCarousel: React.FC = () => {
 
     return selected.slice(0, 4).map((p, idx) => {
       const colorScheme = DEFAULT_HERO_COLORS[idx % DEFAULT_HERO_COLORS.length];
-      const img = (p.images && p.images.length > 0 && p.images[0])
-        ? p.images[0]
-        : imageConfig.logos.fallback;
+      const cutoutImg = p.heroImage || resolveHeroCutoutUrl(p);
 
       return {
         ...p,
         bg: colorScheme.bg,
         panel: colorScheme.panel,
-        displayImg: img,
+        displayImg: cutoutImg,
       };
     });
   }, [products]);

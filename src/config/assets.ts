@@ -15,6 +15,15 @@ import logoHeader from '../assets/images/regenerated_image_1786627761972.png';
 import logoFooter from '../assets/images/regenerated_image_1786627764275.png';
 import logoOfficial from '../assets/images/cabai_official_logo_1786624077846.jpg';
 
+// Bundled Transparent Cutout PNGs (Zero background, pure floating product)
+import cutoutKeyboardClicker from '../assets/images/keyboard_clicker_cutout.png';
+import cutoutCabaiKeychainDrawable from '../assets/images/cabai_keychain_draw_cutout.png';
+import cutoutCabaiKeychain from '../assets/images/cabai_keychain_cutout.png';
+import cutoutNameTag from '../assets/images/custom_name_tag_cutout.png';
+import cutoutCabaiFridgeMagnet from '../assets/images/cabai_magnet_cutout.png';
+import cutoutCabaiPhoneHolder from '../assets/images/cabai_phone_stand_cutout.png';
+import cutoutCabaiPen from '../assets/images/cabai_pen_cutout.png';
+
 // Environment-aware Base URL resolver
 const BASE_URL = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.BASE_URL) 
   ? import.meta.env.BASE_URL.replace(/\/+$/, '') 
@@ -53,6 +62,38 @@ export const imageConfig = {
     deskDock: imgCabaiPhoneHolder,
     cableClip: imgCabaiFridgeMagnet
   },
+
+  // Isolated Cutouts for Hero Carousel (Transparent Background PNGs)
+  heroCutouts: {
+    keyboardClicker: cutoutKeyboardClicker,
+    cabaiKeychainDrawable: cutoutCabaiKeychainDrawable,
+    cabaiKeychain: cutoutCabaiKeychain,
+    nameTag: cutoutNameTag,
+    cabaiFridgeMagnet: cutoutCabaiFridgeMagnet,
+    cabaiPhoneHolder: cutoutCabaiPhoneHolder,
+    cabaiPen: cutoutCabaiPen,
+    flexiBuddy: cutoutKeyboardClicker,
+    deskDock: cutoutCabaiPhoneHolder,
+    cableClip: cutoutCabaiFridgeMagnet
+  },
+
+  // Direct Product ID to Cutout mapping
+  heroCutoutMap: {
+    'prod-keyboard-clicker': cutoutKeyboardClicker,
+    'prod-cabai-keychain-drawable': cutoutCabaiKeychainDrawable,
+    'prod-cabai-keychain': cutoutCabaiKeychain,
+    'prod-name-tag': cutoutNameTag,
+    'prod-cabai-fridge-magnet': cutoutCabaiFridgeMagnet,
+    'prod-cabai-phone-holder': cutoutCabaiPhoneHolder,
+    'prod-cabai-pen': cutoutCabaiPen,
+    'prod-01': cutoutCabaiKeychain,
+    'prod-02': cutoutCabaiKeychainDrawable,
+    'prod-03': cutoutKeyboardClicker,
+    'prod-04': cutoutCabaiPhoneHolder,
+    'prod-05': cutoutCabaiFridgeMagnet,
+    'prod-06': cutoutNameTag,
+    'prod-07': cutoutCabaiPen
+  } as Record<string, string>,
 
   // Direct Product ID to Asset mapping
   productMap: {
@@ -156,6 +197,47 @@ export function resolveAssetUrl(
   }
 
   return source;
+}
+
+/**
+ * Resolves the isolated transparent product cutout for Hero Presentation.
+ * Falls back gracefully to standard product asset if not present.
+ */
+export function resolveHeroCutoutUrl(
+  productOrId?: { id?: string; heroImage?: string; images?: string[]; image?: string } | string | null
+): string {
+  if (!productOrId) {
+    return imageConfig.heroCutouts.cabaiKeychain;
+  }
+
+  // If string ID was passed
+  if (typeof productOrId === 'string') {
+    if (imageConfig.heroCutoutMap[productOrId]) {
+      return imageConfig.heroCutoutMap[productOrId];
+    }
+    return resolveAssetUrl(productOrId);
+  }
+
+  // If explicit heroImage exists and is non-empty
+  if (productOrId.heroImage) {
+    if (productOrId.heroImage.startsWith('data:') || productOrId.heroImage.startsWith('blob:') || productOrId.heroImage.startsWith('http')) {
+      return productOrId.heroImage;
+    }
+    // Check if it matches heroCutoutMap key
+    if (productOrId.id && imageConfig.heroCutoutMap[productOrId.id]) {
+      return imageConfig.heroCutoutMap[productOrId.id];
+    }
+    return productOrId.heroImage;
+  }
+
+  // If product id is mapped to a cutout
+  if (productOrId.id && imageConfig.heroCutoutMap[productOrId.id]) {
+    return imageConfig.heroCutoutMap[productOrId.id];
+  }
+
+  // Fallback to standard product image resolution
+  const fallbackSrc = (productOrId.images && productOrId.images[0]) || productOrId.image;
+  return resolveAssetUrl(fallbackSrc, { productId: productOrId.id });
 }
 
 export default imageConfig;

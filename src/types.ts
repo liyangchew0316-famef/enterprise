@@ -58,6 +58,8 @@ export interface Product {
   category: ProductCategory;
   tags: string[];
   description: string;
+  image?: string;
+  heroImage?: string;
   images: string[];
   specifications: {
     material: string;
