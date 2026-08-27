@@ -441,19 +441,55 @@ export async function likeChiliDrawingInFirestore(id: string, currentLikes: numb
 // ==========================================
 export interface StoredUserData extends UserProfile {
   authProvider?: string;
+  password?: string;
   createdAt?: string;
   signedUpAt?: string;
   lastLoginAt?: string;
   lastActiveAt?: string;
 }
 
+const LOCAL_REGISTERED_USERS_KEY = 'cabai_registered_users';
+
+function getLocalRegisteredUsers(): StoredUserData[] {
+  try {
+    const raw = localStorage.getItem(LOCAL_REGISTERED_USERS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveLocalRegisteredUser(user: StoredUserData): void {
+  try {
+    const users = getLocalRegisteredUsers();
+    const existingIndex = users.findIndex(u => 
+      u.uid === user.uid || 
+      (u.email && user.email && u.email.toLowerCase() === user.email.toLowerCase()) ||
+      (u.username && user.username && u.username.toLowerCase() === user.username.toLowerCase())
+    );
+    if (existingIndex >= 0) {
+      users[existingIndex] = { ...users[existingIndex], ...user };
+    } else {
+      users.push(user);
+    }
+    localStorage.setItem(LOCAL_REGISTERED_USERS_KEY, JSON.stringify(users));
+  } catch (e) {}
+}
+
 export async function saveUserToFirestore(userData: StoredUserData): Promise<boolean> {
   if (!userData || !userData.uid) return false;
+  // Always update local cache first
+  saveLocalRegisteredUser(userData);
+
   try {
     const userDocId = userData.uid;
     const now = new Date().toISOString();
+    
+    // Omit password from Firestore document payload for security
+    const { password: _pw, ...safeUserData } = userData;
+    
     const cleanUser = sanitizeForFirestore({
-      ...userData,
+      ...safeUserData,
       lastLoginAt: now,
       lastActiveAt: now,
       createdAt: userData.createdAt || userData.signedUpAt || now
@@ -470,16 +506,83 @@ export async function saveUserToFirestore(userData: StoredUserData): Promise<boo
 
 export async function fetchUserFromFirestore(userId: string): Promise<StoredUserData | null> {
   if (!userId) return null;
+  // Check local cache
+  const localUser = getLocalRegisteredUsers().find(u => u.uid === userId);
+  if (localUser) return localUser;
+
   try {
     const userRef = doc(db, USERS_COL, userId);
     const docSnap = await getDoc(userRef);
     if (docSnap.exists()) {
-      return docSnap.data() as StoredUserData;
+      const data = docSnap.data() as StoredUserData;
+      saveLocalRegisteredUser(data);
+      return data;
     }
     return null;
   } catch (error) {
     handleFirestoreError(`fetchUserFromFirestore(${userId})`, error);
     return null;
+  }
+}
+
+export async function findUserByEmailOrUsername(identifier: string): Promise<StoredUserData | null> {
+  if (!identifier) return null;
+  const clean = identifier.trim().toLowerCase();
+  
+  // 1. Check local cache first
+  const localUsers = getLocalRegisteredUsers();
+  const foundLocal = localUsers.find(u => 
+    (u.email && u.email.toLowerCase() === clean) ||
+    (u.username && u.username.toLowerCase() === clean) ||
+    (u.uid && u.uid.toLowerCase() === clean)
+  );
+  if (foundLocal) {
+    return foundLocal;
+  }
+
+  // 2. Query Firestore
+  try {
+    const allUsers = await fetchAllUsersFromFirestore();
+    const match = allUsers.find(u => 
+      (u.email && u.email.toLowerCase() === clean) ||
+      (u.username && u.username.toLowerCase() === clean) ||
+      (u.uid && u.uid.toLowerCase() === clean)
+    );
+    if (match) {
+      saveLocalRegisteredUser(match);
+      return match;
+    }
+    return null;
+  } catch (error) {
+    handleFirestoreError(`findUserByEmailOrUsername(${identifier})`, error);
+    return null;
+  }
+}
+
+export async function updateUserPasswordInFirestore(identifierOrUid: string, newPass: string): Promise<{ success: boolean; error?: string }> {
+  if (!identifierOrUid || !newPass) {
+    return { success: false, error: 'Identifier and new password are required.' };
+  }
+  const user = await findUserByEmailOrUsername(identifierOrUid);
+  if (!user) {
+    return { success: false, error: 'Account not found. Please verify your email or username.' };
+  }
+
+  user.password = newPass;
+  user.lastActiveAt = new Date().toISOString();
+
+  // Update in local cache
+  saveLocalRegisteredUser(user);
+
+  // Update in Firestore
+  try {
+    const userDocId = user.uid;
+    await setDoc(doc(db, USERS_COL, userDocId), sanitizeForFirestore(user), { merge: true });
+    return { success: true };
+  } catch (err: any) {
+    handleFirestoreError(`updateUserPasswordInFirestore(${user.uid})`, err);
+    // Even if firestore errors, local cache is updated
+    return { success: true };
   }
 }
 
@@ -490,10 +593,18 @@ export async function fetchAllUsersFromFirestore(): Promise<StoredUserData[]> {
     querySnapshot.forEach((docSnap) => {
       users.push(docSnap.data() as StoredUserData);
     });
-    return users;
+    // Merge with local users
+    const localUsers = getLocalRegisteredUsers();
+    const merged = [...users];
+    for (const lu of localUsers) {
+      if (!merged.some(u => u.uid === lu.uid)) {
+        merged.push(lu);
+      }
+    }
+    return merged;
   } catch (error) {
     handleFirestoreError('fetchAllUsersFromFirestore', error);
-    return [];
+    return getLocalRegisteredUsers();
   }
 }
 

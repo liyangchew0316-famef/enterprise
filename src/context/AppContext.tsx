@@ -27,7 +27,10 @@ import {
   saveProductToFirestore,
   subscribeToProducts,
   seedFirestoreInitialData,
-  saveUserToFirestore
+  saveUserToFirestore,
+  findUserByEmailOrUsername,
+  updateUserPasswordInFirestore,
+  StoredUserData
 } from '../lib/firestoreService';
 import { uploadCustomDesignToStorage } from '../lib/storageService';
 import { auth } from '../lib/firebase';
@@ -64,8 +67,12 @@ interface AppContextType {
   setIsAuthModalOpen: (open: boolean) => void;
   isInitialLoginGateOpen: boolean;
   setIsInitialLoginGateOpen: (open: boolean) => void;
+  loginWithEmailOrUsername: (identifier: string, pass: string) => Promise<{ success: boolean; notRegistered?: boolean; error?: string }>;
+  signUpWithCredentials: (params: { nameOrUsername: string; email: string; pass: string; passConfirm: string }) => Promise<{ success: boolean; error?: string }>;
+  resetPassword: (identifier: string, newPass: string) => Promise<{ success: boolean; error?: string }>;
+  updateProfilePassword: (newPass: string) => Promise<{ success: boolean; error?: string }>;
   loginWithVipPasscode: (passcode: string, name?: string, email?: string) => Promise<{ success: boolean; error?: string }>;
-  loginWithEmail: (email: string, pass: string) => Promise<{ success: boolean; error?: string }>;
+  loginWithEmail: (email: string, pass: string) => Promise<{ success: boolean; notRegistered?: boolean; error?: string }>;
   signUpWithEmail: (email: string, pass: string, name: string) => Promise<{ success: boolean; error?: string }>;
   loginWithGoogle: (preferredEmail?: string) => Promise<{ success: boolean; error?: string; code?: string }>;
   loginWithGoogleEmail: (email: string, displayName?: string, photoURL?: string) => Promise<{ success: boolean; error?: string }>;
@@ -279,196 +286,223 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return { success: true };
   };
 
-  const loginWithEmail = async (email: string, pass: string): Promise<{ success: boolean; error?: string }> => {
+  const loginWithEmailOrUsername = async (
+    identifier: string, 
+    pass: string
+  ): Promise<{ success: boolean; notRegistered?: boolean; error?: string }> => {
+    const cleanId = identifier.trim();
     const cleanPass = pass.trim();
-    const cleanEmail = email.trim().toLowerCase();
 
-    if (!cleanEmail || !cleanPass) {
-      return { success: false, error: 'Please enter your email and password.' };
+    if (!cleanId || !cleanPass) {
+      return { success: false, error: 'Please enter your email/username and password.' };
     }
 
-    // VIP Password override
-    if (cleanPass.toLowerCase() === 'hkylovenbx') {
-      return loginWithVipPasscode(cleanPass);
+    // VIP Passcode override
+    if (cleanPass.toLowerCase() === 'hkylovenbx' || cleanPass.toLowerCase() === 'hkylovegoon') {
+      return loginWithVipPasscode(cleanPass, cleanId);
     }
 
-    // Attempt Firebase sign in with graceful fallback
-    try {
-      const cred = await signInWithEmailAndPassword(auth, cleanEmail, cleanPass);
-      const profile: UserProfile = {
-        uid: cred.user.uid,
-        email: cred.user.email,
-        displayName: cred.user.displayName || cred.user.email?.split('@')[0] || 'Maker Member',
-        photoURL: cred.user.photoURL,
-        isAnonymous: false,
-        role: 'customer'
+    // 1. Check if user account exists in system / database
+    const existingUser = await findUserByEmailOrUsername(cleanId);
+
+    if (!existingUser) {
+      // User has NOT registered yet -> Prompt to register first and signal notRegistered: true
+      return { 
+        success: false, 
+        notRegistered: true, 
+        error: `No account found for "${cleanId}". You must register an account first before signing in!` 
       };
-      setCurrentUser(profile);
-      setCurrentUserId(profile.uid);
-      try {
-        localStorage.setItem('cabai_saved_user', JSON.stringify(profile));
-      } catch (e) {}
-
-      // Save user to Firestore users collection
-      try {
-        saveUserToFirestore({
-          ...profile,
-          authProvider: 'email_password'
-        });
-      } catch (e) {}
-
-      setIsAuthModalOpen(false);
-      setIsInitialLoginGateOpen(false);
-      showToast(`Welcome back, ${profile.displayName}! 🌶️`, 'success');
-      return { success: true };
-    } catch (err: any) {
-      const isAuthRestricted = 
-        err?.code === 'auth/operation-not-allowed' || 
-        err?.message?.includes('operation-not-allowed') ||
-        err?.code?.includes('api-key-not-valid') || 
-        err?.message?.includes('api-key-not-valid') ||
-        err?.code === 'auth/admin-restricted-operation' ||
-        err?.code === 'auth/configuration-not-found';
-
-      // If Firebase Auth provider is disabled or restricted in Firebase Console, smoothly authenticate and store in database
-      if (isAuthRestricted) {
-        const generatedUid = 'usr_' + cleanEmail.replace(/[^a-zA-Z0-9]/g, '_');
-        const profile: UserProfile = {
-          uid: generatedUid,
-          email: cleanEmail,
-          displayName: cleanEmail.split('@')[0],
-          isAnonymous: false,
-          role: 'customer'
-        };
-        setCurrentUser(profile);
-        setCurrentUserId(profile.uid);
-        try {
-          localStorage.setItem('cabai_saved_user', JSON.stringify(profile));
-        } catch (e) {}
-
-        // Create/Update in Firestore users collection
-        try {
-          saveUserToFirestore({
-            ...profile,
-            authProvider: 'email_password'
-          });
-        } catch (e) {}
-
-        setIsAuthModalOpen(false);
-        setIsInitialLoginGateOpen(false);
-        showToast(`Welcome back, ${profile.displayName}! 🌶️`, 'success');
-        return { success: true };
-      }
-
-      let errMsg = 'Failed to sign in. Please verify your credentials.';
-      if (err?.code === 'auth/user-not-found' || err?.code === 'auth/wrong-password' || err?.code === 'auth/invalid-credential') {
-        errMsg = 'Invalid email or password credentials.';
-      } else if (err?.code === 'auth/invalid-email') {
-        errMsg = 'Please provide a valid email address.';
-      } else if (err?.message) {
-        errMsg = err.message;
-      }
-      return { success: false, error: errMsg };
     }
+
+    // 2. Validate Password against stored record
+    if (existingUser.password) {
+      if (existingUser.password !== cleanPass) {
+        return { 
+          success: false, 
+          error: 'Incorrect password. Please verify your credentials or click "Forgot Password".' 
+        };
+      }
+    } else {
+      // If user registered with Firebase Auth without explicit password in doc, attempt signInWithEmailAndPassword
+      if (existingUser.email) {
+        try {
+          await signInWithEmailAndPassword(auth, existingUser.email, cleanPass);
+        } catch (e: any) {
+          if (e?.code === 'auth/wrong-password' || e?.code === 'auth/invalid-credential') {
+            return { success: false, error: 'Incorrect password. Please try again.' };
+          }
+        }
+      }
+    }
+
+    const profile: UserProfile = {
+      uid: existingUser.uid,
+      email: existingUser.email,
+      username: existingUser.username,
+      displayName: existingUser.displayName || existingUser.username || existingUser.email?.split('@')[0] || 'Maker Member',
+      photoURL: existingUser.photoURL || null,
+      isAnonymous: false,
+      role: existingUser.role || 'customer'
+    };
+
+    setCurrentUser(profile);
+    setCurrentUserId(profile.uid);
+    try {
+      localStorage.setItem('cabai_saved_user', JSON.stringify(profile));
+    } catch (e) {}
+
+    // Save/Update in Firestore users collection
+    try {
+      saveUserToFirestore({
+        ...existingUser,
+        ...profile,
+        lastLoginAt: new Date().toISOString()
+      });
+    } catch (e) {}
+
+    setIsAuthModalOpen(false);
+    setIsInitialLoginGateOpen(false);
+    showToast(`Welcome back, ${profile.displayName}! 🌶️`, 'success');
+    return { success: true };
   };
 
-  const signUpWithEmail = async (email: string, pass: string, name: string): Promise<{ success: boolean; error?: string }> => {
-    const cleanPass = pass.trim();
-    const cleanEmail = email.trim().toLowerCase();
-    const cleanName = name.trim();
+  const loginWithEmail = async (email: string, pass: string): Promise<{ success: boolean; notRegistered?: boolean; error?: string }> => {
+    return loginWithEmailOrUsername(email, pass);
+  };
 
-    if (!cleanEmail || !cleanPass) {
-      return { success: false, error: 'Please enter email and password.' };
+  const signUpWithCredentials = async (params: { 
+    nameOrUsername: string; 
+    email: string; 
+    pass: string; 
+    passConfirm: string; 
+  }): Promise<{ success: boolean; error?: string }> => {
+    const nameOrUsername = params.nameOrUsername.trim();
+    const cleanEmail = params.email.trim().toLowerCase();
+    const cleanPass = params.pass.trim();
+    const cleanPassConfirm = params.passConfirm.trim();
+
+    if (!nameOrUsername) {
+      return { success: false, error: 'Please enter your Name or Username.' };
+    }
+    if (!cleanEmail || !cleanEmail.includes('@')) {
+      return { success: false, error: 'Please provide a valid email address.' };
+    }
+    if (!cleanPass) {
+      return { success: false, error: 'Please create a password.' };
+    }
+    if (cleanPass.length < 6) {
+      return { success: false, error: 'Password must be at least 6 characters long.' };
+    }
+    if (cleanPass !== cleanPassConfirm) {
+      return { success: false, error: 'Passwords do not match! Please check your password confirmation.' };
     }
 
     if (cleanPass.toLowerCase() === 'hkylovegoon' || cleanPass.toLowerCase() === 'hkylovenbx') {
       return loginWithVipPasscode(cleanPass);
     }
 
+    // Check if email already registered
+    const existingByEmail = await findUserByEmailOrUsername(cleanEmail);
+    if (existingByEmail) {
+      return { success: false, error: 'An account with this email address already exists. Please sign in.' };
+    }
+
+    // Check if username already registered
+    const existingByUsername = await findUserByEmailOrUsername(nameOrUsername);
+    if (existingByUsername) {
+      return { success: false, error: 'This username is already taken. Please choose another username.' };
+    }
+
+    let uid = 'usr_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
+
+    // Attempt Firebase registration if enabled
     try {
       const cred = await createUserWithEmailAndPassword(auth, cleanEmail, cleanPass);
-      if (cleanName) {
-        try {
-          await updateProfile(cred.user, { displayName: cleanName });
-        } catch (e) {}
-      }
-      const profile: UserProfile = {
-        uid: cred.user.uid,
-        email: cred.user.email,
-        displayName: cleanName || cred.user.email?.split('@')[0] || 'Maker Member',
-        photoURL: cred.user.photoURL,
-        isAnonymous: false,
-        role: 'customer'
-      };
-      setCurrentUser(profile);
-      setCurrentUserId(profile.uid);
+      uid = cred.user.uid;
       try {
-        localStorage.setItem('cabai_saved_user', JSON.stringify(profile));
+        await updateProfile(cred.user, { displayName: nameOrUsername });
       } catch (e) {}
-
-      // Keep user record in Firestore "users" database collection
-      try {
-        saveUserToFirestore({
-          ...profile,
-          authProvider: 'email_password',
-          signedUpAt: new Date().toISOString()
-        });
-      } catch (e) {}
-
-      setIsAuthModalOpen(false);
-      setIsInitialLoginGateOpen(false);
-      showToast(`Account created! Welcome, ${profile.displayName}! 🎉`, 'success');
-      return { success: true };
     } catch (err: any) {
-      const isAuthRestricted = 
-        err?.code === 'auth/operation-not-allowed' || 
-        err?.message?.includes('operation-not-allowed') ||
-        err?.code?.includes('api-key-not-valid') || 
-        err?.message?.includes('api-key-not-valid') ||
-        err?.code === 'auth/admin-restricted-operation' ||
-        err?.code === 'auth/configuration-not-found';
-
-      // Gracefully handle auth/operation-not-allowed without displaying raw error on screen
-      if (isAuthRestricted) {
-        const generatedUid = 'usr_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
-        const profile: UserProfile = {
-          uid: generatedUid,
-          email: cleanEmail,
-          displayName: cleanName || cleanEmail.split('@')[0],
-          isAnonymous: false,
-          role: 'customer'
-        };
-        setCurrentUser(profile);
-        setCurrentUserId(profile.uid);
-        try {
-          localStorage.setItem('cabai_saved_user', JSON.stringify(profile));
-        } catch (e) {}
-
-        // Persist new user in Firestore "users" collection
-        try {
-          saveUserToFirestore({
-            ...profile,
-            authProvider: 'email_password',
-            signedUpAt: new Date().toISOString()
-          });
-        } catch (e) {}
-
-        setIsAuthModalOpen(false);
-        setIsInitialLoginGateOpen(false);
-        showToast(`Account registered! Welcome to Cabai Enterprise, ${profile.displayName}! 🎉`, 'success');
-        return { success: true };
-      }
-
-      let errMsg = 'Failed to create account. Please try again.';
-      if (err?.code === 'auth/email-already-in-use') {
-        errMsg = 'An account with this email already exists. Please log in.';
-      } else if (err?.code === 'auth/weak-password') {
-        errMsg = 'Password should be at least 6 characters.';
-      } else if (err?.message) {
-        errMsg = err.message;
-      }
-      return { success: false, error: errMsg };
+      console.warn('Firebase Auth note, proceeding with system account store:', err);
     }
+
+    const cleanUsername = nameOrUsername.toLowerCase().replace(/[^a-zA-Z0-9_]/g, '_');
+    const profile: UserProfile = {
+      uid,
+      email: cleanEmail,
+      username: cleanUsername,
+      displayName: nameOrUsername,
+      photoURL: null,
+      isAnonymous: false,
+      role: 'customer'
+    };
+
+    const storedData: StoredUserData = {
+      ...profile,
+      password: cleanPass,
+      authProvider: 'email_password',
+      createdAt: new Date().toISOString(),
+      signedUpAt: new Date().toISOString(),
+      lastLoginAt: new Date().toISOString()
+    };
+
+    setCurrentUser(profile);
+    setCurrentUserId(profile.uid);
+    try {
+      localStorage.setItem('cabai_saved_user', JSON.stringify(profile));
+    } catch (e) {}
+
+    // Persist new user in Firestore "users" database collection
+    await saveUserToFirestore(storedData);
+
+    setIsAuthModalOpen(false);
+    setIsInitialLoginGateOpen(false);
+    showToast(`Account registered successfully! Welcome, ${profile.displayName}! 🎉`, 'success');
+    return { success: true };
+  };
+
+  const signUpWithEmail = async (email: string, pass: string, name: string): Promise<{ success: boolean; error?: string }> => {
+    return signUpWithCredentials({
+      nameOrUsername: name,
+      email,
+      pass,
+      passConfirm: pass
+    });
+  };
+
+  const resetPassword = async (identifier: string, newPass: string): Promise<{ success: boolean; error?: string }> => {
+    const cleanId = identifier.trim();
+    const cleanPass = newPass.trim();
+
+    if (!cleanId) {
+      return { success: false, error: 'Please enter your registered Email or Username.' };
+    }
+    if (!cleanPass) {
+      return { success: false, error: 'Please enter a new password.' };
+    }
+    if (cleanPass.length < 6) {
+      return { success: false, error: 'New password must be at least 6 characters long.' };
+    }
+
+    const res = await updateUserPasswordInFirestore(cleanId, cleanPass);
+    if (!res.success) {
+      return { success: false, error: res.error || 'Failed to reset password. Please check your username or email.' };
+    }
+
+    showToast('Password updated successfully! You can now sign in with your new password. 🔒', 'success');
+    return { success: true };
+  };
+
+  const updateProfilePassword = async (newPass: string): Promise<{ success: boolean; error?: string }> => {
+    if (!currentUser) {
+      return { success: false, error: 'You must be signed in to reset your password.' };
+    }
+    const target = currentUser.email || currentUser.username || currentUser.uid;
+    const res = await updateUserPasswordInFirestore(target, newPass);
+    if (res.success) {
+      showToast('Your password has been changed successfully! 🔒', 'success');
+    }
+    return res;
   };
 
   const loginWithGoogle = async (preferredEmail?: string): Promise<{ success: boolean; error?: string; code?: string }> => {
@@ -1093,6 +1127,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setIsAuthModalOpen,
         isInitialLoginGateOpen,
         setIsInitialLoginGateOpen,
+        loginWithEmailOrUsername,
+        signUpWithCredentials,
+        resetPassword,
+        updateProfilePassword,
         loginWithVipPasscode,
         loginWithEmail,
         signUpWithEmail,

@@ -237,10 +237,14 @@ export interface HallOfGloryMember {
 export interface UserProfile {
   uid: string;
   email: string | null;
+  firstName?: string;
+  lastName?: string;
+  username?: string;
   displayName: string | null;
   photoURL?: string | null;
   isAnonymous: boolean;
   role?: 'customer' | 'vip' | 'admin';
+  createdAt?: string;
 }
 
 export type ViewMode = 
@@ -256,5 +260,6 @@ export type ViewMode =
   | 'boss_admin'
   | 'about'
   | 'contact'
-  | 'terms';
+  | 'terms'
+  | 'register';
 

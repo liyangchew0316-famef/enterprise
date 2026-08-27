@@ -15,7 +15,8 @@ import {
   PackageCheck,
   Paintbrush,
   User,
-  LogIn
+  LogIn,
+  UserPlus
 } from 'lucide-react';
 import { imageConfig } from '../config/assets';
 
@@ -196,14 +197,24 @@ export const Header: React.FC = () => {
                 </span>
               </button>
             ) : (
-              <button
-                onClick={() => setIsAuthModalOpen(true)}
-                className="flex items-center gap-1.5 py-1.5 px-3 rounded-xl bg-red-50 hover:bg-red-100 text-[#af101a] transition-all font-bold text-xs border border-red-200 shadow-2xs cursor-pointer"
-                title="Log In or Create Account"
-              >
-                <LogIn className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline-block">Log In</span>
-              </button>
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => setIsAuthModalOpen(true)}
+                  className="flex items-center gap-1.5 py-1.5 px-2.5 sm:px-3 rounded-xl bg-red-50 hover:bg-red-100 text-[#af101a] transition-all font-bold text-xs border border-red-200 shadow-2xs cursor-pointer"
+                  title="Log In"
+                >
+                  <LogIn className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline-block">Log In</span>
+                </button>
+                <button
+                  onClick={() => handleNav('register')}
+                  className="flex items-center gap-1.5 py-1.5 px-2.5 sm:px-3 rounded-xl bg-black hover:bg-neutral-800 text-white transition-all font-bold text-xs shadow-2xs cursor-pointer"
+                  title="Create Cabai Enterprise Account"
+                >
+                  <UserPlus className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline-block">Register</span>
+                </button>
+              </div>
             )}
 
             {/* Boss Admin Dashboard External Link */}

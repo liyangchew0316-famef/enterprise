@@ -1,8 +1,14 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap');
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --color-brand-gray: #1A1A1A;
+}
 
 @layer base {
   body {
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    @apply font-sans bg-black text-white antialiased;
   }
   h1, h2, h3, .font-heading {
     font-family: 'Space Grotesk', 'Plus Jakarta Sans', sans-serif;
@@ -16,11 +22,11 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: #1A1A1A;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #d1d5db;
+  background: #333333;
   border-radius: 4px;
 }
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
@@ -24,6 +24,7 @@ import { BossAdminView } from './views/BossAdminView';
 import { AboutView } from './views/AboutView';
 import { ContactView } from './views/ContactView';
 import { TermsView } from './views/TermsView';
+import { RegisterView, StepItem, SocialButton, InputGroup, PasswordInput } from './views/RegisterView';
 
 const MainContent: React.FC = () => {
   const { currentView, setCurrentView } = useApp();
@@ -31,11 +32,23 @@ const MainContent: React.FC = () => {
   const [isSpinModalOpen, setIsSpinModalOpen] = useState(false);
 
   // If view is daily_spin, trigger spin modal
-  React.useEffect(() => {
+  useEffect(() => {
     if (currentView === 'daily_spin') {
       setIsSpinModalOpen(true);
     }
   }, [currentView]);
+
+  // If on register view, render the dedicated full-screen modern registration experience
+  if (currentView === 'register') {
+    return (
+      <>
+        <SEOHead />
+        <RegisterView />
+        <AuthModal />
+        <Toast />
+      </>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-[#f9f9f9] relative">
@@ -125,3 +138,6 @@ export default function App() {
     </AppProvider>
   );
 }
+
+// Export the required functional components for reusability
+export { StepItem, SocialButton, InputGroup, PasswordInput };
