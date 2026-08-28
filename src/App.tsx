@@ -91,7 +91,7 @@ const MainContent: React.FC = () => {
       {/* Floating Cabai AI Floating Launcher */}
       <button
         onClick={() => setIsAiOpen(true)}
-        className="fixed bottom-6 right-6 z-40 bg-[#1a1c1c] hover:bg-black text-white px-4 py-3 rounded-full shadow-2xl border-2 border-red-600/50 flex items-center gap-2.5 font-bold text-sm group hover:scale-105 transition-all active:scale-95 cursor-pointer"
+        className="fixed bottom-6 right-6 z-30 bg-[#1a1c1c] hover:bg-black text-white px-4 py-3 rounded-full shadow-2xl border-2 border-red-600/50 flex items-center gap-2.5 font-bold text-sm group hover:scale-105 transition-all active:scale-95 cursor-pointer"
         title="Ask Cabai AI 3D Printing Assistant"
       >
         <div className="w-7 h-7 rounded-full bg-[#af101a] flex items-center justify-center text-white shadow-sm">
@@ -107,7 +107,7 @@ const MainContent: React.FC = () => {
       {/* Quick Daily Spin Floating Button (Bottom Left) */}
       <button
         onClick={() => setIsSpinModalOpen(true)}
-        className="fixed bottom-6 left-6 z-40 bg-gradient-to-r from-amber-500 to-red-600 hover:from-amber-600 hover:to-red-700 text-white px-3.5 py-2.5 rounded-full shadow-2xl border border-white/30 flex items-center gap-2 font-black text-xs group hover:scale-105 transition-all active:scale-95 cursor-pointer"
+        className="fixed bottom-6 left-6 z-30 bg-gradient-to-r from-amber-500 to-red-600 hover:from-amber-600 hover:to-red-700 text-white px-3.5 py-2.5 rounded-full shadow-2xl border border-white/30 flex items-center gap-2 font-black text-xs group hover:scale-105 transition-all active:scale-95 cursor-pointer"
         title="Daily Lucky Spin Wheel (10%/20%/RM5 OFF)"
       >
         <span className="text-base group-hover:rotate-180 transition-transform duration-500">🎡</span>

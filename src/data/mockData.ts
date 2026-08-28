@@ -214,37 +214,6 @@ export const INITIAL_PRODUCTS: Product[] = [
     stockQuantity: 250
   },
   {
-    id: 'prod-cabai-keychain-drawable',
-    name: 'Cabai Keychain (Drawable Canvas)',
-    subtitle: 'DIY Colorable Chili Keyring • RM5',
-    price: 5.00,
-    originalPrice: 6.50,
-    rating: 4.95,
-    reviewsCount: 196,
-    category: 'keychains',
-    tags: ['Customizable', 'Drawable', 'DIY Art', 'Chili Signature', 'Best Seller'],
-    description: 'Customizable 3D printed chili pepper keychain with smooth white matte drawing canvas. Color your own expressions, facial details, or personalized patterns on the printable PLA surface.',
-    heroImage: imageConfig.heroCutouts.cabaiKeychainDrawable,
-    images: [
-      imageConfig.products.cabaiKeychainDrawable,
-      imageConfig.products.cabaiKeychain
-    ],
-    specifications: {
-      material: 'Matte White PLA+',
-      weight: '14g',
-      dimensions: '58mm x 22mm x 18mm',
-      printTime: '35 mins',
-      layerHeight: '0.16mm (High Detail)',
-      madeToOrder: true
-    },
-    colors: DEFAULT_COLORS,
-    materials: ['PLA'],
-    isBestSeller: true,
-    isNew: true,
-    inStock: true,
-    stockQuantity: 120
-  },
-  {
     id: 'prod-cabai-chibi-keychain',
     name: 'Cabai Chibi Kawaii Keychain 🌶️✨',
     subtitle: 'Cute Anime Eyes Chili Keyring • RM4',

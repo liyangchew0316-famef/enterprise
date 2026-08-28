@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Circle, Chrome, Github, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { Circle, Chrome, Github, Eye, EyeOff, ArrowLeft, Box, Sparkles, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { auth } from '../lib/firebase';
+import { Auth3DCanvas } from '../components/Auth3DCanvas';
+import { Auth3DCard } from '../components/Auth3DCard';
 import { 
   createUserWithEmailAndPassword, 
   updateProfile, 
@@ -427,223 +429,249 @@ export const RegisterView: React.FC = () => {
   };
 
   return (
-    <div className="flex min-h-screen w-full bg-black selection:bg-white/30 p-2 transition-all duration-500 lg:h-screen lg:overflow-hidden lg:p-4 font-sans text-white">
+    <div className="relative min-h-screen w-full bg-[#0a0a0c] selection:bg-white/30 p-2 lg:p-4 font-sans text-white flex flex-col lg:flex-row items-center justify-center overflow-x-hidden">
+      {/* 3D Interactive WebGL Background */}
+      <Auth3DCanvas className="opacity-80" />
+
       {/* Back to Store Navigation (Mobile & Desktop Accessible) */}
       <button
         onClick={() => setCurrentView('home')}
-        className="fixed top-4 left-4 z-50 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-medium backdrop-blur-md transition-all cursor-pointer"
+        className="fixed top-4 left-4 z-50 inline-flex items-center gap-2 px-3.5 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-medium backdrop-blur-md transition-all cursor-pointer border border-white/15 shadow-lg"
         title="Back to Cabai Enterprise Catalog"
       >
         <ArrowLeft className="w-3.5 h-3.5" />
         <span>Explore Creations</span>
       </button>
 
-      {/* LEFT: Brand / visual section (Desktop only) */}
-      <div className="hidden lg:flex w-[52%] relative flex-col items-center justify-end pb-32 px-12 rounded-3xl overflow-hidden shadow-2xl h-full">
-        {/* Background Visual (No heavy dark overlay, clean and premium) */}
-        <img
-          src={imgWorkshopBg}
-          alt="Cabai Enterprise 3D Printing Studio"
-          className="absolute inset-0 w-full h-full object-cover object-center"
-        />
-
-        {/* Visual content sits above background */}
-        <motion.div
-          variants={leftContainerVariants}
-          initial="initial"
-          animate="animate"
-          className="z-10 w-full max-w-xs space-y-8 text-center"
-        >
-          {/* Hero Heading & Description */}
-          <motion.div variants={leftChildVariants} className="space-y-2">
-            <h2 className="text-4xl font-medium tracking-tight whitespace-nowrap text-white">
-              Create with Cabai
-            </h2>
-            <p className="text-white/60 text-sm leading-relaxed px-4">
-              Explore creative 3D printed products and bring your ideas to life.
-            </p>
-          </motion.div>
-
-          {/* Registration Steps */}
-          <motion.div variants={leftChildVariants} className="space-y-2.5">
-            <StepItem number={1} text="Create your account" active={true} />
-            <StepItem number={2} text="Explore our creations" active={false} />
-            <StepItem number={3} text="Start creating" active={false} />
-          </motion.div>
-
-          {/* Cabai Branding Row */}
-          <motion.div variants={leftChildVariants} className="pt-2 flex flex-col items-center justify-center">
-            <div className="flex items-center gap-2">
-              <Circle className="w-3.5 h-3.5 fill-white text-white" />
-              <span className="text-xl font-semibold tracking-tight text-white">
-                Cabai Enterprise
-              </span>
+      <div className="relative z-10 w-full max-w-6xl mx-auto flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-12 my-auto py-8">
+        {/* LEFT: Brand / 3D Maker Studio section (Desktop) */}
+        <div className="hidden lg:flex w-[46%] flex-col justify-between p-8 rounded-3xl bg-black/40 border border-white/10 backdrop-blur-xl shadow-2xl relative overflow-hidden">
+          <div className="space-y-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-mono-code font-bold">
+              <Box className="w-3.5 h-3.5 animate-spin text-red-500" />
+              <span>CABAI 3D ENGINE v2.6</span>
             </div>
-            <p className="text-white/60 text-sm mt-0.5">Build. Print. Create.</p>
-          </motion.div>
-        </motion.div>
-      </div>
 
-      {/* RIGHT: Registration form */}
-      <div className="flex-1 flex flex-col items-center justify-center py-12 lg:py-6 px-4 sm:px-12 lg:px-16 xl:px-24 overflow-y-auto lg:overflow-hidden w-full">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
-          className="w-full max-w-xl space-y-8 lg:space-y-6 sm:space-y-10 my-auto"
-        >
-          {/* Form Header */}
-          <div className="space-y-1.5 text-left">
-            <h1 className="text-3xl font-medium tracking-tight text-white">
-              Create Your Cabai Account
-            </h1>
-            <p className="text-white/40 text-sm">
-              Join Cabai Enterprise and start exploring our 3D printed creations.
-            </p>
-          </div>
-
-          {/* Social Login */}
-          <div className="grid grid-cols-2 gap-4">
-            <SocialButton
-              icon={<Chrome className="w-4 h-4 text-white" />}
-              label="Continue with Google"
-              onClick={handleGoogleSignIn}
-              disabled={loading}
-            />
-            <SocialButton
-              icon={<Github className="w-4 h-4 text-white" />}
-              label="Continue with GitHub"
-              onClick={handleGithubSignIn}
-              disabled={loading}
-            />
-          </div>
-
-          {/* Divider */}
-          <div className="relative flex items-center justify-center">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-white/10" />
+            <div>
+              <h2 className="text-4xl font-heading font-extrabold tracking-tight text-white leading-tight">
+                Craft Physical Reality in 3D.
+              </h2>
+              <p className="text-white/60 text-sm mt-3 leading-relaxed">
+                Join Malaysia&apos;s custom maker hub. Direct slice-to-order pipeline, industrial PLA-CF precision, and tracked production stages.
+              </p>
             </div>
-            <div className="relative bg-black px-4 text-xs font-medium text-white/40 uppercase tracking-widest">
-              Or
-            </div>
-          </div>
 
-          {/* Registration Form */}
-          <form onSubmit={handleRegister} className="space-y-4 text-left" noValidate>
-            {formError && (
-              <div className="p-3.5 rounded-xl bg-red-950/60 border border-red-500/30 text-red-300 text-xs">
-                {formError}
+            {/* Registration 3D Steps */}
+            <div className="space-y-3 pt-2">
+              <div className="flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/10">
+                <div className="w-8 h-8 rounded-xl bg-red-600 text-white flex items-center justify-center font-extrabold text-sm shadow-md">
+                  1
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-white">Create Maker Account</h4>
+                  <p className="text-[11px] text-white/50">Personalized print queue &amp; order history</p>
+                </div>
               </div>
-            )}
 
-            {/* Row 1: First Name & Last Name */}
-            <div className="grid grid-cols-2 gap-4">
-              <InputGroup
-                label="First Name"
-                placeholder="First name"
-                name="firstName"
-                type="text"
-                value={firstName}
-                onChange={(e) => {
-                  setFirstName(e.target.value);
-                  if (fieldErrors.firstName) setFieldErrors(prev => ({ ...prev, firstName: '' }));
-                }}
-                autoComplete="given-name"
-                error={fieldErrors.firstName}
-                required
-              />
-              <InputGroup
-                label="Last Name"
-                placeholder="Last name"
-                name="lastName"
-                type="text"
-                value={lastName}
-                onChange={(e) => {
-                  setLastName(e.target.value);
-                  if (fieldErrors.lastName) setFieldErrors(prev => ({ ...prev, lastName: '' }));
-                }}
-                autoComplete="family-name"
-                error={fieldErrors.lastName}
-                required
-              />
+              <div className="flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/10 opacity-70">
+                <div className="w-8 h-8 rounded-xl bg-white/10 text-white/70 flex items-center justify-center font-bold text-sm">
+                  2
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-white">Explore &amp; Custom Slicer</h4>
+                  <p className="text-[11px] text-white/50">Interactive 3D preview &amp; color selection</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/10 opacity-50">
+                <div className="w-8 h-8 rounded-xl bg-white/10 text-white/70 flex items-center justify-center font-bold text-sm">
+                  3
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-white">Precision Production</h4>
+                  <p className="text-[11px] text-white/50">0.12mm layer height crafted &amp; dispatched</p>
+                </div>
+              </div>
             </div>
-
-            {/* Row 2: Email Address */}
-            <InputGroup
-              label="Email Address"
-              placeholder="you@example.com"
-              name="email"
-              type="email"
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                if (fieldErrors.email) setFieldErrors(prev => ({ ...prev, email: '' }));
-              }}
-              autoComplete="email"
-              error={fieldErrors.email}
-              required
-            />
-
-            {/* Row 3: Password */}
-            <PasswordInput
-              label="Password"
-              placeholder="••••••••"
-              name="password"
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value);
-                if (fieldErrors.password) setFieldErrors(prev => ({ ...prev, password: '' }));
-              }}
-              hint="Requires at least 8 characters."
-              autoComplete="new-password"
-              error={fieldErrors.password}
-            />
-
-            {/* Row 4: Confirm Password */}
-            <PasswordInput
-              label="Confirm Password"
-              placeholder="••••••••"
-              name="confirmPassword"
-              value={confirmPassword}
-              onChange={(e) => {
-                setConfirmPassword(e.target.value);
-                if (fieldErrors.confirmPassword) setFieldErrors(prev => ({ ...prev, confirmPassword: '' }));
-              }}
-              autoComplete="new-password"
-              error={fieldErrors.confirmPassword}
-            />
-
-            {/* Create Account Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full h-14 bg-white text-black font-semibold rounded-xl hover:bg-white/90 active:scale-[0.98] mt-4 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer transition-all flex items-center justify-center gap-2 text-sm"
-            >
-              {loading ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
-                  <span>Creating Account...</span>
-                </>
-              ) : (
-                'Create Account'
-              )}
-            </button>
-          </form>
-
-          {/* Login Footer */}
-          <div className="text-center pt-2">
-            <p className="text-white/60 text-sm">
-              Already a member?{' '}
-              <button
-                type="button"
-                onClick={handleGoToLogin}
-                className="text-white font-medium hover:underline hover:text-white/90 transition-all cursor-pointer inline-block ml-1"
-              >
-                Log in
-              </button>
-            </p>
           </div>
-        </motion.div>
+
+          <div className="pt-8 border-t border-white/10 flex items-center justify-between text-xs text-white/50 font-mono-code">
+            <span className="flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              <span>Real-Time WebGL 3D</span>
+            </span>
+            <span className="flex items-center gap-1.5">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Encrypted Cloud Auth</span>
+            </span>
+          </div>
+        </div>
+
+        {/* RIGHT: 3D Perspective Registration Card */}
+        <div className="w-full lg:w-[54%] max-w-lg">
+          <Auth3DCard maxTilt={8} glowColor="rgba(175, 16, 26, 0.4)">
+            <div className="bg-[#18181b]/95 backdrop-blur-2xl border border-white/15 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 transform-style-3d">
+              {/* Form Header */}
+              <div className="space-y-1.5 text-left translate-z-20">
+                <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-red-500/20 text-red-300 text-[10px] font-bold tracking-wide uppercase border border-red-500/30 mb-1">
+                  New Maker Registration
+                </div>
+                <h1 className="text-2xl sm:text-3xl font-heading font-extrabold tracking-tight text-white">
+                  Join Cabai 3D Studio
+                </h1>
+                <p className="text-white/50 text-xs sm:text-sm">
+                  Register your account first to access 3D order tracking &amp; custom creations.
+                </p>
+              </div>
+
+              {/* Social Login Buttons with 3D Depth */}
+              <div className="grid grid-cols-2 gap-3 translate-z-10">
+                <SocialButton
+                  icon={<Chrome className="w-4 h-4 text-white" />}
+                  label="Google"
+                  onClick={handleGoogleSignIn}
+                  disabled={loading}
+                />
+                <SocialButton
+                  icon={<Github className="w-4 h-4 text-white" />}
+                  label="GitHub"
+                  onClick={handleGithubSignIn}
+                  disabled={loading}
+                />
+              </div>
+
+              {/* Divider */}
+              <div className="relative flex items-center justify-center">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-white/10" />
+                </div>
+                <div className="relative bg-[#18181b] px-3 text-[11px] font-mono-code text-white/40 uppercase tracking-widest">
+                  Or Email Pass
+                </div>
+              </div>
+
+              {/* Registration Form */}
+              <form onSubmit={handleRegister} className="space-y-3.5 text-left" noValidate>
+                {formError && (
+                  <div className="p-3 rounded-xl bg-red-950/80 border border-red-500/40 text-red-300 text-xs flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-red-500 animate-ping shrink-0" />
+                    <span>{formError}</span>
+                  </div>
+                )}
+
+                {/* Row 1: First Name & Last Name */}
+                <div className="grid grid-cols-2 gap-3">
+                  <InputGroup
+                    label="First Name"
+                    placeholder="e.g. Alex"
+                    name="firstName"
+                    type="text"
+                    value={firstName}
+                    onChange={(e) => {
+                      setFirstName(e.target.value);
+                      if (fieldErrors.firstName) setFieldErrors(prev => ({ ...prev, firstName: '' }));
+                    }}
+                    autoComplete="given-name"
+                    error={fieldErrors.firstName}
+                    required
+                  />
+                  <InputGroup
+                    label="Last Name"
+                    placeholder="e.g. Tan"
+                    name="lastName"
+                    type="text"
+                    value={lastName}
+                    onChange={(e) => {
+                      setLastName(e.target.value);
+                      if (fieldErrors.lastName) setFieldErrors(prev => ({ ...prev, lastName: '' }));
+                    }}
+                    autoComplete="family-name"
+                    error={fieldErrors.lastName}
+                    required
+                  />
+                </div>
+
+                {/* Row 2: Email Address */}
+                <InputGroup
+                  label="Email Address"
+                  placeholder="you@example.com"
+                  name="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (fieldErrors.email) setFieldErrors(prev => ({ ...prev, email: '' }));
+                  }}
+                  autoComplete="email"
+                  error={fieldErrors.email}
+                  required
+                />
+
+                {/* Row 3: Password */}
+                <PasswordInput
+                  label="Password"
+                  placeholder="Minimum 8 characters"
+                  name="password"
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (fieldErrors.password) setFieldErrors(prev => ({ ...prev, password: '' }));
+                  }}
+                  hint="Requires at least 8 characters."
+                  autoComplete="new-password"
+                  error={fieldErrors.password}
+                />
+
+                {/* Row 4: Confirm Password */}
+                <PasswordInput
+                  label="Confirm Password"
+                  placeholder="Re-enter password"
+                  name="confirmPassword"
+                  value={confirmPassword}
+                  onChange={(e) => {
+                    setConfirmPassword(e.target.value);
+                    if (fieldErrors.confirmPassword) setFieldErrors(prev => ({ ...prev, confirmPassword: '' }));
+                  }}
+                  autoComplete="new-password"
+                  error={fieldErrors.confirmPassword}
+                />
+
+                {/* Create Account Button */}
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full h-12 bg-gradient-to-r from-[#af101a] to-[#d81b28] hover:from-[#920c15] hover:to-[#b71521] active:scale-[0.98] text-white font-extrabold rounded-xl shadow-lg shadow-red-950/50 mt-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer transition-all flex items-center justify-center gap-2 text-sm translate-z-20"
+                >
+                  {loading ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <span>Generating Maker Account...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Complete 3D Registration</span>
+                      <CheckCircle2 className="w-4 h-4 text-emerald-300" />
+                    </>
+                  )}
+                </button>
+              </form>
+
+              {/* Login Footer */}
+              <div className="text-center pt-1 border-t border-white/10">
+                <p className="text-white/60 text-xs">
+                  Already have an account?{' '}
+                  <button
+                    type="button"
+                    onClick={handleGoToLogin}
+                    className="text-red-400 hover:text-red-300 font-bold hover:underline transition-all cursor-pointer inline-block ml-1"
+                  >
+                    Sign In here
+                  </button>
+                </p>
+              </div>
+            </div>
+          </Auth3DCard>
+        </div>
       </div>
     </div>
   );

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { Auth3DCanvas } from './Auth3DCanvas';
+import { Auth3DCard } from './Auth3DCard';
 import { 
   X, 
   Lock, 
@@ -12,15 +14,17 @@ import {
   Eye, 
   EyeOff, 
   CheckCircle2, 
-  Sparkles,
-  AlertCircle,
-  User,
-  Mail,
-  RefreshCw,
-  UserPlus,
-  LogIn,
-  Key,
-  Phone
+  Sparkles, 
+  AlertCircle, 
+  User, 
+  Mail, 
+  RefreshCw, 
+  UserPlus, 
+  LogIn, 
+  Key, 
+  Phone,
+  Box,
+  Zap
 } from 'lucide-react';
 import { imageConfig } from '../config/assets';
 
@@ -314,74 +318,76 @@ export const AuthModal: React.FC = () => {
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn overflow-y-auto"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn overflow-y-auto"
       onClick={currentUser ? handleClose : undefined}
     >
-      <div 
-        className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl border border-gray-200 overflow-hidden my-8 transform transition-all animate-scaleUp"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Top Header Background Banner */}
-        <div className="relative bg-gradient-to-br from-[#1a1c1c] via-[#2a0e12] to-[#af101a] text-white p-6 sm:p-7 text-center">
-          {/* Close button: ONLY visible when already logged in */}
-          {currentUser && (
-            <button
-              onClick={handleClose}
-              className="absolute top-4 right-4 p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white/80 hover:text-white transition-colors cursor-pointer"
-              title="Close Modal"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          )}
+      {/* 3D Interactive WebGL Background */}
+      <Auth3DCanvas className="opacity-70" />
 
-          {/* Studio Brand Icon & Title */}
-          <div className="flex flex-col items-center">
-            <div className="w-14 h-14 rounded-2xl bg-black border-2 border-red-500/40 p-1 shadow-xl shadow-black/60 mb-3 flex items-center justify-center">
-              <img 
-                src={imageConfig.logos.header} 
-                alt="Cabai Enterprise Logo" 
-                className="w-full h-full object-cover rounded-xl"
-                referrerPolicy="no-referrer"
-                onError={(e) => {
-                  e.currentTarget.src = imageConfig.logos.favicon;
-                }}
-              />
-            </div>
-
-            <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-black/40 border border-white/15 text-amber-300 text-[11px] font-extrabold tracking-wide uppercase mb-1.5 shadow-xs">
-              {currentUser?.role === 'vip' ? (
-                <>
-                  <Crown className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                  <span>VIP Access Active</span>
-                </>
-              ) : currentUser ? (
-                <>
-                  <CheckCircle2 className="w-3.5 h-3.5 text-green-400" />
-                  <span>Registered Member</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                  <span>Cabai Studio Member Access</span>
-                </>
+      <div className="relative w-full max-w-md my-8 z-10" onClick={(e) => e.stopPropagation()}>
+        <Auth3DCard maxTilt={8} glowColor="rgba(175, 16, 26, 0.35)">
+          <div className="relative w-full bg-[#1c1c1e] text-white rounded-3xl shadow-2xl border border-white/15 overflow-hidden transform-style-3d">
+            {/* Top Header Background Banner with 3D Depth */}
+            <div className="relative bg-gradient-to-br from-[#121214] via-[#240a0e] to-[#af101a] text-white p-6 sm:p-7 text-center translate-z-20 border-b border-white/10">
+              {/* Close button: ONLY visible when already logged in */}
+              {currentUser && (
+                <button
+                  onClick={handleClose}
+                  className="absolute top-4 right-4 p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white/80 hover:text-white transition-colors cursor-pointer"
+                  title="Close Modal"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               )}
+
+              {/* Studio Brand Icon & Title */}
+              <div className="flex flex-col items-center">
+                <div className="w-14 h-14 rounded-2xl bg-black/80 border-2 border-red-500/50 p-1 shadow-2xl shadow-black/80 mb-3 flex items-center justify-center translate-z-30 hover:scale-105 transition-transform">
+                  <img 
+                    src={imageConfig.logos.header} 
+                    alt="Cabai Enterprise Logo" 
+                    className="w-full h-full object-cover rounded-xl"
+                    referrerPolicy="no-referrer"
+                    onError={(e) => {
+                      e.currentTarget.src = imageConfig.logos.favicon;
+                    }}
+                  />
+                </div>
+
+                <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-black/60 border border-white/15 text-amber-300 text-[11px] font-mono-code font-bold tracking-wide uppercase mb-1.5 shadow-sm">
+                  {currentUser?.role === 'vip' ? (
+                    <>
+                      <Crown className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                      <span>VIP 3D Core Active</span>
+                    </>
+                  ) : currentUser ? (
+                    <>
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Maker Pass Verified</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                      <span>3D Studio Pass</span>
+                    </>
+                  )}
+                </div>
+
+                <h2 className="font-heading font-extrabold text-2xl tracking-tight text-white translate-z-20">
+                  {currentUser 
+                    ? (currentUser.role === 'vip' ? 'VIP Member Hub' : 'Maker Account')
+                    : (activeTab === 'register' ? 'Register 3D Maker Account' : activeTab === 'forgot' ? 'Reset Password' : activeTab === 'vip' ? 'VIP Passcode Hub' : 'Sign In to Cabai 3D')}
+                </h2>
+                <p className="text-xs text-white/70 mt-1 max-w-xs leading-relaxed">
+                  {currentUser 
+                    ? 'Manage your account settings, password, and tracked 3D print orders.' 
+                    : 'Need to register an account first before you can sign in to view orders and custom prints.'}
+                </p>
+              </div>
             </div>
 
-            <h2 className="font-heading font-extrabold text-2xl tracking-tight text-white">
-              {currentUser 
-                ? (currentUser.role === 'vip' ? 'VIP Member Hub' : 'Maker Account')
-                : (activeTab === 'register' ? 'Register New Account' : activeTab === 'forgot' ? 'Reset Password' : activeTab === 'vip' ? 'VIP Access' : 'Sign In to Cabai')}
-            </h2>
-            <p className="text-xs text-gray-200 mt-1 max-w-xs leading-relaxed">
-              {currentUser 
-                ? 'Manage your account settings, password, and tracked 3D print orders.' 
-                : 'Need to register an account first before you can sign in to view orders and custom prints.'}
-            </p>
-          </div>
-        </div>
-
-        {/* Modal Body */}
-        <div className="p-6 sm:p-7">
+            {/* Modal Body */}
+            <div className="p-6 sm:p-7 bg-[#18181a] text-white">
           {currentUser ? (
             /* ========================================================================= */
             /* Logged-In User Profile View with Password Reset */
@@ -1085,14 +1091,14 @@ export const AuthModal: React.FC = () => {
               )}
 
               {/* Trust Footer */}
-              <div className="pt-3 border-t border-gray-100 flex items-center justify-center gap-3 text-[11px] font-medium text-gray-400">
+              <div className="pt-3 border-t border-white/10 flex items-center justify-center gap-3 text-[11px] font-mono-code text-white/40">
                 <span className="flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
-                  <span>Secure Authentication</span>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                  <span>3D Secure Auth</span>
                 </span>
                 <span>•</span>
                 <span className="flex items-center gap-1">
-                  <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
+                  <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
                   <span>Encrypted Storage</span>
                 </span>
               </div>
@@ -1100,6 +1106,8 @@ export const AuthModal: React.FC = () => {
           )}
         </div>
       </div>
-    </div>
-  );
+    </Auth3DCard>
+  </div>
+</div>
+);
 };

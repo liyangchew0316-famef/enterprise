@@ -718,7 +718,7 @@ export const DailySpinModal: React.FC<DailySpinModalProps> = ({ isOpen, onClose 
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn overflow-y-auto"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn overflow-y-auto"
       onClick={!isSpinning ? onClose : undefined}
     >
       <div 

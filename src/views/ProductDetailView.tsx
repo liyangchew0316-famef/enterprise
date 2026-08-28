@@ -273,12 +273,12 @@ export const ProductDetailView: React.FC = () => {
         <div className="lg:col-span-6 space-y-4">
           
           {/* Main Large Image */}
-          <div className="relative h-96 sm:h-[450px] bg-gray-100 rounded-2xl overflow-hidden border border-gray-200">
+          <div className="relative h-96 sm:h-[450px] bg-gray-100 rounded-2xl overflow-hidden border border-gray-200 group">
             <ProductImage
               src={selectedProduct.images[activeImageIndex] || selectedProduct.images[0]}
               productId={selectedProduct.id}
               alt={selectedProduct.name}
-              className="w-full h-full object-cover transition-all duration-300"
+              className="w-full h-full object-cover transition-all duration-300 group-hover:scale-102"
             />
             
             {selectedProduct.isBestSeller && (
@@ -293,6 +293,20 @@ export const ProductDetailView: React.FC = () => {
                 DIY Colorable
               </span>
             )}
+
+            {/* Reference Image Badge on Image */}
+            <div className="absolute bottom-3 left-3">
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-black/65 backdrop-blur-md text-[10px] font-mono-code font-bold text-white/90 border border-white/15 shadow-sm">
+                <Sparkles className="w-3 h-3 text-amber-300" />
+                <span>Image for reference only</span>
+              </span>
+            </div>
+          </div>
+
+          {/* Reference Notice Bar */}
+          <div className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-[11px] font-mono-code text-gray-500 flex items-center gap-2">
+            <Info className="w-3.5 h-3.5 text-[#af101a] shrink-0" />
+            <span>Product renders &amp; photos are for reference. Physical print features precision 0.12mm layer texture.</span>
           </div>
 
           {/* Thumbnails */}

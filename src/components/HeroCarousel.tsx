@@ -314,7 +314,7 @@ export const HeroCarousel: React.FC = () => {
   return (
     <div
       id="cabai-hero-viewport"
-      className="relative w-full overflow-hidden select-none"
+      className="isolate relative w-full overflow-hidden select-none z-0"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
@@ -325,7 +325,7 @@ export const HeroCarousel: React.FC = () => {
       >
         {/* Subtle Ambient Grain Overlay */}
         <div
-          className="absolute inset-0 pointer-events-none z-[50] opacity-35"
+          className="absolute inset-0 pointer-events-none z-10 opacity-35"
           style={{
             backgroundImage: `url("${GRAIN_DATA_URI}")`,
             backgroundSize: '200px 200px',
@@ -337,7 +337,7 @@ export const HeroCarousel: React.FC = () => {
         {/* Mobile Brand (Top: 20px, Left: 20px) */}
         <div
           id="cabai-hero-brand-mobile"
-          className="sm:hidden absolute top-[20px] left-[20px] z-[60] text-[11px] font-bold uppercase text-white tracking-[0.2em] opacity-90 flex items-center gap-2"
+          className="sm:hidden absolute top-[20px] left-[20px] z-20 text-[11px] font-bold uppercase text-white tracking-[0.2em] opacity-90 flex items-center gap-2"
         >
           <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
           <span>CABAI ENTERPRISE</span>
@@ -346,13 +346,13 @@ export const HeroCarousel: React.FC = () => {
         {/* Desktop / Tablet Brand & Craft Badges */}
         <div
           id="cabai-hero-brand-desktop"
-          className="hidden sm:flex absolute top-6 left-6 sm:left-8 z-[60] text-xs font-semibold uppercase text-white tracking-[0.18em] opacity-90 items-center gap-2"
+          className="hidden sm:flex absolute top-6 left-6 sm:left-8 z-20 text-xs font-semibold uppercase text-white tracking-[0.18em] opacity-90 items-center gap-2"
         >
           <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
           <span>CABAI ENTERPRISE</span>
         </div>
 
-        <div className="absolute top-6 right-6 sm:right-8 z-[60] hidden sm:flex items-center gap-3 text-xs font-medium text-white/80">
+        <div className="absolute top-6 right-6 sm:right-8 z-20 hidden sm:flex items-center gap-3 text-xs font-medium text-white/80">
           <span className="px-2.5 py-1 rounded-full bg-black/20 border border-white/10 backdrop-blur-xs uppercase tracking-widest text-[10px]">
             0.12mm Ultra Precision
           </span>
@@ -364,7 +364,7 @@ export const HeroCarousel: React.FC = () => {
         {/* 2. GIANT BACKGROUND TEXT (CABAI) */}
         <div
           id="cabai-hero-ghost-typography"
-          className="absolute inset-x-0 flex items-center justify-center pointer-events-none select-none z-[2]"
+          className="absolute inset-x-0 flex items-center justify-center pointer-events-none select-none z-1"
           style={{
             top: isMobile ? '22%' : '18%',
           }}
@@ -386,7 +386,7 @@ export const HeroCarousel: React.FC = () => {
         </div>
 
         {/* 3. PRODUCT CAROUSEL LAYER */}
-        <div className="absolute inset-0 z-[10] pointer-events-none">
+        <div className="absolute inset-0 z-10 pointer-events-none">
           {heroProducts.map((product, idx) => {
             const style = getItemStyle(idx);
             const isCenter = idx === activeIndex;
@@ -421,7 +421,7 @@ export const HeroCarousel: React.FC = () => {
 
         {/* 4. DESKTOP / TABLET FLOATING INFO BADGE (Hidden on Mobile) */}
         <div
-          className="hidden sm:block absolute top-20 left-6 sm:top-24 sm:left-8 z-[60] max-w-xs transition-all duration-[650ms] ease-out"
+          className="hidden sm:block absolute top-20 left-6 sm:top-24 sm:left-8 z-20 max-w-xs transition-all duration-[650ms] ease-out"
         >
           <div
             className="p-3.5 sm:p-4 rounded-2xl backdrop-blur-md border border-white/20 shadow-xl text-white transition-colors duration-[650ms]"
@@ -462,7 +462,7 @@ export const HeroCarousel: React.FC = () => {
         {/* A. Mobile Navigation (Bottom: 95px, Left: 20px) */}
         <div
           id="cabai-mobile-navigation"
-          className="sm:hidden absolute bottom-[95px] left-[20px] z-[60] flex items-center gap-3"
+          className="sm:hidden absolute bottom-[95px] left-[20px] z-20 flex items-center gap-3"
         >
           <button
             type="button"
@@ -500,7 +500,7 @@ export const HeroCarousel: React.FC = () => {
         {/* B. Mobile Product Info (Bottom: 24px, Left: 20px) */}
         <div
           id="cabai-mobile-product-info"
-          className="sm:hidden absolute bottom-[24px] left-[20px] z-[60] max-w-[55%] pr-2 cursor-pointer"
+          className="sm:hidden absolute bottom-[24px] left-[20px] z-20 max-w-[55%] pr-2 cursor-pointer"
           onClick={() => openProductDetail(activeProduct)}
         >
           <h3 className="text-sm font-extrabold uppercase text-white tracking-wide truncate drop-shadow-sm">
@@ -514,7 +514,7 @@ export const HeroCarousel: React.FC = () => {
         {/* C. Mobile Discover Button (Bottom: 24px, Right: 20px) */}
         <div
           id="cabai-mobile-discover-cta"
-          className="sm:hidden absolute bottom-[24px] right-[20px] z-[60]"
+          className="sm:hidden absolute bottom-[24px] right-[20px] z-20"
         >
           <button
             type="button"
@@ -533,7 +533,7 @@ export const HeroCarousel: React.FC = () => {
         {/* Desktop Bottom-Left Content & Controls */}
         <div
           id="cabai-hero-bottom-left"
-          className="hidden sm:block absolute bottom-6 left-6 sm:bottom-12 sm:left-12 lg:bottom-16 lg:left-24 z-[60] max-w-[340px] space-y-4"
+          className="hidden sm:block absolute bottom-6 left-6 sm:bottom-12 sm:left-12 lg:bottom-16 lg:left-24 z-20 max-w-[340px] space-y-4"
         >
           <div className="space-y-2">
             <div className="text-[11px] font-bold uppercase tracking-widest text-white/80">
@@ -597,7 +597,7 @@ export const HeroCarousel: React.FC = () => {
         {/* Desktop Bottom-Right CTA: DISCOVER IT */}
         <div
           id="cabai-hero-discover-cta"
-          className="hidden sm:block absolute bottom-6 right-6 sm:bottom-12 sm:right-10 lg:bottom-16 lg:right-16 z-[60]"
+          className="hidden sm:block absolute bottom-6 right-6 sm:bottom-12 sm:right-10 lg:bottom-16 lg:right-16 z-20"
         >
           <button
             type="button"
