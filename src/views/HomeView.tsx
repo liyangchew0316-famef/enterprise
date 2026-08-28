@@ -284,9 +284,9 @@ export const HomeView: React.FC = () => {
           </div>
         </div>
 
-        {/* Product Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {products.map((product) => (
+        {/* Product Grid - Exactly 5 Featured Items */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5 sm:gap-6">
+          {products.slice(0, 5).map((product) => (
             <ProductCard
               key={product.id}
               product={product}
@@ -297,12 +297,13 @@ export const HomeView: React.FC = () => {
         </div>
 
         {/* View All Button */}
-        <div className="flex justify-center pt-4">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
           <button
             onClick={() => handleShopCategory('all')}
-            className="px-8 py-3.5 rounded-xl border border-black/15 bg-white hover:bg-black/5 active:scale-95 text-xs font-bold font-mono-code uppercase tracking-widest text-[#1a1a1a] transition-all duration-200 cursor-pointer shadow-xs"
+            className="w-full sm:w-auto px-8 py-3.5 rounded-xl border border-black/15 bg-white hover:bg-black/5 active:scale-95 text-xs font-bold font-mono-code uppercase tracking-widest text-[#1a1a1a] transition-all duration-200 cursor-pointer shadow-xs flex items-center justify-center gap-2"
           >
-            View Full Studio Catalog ({products.length} Products)
+            <span>View Full Studio Catalog ({products.length} Products)</span>
+            <ArrowRight className="w-4 h-4 text-[#af101a]" />
           </button>
         </div>
 

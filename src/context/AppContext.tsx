@@ -728,9 +728,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const fetchData = async () => {
       try {
         const [prodRes, ordRes, spoolRes] = await Promise.all([
-          fetch('/api/products').then(res => res.ok ? res.json() : null),
-          fetch('/api/orders').then(res => res.ok ? res.json() : null),
-          fetch('/api/spools').then(res => res.ok ? res.json() : null)
+          fetch('/api/products').then(res => (res.ok ? res.json() : null)).catch(() => null),
+          fetch('/api/orders').then(res => (res.ok ? res.json() : null)).catch(() => null),
+          fetch('/api/spools').then(res => (res.ok ? res.json() : null)).catch(() => null)
         ]);
 
         const defaultProds = (prodRes && prodRes.length > 0) ? normalizeProducts(prodRes) : normalizeProducts(INITIAL_PRODUCTS);
@@ -752,7 +752,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           setSpools(fsData.spools);
         }
       } catch (err) {
-        console.warn('Backend API or Firestore database connection note:', err);
+        // Safe offline/fallback initialization from initial local store
+        const defaultProds = normalizeProducts(INITIAL_PRODUCTS);
+        setProducts(defaultProds);
+        setSelectedProduct(prev => prev || defaultProds[0]);
+        setOrders(INITIAL_ORDERS);
+        setSpools(INITIAL_SPOOLS);
       }
     };
 
