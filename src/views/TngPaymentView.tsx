@@ -604,24 +604,24 @@ export const TngPaymentView: React.FC<TngPaymentViewProps> = ({ orderId: propOrd
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-fadeIn">
       
       {/* Top Banner */}
-      <div className="bg-[#1a1c1c] text-white p-6 sm:p-8 rounded-3xl border-b-4 border-[#af101a] shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2 text-red-400 font-extrabold text-xs tracking-wider uppercase">
-            <ShieldCheck className="w-4 h-4" />
-            <span>DIRECT TNG EWALLET PAYMENT</span>
+      <div className="bg-[#18181b] text-white p-6 sm:p-8 rounded-3xl border border-black/20 border-b-4 border-b-[#af101a] shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="space-y-1.5">
+          <div className="flex items-center gap-2 text-red-400 font-mono-code font-bold text-xs tracking-wider uppercase">
+            <ShieldCheck className="w-4 h-4 text-red-400" />
+            <span>DIRECT TNG EWALLET GATEWAY</span>
           </div>
-          <h1 className="font-heading font-extrabold text-2xl sm:text-3xl">
-            Scan & Pay with Touch 'n Go
+          <h1 className="font-heading font-extrabold text-2xl sm:text-3xl text-white tracking-tight">
+            Scan &amp; Pay with Touch 'n Go
           </h1>
           <p className="text-xs text-gray-300">
-            Manual QR payment verified directly by <strong>CABAI ENTERPRISE™</strong> finance desk.
+            Manual QR payment verified directly by <strong>CABAI ENTERPRISE™</strong> maker desk.
           </p>
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="bg-gray-800/90 border border-gray-700 px-4 py-2 rounded-2xl text-right">
-            <span className="text-[10px] text-gray-400 uppercase font-bold block">ORDER REFERENCE</span>
-            <span className="font-mono font-extrabold text-lg text-red-400">#{currentOrder.id}</span>
+          <div className="bg-black/40 border border-white/10 px-4 py-2.5 rounded-2xl text-right shadow-inner">
+            <span className="text-[10px] font-mono-code text-gray-400 uppercase font-bold block">ORDER REFERENCE</span>
+            <span className="font-mono-code font-black text-lg text-red-400">#{currentOrder.id}</span>
           </div>
         </div>
       </div>
@@ -632,11 +632,11 @@ export const TngPaymentView: React.FC<TngPaymentViewProps> = ({ orderId: propOrd
         <div className="lg:col-span-7 space-y-6">
           
           {/* Main QR Card */}
-          <div className="bg-white rounded-3xl border-2 border-blue-200 p-6 sm:p-8 shadow-xl space-y-5 text-center relative overflow-hidden">
+          <div className="bg-white rounded-3xl border border-black/10 p-6 sm:p-8 shadow-2xs space-y-5 text-center relative overflow-hidden">
             
             {/* Top TNG Header */}
             <div className="space-y-1">
-              <div className="inline-block px-3 py-1 bg-blue-50 text-blue-800 text-[11px] font-extrabold rounded-full border border-blue-200 uppercase tracking-wide">
+              <div className="inline-block px-3 py-1 bg-blue-50/80 text-blue-800 text-[10px] font-mono-code font-bold rounded-full border border-blue-200 uppercase tracking-widest">
                 {TNG_PAYMENT_CONFIG.walletName}
               </div>
               <h2 className="font-heading font-extrabold text-xl text-gray-900 tracking-wide">
@@ -645,28 +645,27 @@ export const TngPaymentView: React.FC<TngPaymentViewProps> = ({ orderId: propOrd
             </div>
 
             {/* QR Code Container */}
-            <div className="relative mx-auto max-w-[280px] sm:max-w-[320px] bg-white p-3 rounded-3xl border-2 border-pink-500 shadow-md">
+            <div className="relative mx-auto max-w-[280px] sm:max-w-[320px] bg-white p-3 rounded-3xl border-2 border-red-500/80 shadow-md">
               <img
                 src={TNG_PAYMENT_CONFIG.qrImageUrl}
                 alt="Touch 'n Go eWallet Malaysia National QR"
                 className="w-full h-auto object-contain rounded-2xl mx-auto"
                 referrerPolicy="no-referrer"
                 onError={(e) => {
-                  // Fallback if local asset is loading
                   console.warn('QR image load fallback triggered');
                   (e.target as HTMLImageElement).src = '/tng_qr_chew_li_yang.jpg';
                 }}
               />
               
               <div className="pt-2 text-center">
-                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">
+                <span className="text-[10px] font-mono-code font-bold text-gray-500 uppercase tracking-widest block">
                   {TNG_PAYMENT_CONFIG.qrStandardName}
                 </span>
               </div>
             </div>
 
             {/* Subtitle */}
-            <p className="text-xs text-gray-600 max-w-xs mx-auto font-medium">
+            <p className="text-xs text-gray-600 max-w-xs mx-auto font-medium leading-relaxed">
               Scan this QR with <strong>TNG eWallet</strong> or any Malaysian banking app (MAE, CIMB, GrabPay, Public Bank).
             </p>
 
@@ -675,7 +674,7 @@ export const TngPaymentView: React.FC<TngPaymentViewProps> = ({ orderId: propOrd
               <button
                 type="button"
                 onClick={() => handleCopy(TNG_PAYMENT_CONFIG.merchantName, 'merchant')}
-                className="px-3.5 py-1.5 text-xs font-bold bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition-colors flex items-center gap-1.5"
+                className="px-3.5 py-1.5 text-xs font-bold bg-[#f8f7f4] hover:bg-gray-200 text-gray-700 rounded-xl transition-colors flex items-center gap-1.5 border border-black/5 cursor-pointer"
               >
                 {copiedMerchant ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
                 <span>Copy Merchant Name</span>
@@ -686,7 +685,7 @@ export const TngPaymentView: React.FC<TngPaymentViewProps> = ({ orderId: propOrd
                 download={`TNG_QR_${currentOrder.id}.jpg`}
                 target="_blank"
                 rel="noreferrer"
-                className="px-3.5 py-1.5 text-xs font-bold bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl transition-colors flex items-center gap-1.5"
+                className="px-3.5 py-1.5 text-xs font-bold bg-red-50/80 hover:bg-red-100 text-[#af101a] rounded-xl transition-colors flex items-center gap-1.5 border border-red-200 cursor-pointer"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span>Save QR Image</span>
@@ -701,100 +700,100 @@ export const TngPaymentView: React.FC<TngPaymentViewProps> = ({ orderId: propOrd
         <div className="lg:col-span-5 space-y-6">
           
           {/* Amount Card */}
-          <div className="bg-white rounded-3xl border-2 border-red-100 p-6 shadow-xl space-y-4">
+          <div className="bg-white rounded-3xl border border-black/10 p-6 shadow-2xs space-y-4">
             
-            <div className="flex items-center justify-between pb-3 border-b border-gray-100">
-              <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Exact Amount to Pay</span>
-              <span className="text-[10px] font-extrabold bg-red-100 text-[#af101a] px-2 py-0.5 rounded-full">
-                SST & Shipping Included
+            <div className="flex items-center justify-between pb-3 border-b border-black/5">
+              <span className="text-[11px] font-mono-code font-bold text-gray-500 uppercase tracking-wider">Exact Amount to Pay</span>
+              <span className="text-[10px] font-mono-code font-bold bg-red-50 text-[#af101a] px-2.5 py-0.5 rounded-full border border-red-200">
+                SST &amp; Shipping Included
               </span>
             </div>
 
             <div className="flex items-baseline justify-between gap-2">
               <div className="space-y-0.5">
-                <span className="font-heading font-extrabold text-3xl sm:text-4xl text-[#af101a] font-mono tracking-tight block">
+                <span className="font-heading font-black text-3xl sm:text-4xl text-[#af101a] font-mono-code tracking-tight block">
                   RM {orderAmount.toFixed(2)}
                 </span>
-                <span className="text-[11px] text-gray-400">Order ID #{currentOrder.id}</span>
+                <span className="text-[11px] font-mono-code text-gray-400">Order ID #{currentOrder.id}</span>
               </div>
 
               <button
                 type="button"
                 onClick={() => handleCopy(orderAmount.toFixed(2), 'amount')}
-                className="px-3 py-2 bg-red-50 hover:bg-red-100 text-[#af101a] font-bold text-xs rounded-xl transition-colors flex items-center gap-1.5 shadow-2xs"
+                className="px-3.5 py-2 bg-red-50/80 hover:bg-red-100 text-[#af101a] font-bold text-xs rounded-xl transition-colors flex items-center gap-1.5 border border-red-200 cursor-pointer"
                 title="Copy Exact Amount"
               >
                 {copiedAmount ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
-                <span>{copiedAmount ? 'Copied' : 'Copy RM'}</span>
+                <span className="font-mono-code font-bold">{copiedAmount ? 'Copied' : 'Copy RM'}</span>
               </button>
             </div>
 
-            <div className="p-3 bg-gray-50 rounded-xl border border-gray-200 text-xs space-y-1.5">
+            <div className="p-3.5 bg-[#f8f7f4] rounded-xl border border-black/5 text-xs space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-gray-500 font-medium">Order Reference:</span>
                 <div className="flex items-center gap-1.5">
-                  <span className="font-mono font-bold text-gray-900">#{currentOrder.id}</span>
+                  <span className="font-mono-code font-bold text-gray-900">#{currentOrder.id}</span>
                   <button
                     type="button"
                     onClick={() => handleCopy(currentOrder.id, 'order')}
-                    className="text-gray-400 hover:text-gray-700"
+                    className="text-gray-400 hover:text-gray-700 cursor-pointer"
                   >
                     {copiedOrderId ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
                   </button>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between pt-1.5 border-t border-gray-200">
+              <div className="flex items-center justify-between pt-1.5 border-t border-black/5">
                 <span className="text-gray-500 font-medium">Customer:</span>
                 <span className="font-bold text-gray-900">{currentOrder.customer?.fullName || '—'}</span>
               </div>
 
               <div className="flex items-center justify-between">
                 <span className="text-gray-500 font-medium">Phone Number:</span>
-                <span className="font-mono font-bold text-gray-900">{currentOrder.customer?.phone || '—'}</span>
+                <span className="font-mono-code font-bold text-gray-900">{currentOrder.customer?.phone || '—'}</span>
               </div>
             </div>
 
           </div>
 
           {/* 5-Step Instructions Card */}
-          <div className="bg-white rounded-3xl border border-gray-200 p-6 shadow-xs space-y-4">
-            <h3 className="font-heading font-extrabold text-sm text-gray-900 flex items-center gap-2">
+          <div className="bg-white rounded-3xl border border-black/10 p-6 shadow-2xs space-y-4">
+            <h3 className="font-heading font-extrabold text-sm text-[#18181b] flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-[#af101a]" />
               <span>How to Pay (Step-by-Step)</span>
             </h3>
 
             <ol className="space-y-3 text-xs text-gray-600">
               <li className="flex items-start gap-2.5">
-                <span className="w-5 h-5 rounded-full bg-[#af101a] text-white flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">
+                <span className="w-5 h-5 rounded-full bg-[#af101a] text-white flex items-center justify-center font-mono-code font-bold text-[10px] shrink-0 mt-0.5">
                   1
                 </span>
                 <span>Open your <strong>Touch 'n Go eWallet</strong> or banking app.</span>
               </li>
 
               <li className="flex items-start gap-2.5">
-                <span className="w-5 h-5 rounded-full bg-[#af101a] text-white flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">
+                <span className="w-5 h-5 rounded-full bg-[#af101a] text-white flex items-center justify-center font-mono-code font-bold text-[10px] shrink-0 mt-0.5">
                   2
                 </span>
                 <span>Tap <strong>Scan</strong> and point camera at the Malaysia National QR.</span>
               </li>
 
               <li className="flex items-start gap-2.5">
-                <span className="w-5 h-5 rounded-full bg-[#af101a] text-white flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">
+                <span className="w-5 h-5 rounded-full bg-[#af101a] text-white flex items-center justify-center font-mono-code font-bold text-[10px] shrink-0 mt-0.5">
                   3
                 </span>
                 <span>Confirm recipient name: <strong className="text-gray-900">{TNG_PAYMENT_CONFIG.merchantName}</strong>.</span>
               </li>
 
               <li className="flex items-start gap-2.5">
-                <span className="w-5 h-5 rounded-full bg-[#af101a] text-white flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">
+                <span className="w-5 h-5 rounded-full bg-[#af101a] text-white flex items-center justify-center font-mono-code font-bold text-[10px] shrink-0 mt-0.5">
                   4
                 </span>
-                <span>Enter exact amount <strong className="text-[#af101a]">RM {orderAmount.toFixed(2)}</strong> and transfer.</span>
+                <span>Enter exact amount <strong className="text-[#af101a] font-mono-code">RM {orderAmount.toFixed(2)}</strong> and transfer.</span>
               </li>
 
               <li className="flex items-start gap-2.5">
-                <span className="w-5 h-5 rounded-full bg-[#af101a] text-white flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">
+                <span className="w-5 h-5 rounded-full bg-[#af101a] text-white flex items-center justify-center font-mono-code font-bold text-[10px] shrink-0 mt-0.5">
                   5
                 </span>
                 <span>Click the <strong>Next</strong> button below to confirm your payment.</span>
@@ -807,9 +806,9 @@ export const TngPaymentView: React.FC<TngPaymentViewProps> = ({ orderId: propOrd
             <button
               type="button"
               onClick={() => setFlowStep(2)}
-              className="w-full py-4 bg-[#af101a] hover:bg-[#8d0a12] text-white font-extrabold text-sm rounded-2xl shadow-lg shadow-red-900/30 transition-all flex items-center justify-center gap-2 group"
+              className="w-full py-4 bg-[#af101a] hover:bg-[#8e0c15] active:scale-98 text-white font-extrabold text-xs uppercase tracking-wider rounded-2xl shadow-lg shadow-red-950/25 transition-all flex items-center justify-center gap-2 group cursor-pointer"
             >
-              <span>I Have Transferred & Paid → Next</span>
+              <span>I Have Transferred &amp; Paid → Next</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
 
@@ -819,7 +818,7 @@ export const TngPaymentView: React.FC<TngPaymentViewProps> = ({ orderId: propOrd
                 if (onBackToShop) onBackToShop();
                 else setCurrentView('shop');
               }}
-              className="w-full py-2.5 text-xs text-gray-500 hover:text-gray-800 font-bold transition-colors text-center"
+              className="w-full py-2.5 text-xs text-gray-500 hover:text-gray-800 font-bold transition-colors text-center cursor-pointer"
             >
               Cancel or Return to Shop Catalog
             </button>

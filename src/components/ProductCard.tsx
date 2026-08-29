@@ -50,14 +50,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="group relative overflow-hidden rounded-2xl border border-black/10 bg-[#f8f7f4] transition-all duration-300 hover:border-black/25 hover:shadow-xl flex flex-col justify-between"
+      transition={{ duration: 0.3, ease: 'easeOut' }}
+      className="group relative overflow-hidden rounded-2xl border border-black/8 bg-[#f8f7f4] transition-all duration-300 hover:border-black/20 hover:shadow-xl hover:-translate-y-1 flex flex-col justify-between"
     >
-      {/* Top Image & Interactive Details Container (Square aspect ratio) */}
+      {/* Top Image & Interactive Details Container (Strict Square aspect ratio) */}
       <div 
-        className="relative aspect-square overflow-hidden bg-[#ebeae7] cursor-pointer select-none"
+        className="relative aspect-square w-full overflow-hidden bg-[#ebeae7] cursor-pointer select-none"
         onClick={() => setShowMobileDetails((prev) => !prev)}
         title="Tap or hover to view description & specifications"
       >
@@ -66,7 +66,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             src={product.images[0]}
             productId={product.id}
             alt={product.name}
-            className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-104"
           />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center text-black/30">
@@ -75,29 +75,29 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           </div>
         )}
 
-        {/* Feature Badges & Reference Tag (Top Layer) */}
-        <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between pointer-events-none z-10">
-          <div className="flex items-center gap-1.5">
+        {/* Feature Badges Fixed Row (Top Layer) */}
+        <div className="absolute top-2.5 left-2.5 right-2.5 h-6 flex items-center justify-between pointer-events-none z-10">
+          <div className="flex items-center gap-1.5 overflow-hidden">
             {product.isBestSeller && (
-              <span className="bg-[#af101a] text-white text-[10px] font-mono-code font-bold px-2 py-0.5 rounded-md shadow-sm uppercase tracking-wider">
+              <span className="bg-[#af101a] text-white text-[9px] sm:text-[10px] font-mono-code font-bold px-2 py-0.5 rounded-full shadow-xs uppercase tracking-wider whitespace-nowrap">
                 Flagship 🌶️
               </span>
             )}
             {isBadge && !product.isBestSeller && (
-              <span className="bg-[#1a1a1a] text-white text-[10px] font-mono-code font-bold px-2 py-0.5 rounded-md">
+              <span className="bg-[#18181b] text-white text-[9px] sm:text-[10px] font-mono-code font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
                 Badge
               </span>
             )}
           </div>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 shrink-0">
             {isDrawable && (
-              <span className="bg-purple-900 text-white text-[10px] font-mono-code font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
+              <span className="bg-purple-900 text-white text-[9px] sm:text-[10px] font-mono-code font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-2xs whitespace-nowrap">
                 <Palette className="w-2.5 h-2.5" />
                 <span>Draw</span>
               </span>
             )}
-            <span className="bg-black/60 text-white text-[10px] font-mono-code px-2 py-0.5 rounded-md backdrop-blur-md border border-white/15">
+            <span className="bg-black/70 text-white text-[9px] sm:text-[10px] font-mono-code font-bold px-2 py-0.5 rounded-full backdrop-blur-md border border-white/15 shadow-2xs whitespace-nowrap">
               {product.specifications?.material || 'PLA+'}
             </span>
 
@@ -105,7 +105,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             <button
               type="button"
               onClick={handleToggleDetails}
-              className={`lg:hidden pointer-events-auto p-1 rounded-md backdrop-blur-md transition-all shadow-md ${
+              className={`lg:hidden pointer-events-auto p-1 rounded-md backdrop-blur-md transition-all shadow-md active:scale-95 ${
                 showMobileDetails 
                   ? 'bg-[#af101a] text-white ring-2 ring-white/40' 
                   : 'bg-black/70 text-white hover:bg-black border border-white/20'
@@ -127,18 +127,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           </div>
         )}
 
-        {/* Hover Hint Pill (Desktop only) */}
-        {!showMobileDetails && (
-          <div className="hidden lg:flex absolute bottom-2 right-2.5 z-10 pointer-events-none opacity-0 group-hover:opacity-0 transition-opacity duration-200">
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-md text-[9px] font-mono-code font-medium text-white border border-white/10">
-              <Info className="w-2.5 h-2.5 text-amber-400" />
-              <span>Hover for description</span>
-            </span>
-          </div>
-        )}
-
         {/* ========================================================================= */}
-        {/* DESKTOP HOVER & MOBILE TAP DETAILS OVERLAY PANEL (Shows Description & Specs) */}
+        {/* DESKTOP HOVER & MOBILE TAP DETAILS OVERLAY PANEL */}
         {/* ========================================================================= */}
         <div
           className={`
@@ -192,7 +182,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             </button>
           </div>
 
-          {/* Description Section (Revealed ONLY on Tap/Hover) */}
+          {/* Description Section */}
           <div className="my-auto py-2 overflow-y-auto max-h-[130px] space-y-2 pr-1">
             <p className="text-xs text-white/90 leading-relaxed font-sans">
               {product.description || 'Precision 3D printed with authentic layer texture and durable structure.'}
@@ -226,7 +216,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             {/* Price & Action Buttons */}
             <div className="flex items-center justify-between gap-2 pt-1">
               <div className="flex items-baseline gap-1.5">
-                <span className="text-base font-bold text-white font-mono-code">
+                <span className="text-base font-extrabold text-white font-mono-code">
                   RM {Number(product.price).toFixed(2)}
                 </span>
               </div>
@@ -235,7 +225,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                 <button
                   type="button"
                   onClick={() => onViewProduct(product)}
-                  className="rounded-md bg-white/15 hover:bg-white/25 border border-white/20 px-2.5 py-1.5 text-[11px] font-bold uppercase tracking-wider text-white transition-all cursor-pointer flex items-center gap-1"
+                  className="rounded-lg bg-white/15 hover:bg-white/25 border border-white/20 px-2.5 py-1.5 text-[11px] font-bold uppercase tracking-wider text-white transition-all cursor-pointer flex items-center gap-1 active:scale-95"
                   title="Inspect Full 3D Options"
                 >
                   <Eye className="w-3.5 h-3.5 text-[#af101a]" />
@@ -248,7 +238,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                   className={`
                     px-3
                     py-1.5
-                    rounded-md
+                    rounded-lg
                     font-extrabold
                     transition-all
                     active:scale-95
@@ -285,25 +275,25 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         </div>
       </div>
 
-      {/* Static Information Footer on Card (Clean: NO description at bottom) */}
+      {/* Static Information Footer on Card */}
       <div className="p-4 flex-1 flex flex-col justify-between space-y-3 bg-[#f8f7f4]">
         <div 
           className="cursor-pointer"
           onClick={() => onViewProduct(product)}
         >
-          <div className="flex items-center justify-between text-[10px] text-[#1a1a1a]/50 uppercase font-mono-code font-bold">
+          <div className="flex items-center justify-between text-[10px] text-[#18181b]/50 uppercase font-mono-code font-bold">
             <span>{product.category}</span>
             <span className="text-black/40">• 0.12mm PLA</span>
           </div>
           
-          <h3 className="font-heading font-extrabold text-sm sm:text-base text-[#1a1a1a] line-clamp-1 mt-1 group-hover:text-[#af101a] transition-colors">
+          <h3 className="font-heading font-extrabold text-sm sm:text-base text-[#18181b] line-clamp-1 mt-1 group-hover:text-[#af101a] transition-colors">
             {product.name}
           </h3>
         </div>
 
-        <div className="pt-2 border-t border-black/8 flex items-center justify-between gap-2">
+        <div className="pt-2.5 border-t border-black/8 flex items-center justify-between gap-2">
           <div className="flex items-baseline gap-1.5">
-            <span className="font-mono-code font-extrabold text-base text-[#af101a]">
+            <span className="font-mono-code font-black text-base sm:text-lg text-[#af101a]">
               RM {Number(product.price).toFixed(2)}
             </span>
             {product.originalPrice && product.originalPrice > product.price && (
@@ -318,8 +308,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             onClick={handleAddToCart}
             className={`
               px-3.5
-              py-1.5
-              rounded-lg
+              py-2
+              rounded-xl
               text-xs
               font-bold
               uppercase
@@ -330,10 +320,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               items-center
               gap-1.5
               shadow-xs
+              active:scale-[0.97]
               ${
                 justAdded 
                   ? 'bg-emerald-600 text-white' 
-                  : 'bg-[#1a1a1a] hover:bg-[#af101a] text-white active:scale-95'
+                  : 'bg-[#18181b] hover:bg-[#af101a] text-white'
               }
             `}
           >
