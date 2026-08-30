@@ -14,6 +14,7 @@ import imgCabaiPen from '../assets/images/cabai_pen_1787053295709.jpg';
 import logoHeader from '../assets/images/regenerated_image_1786627761972.png';
 import logoFooter from '../assets/images/regenerated_image_1786627764275.png';
 import logoOfficial from '../assets/images/cabai_official_logo_1786624077846.jpg';
+import imgHeroStage from '../assets/images/cabai_hero_stage_1788074808707.jpg';
 
 // Bundled Transparent Cutout PNGs (Zero background, pure floating product)
 import cutoutKeyboardClicker from '../assets/images/keyboard_clicker_cutout.png';
@@ -47,6 +48,9 @@ export const imageConfig = {
     favicon: `${BASE_URL}/favicon.png`,
     fallback: FALLBACK_IMAGE_DATA_URI
   },
+  
+  // Hero Background & Studio Visuals
+  heroStage: imgHeroStage,
   
   // Product Catalog Assets (Exact 7 Studio Products)
   products: {

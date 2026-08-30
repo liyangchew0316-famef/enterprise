@@ -53,11 +53,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: 'easeOut' }}
-      className="group relative overflow-hidden rounded-2xl border border-black/8 bg-[#f8f7f4] transition-all duration-300 hover:border-black/20 hover:shadow-xl hover:-translate-y-1 flex flex-col justify-between"
+      className="group relative overflow-hidden rounded-2xl border border-white/10 bg-[#111113] transition-all duration-300 hover:border-red-600/40 hover:shadow-2xl hover:shadow-red-950/20 hover:-translate-y-1 flex flex-col justify-between"
     >
       {/* Top Image & Interactive Details Container (Strict Square aspect ratio) */}
       <div 
-        className="relative aspect-square w-full overflow-hidden bg-[#ebeae7] cursor-pointer select-none"
+        className="relative aspect-square w-full overflow-hidden bg-[#18181B] cursor-pointer select-none"
         onClick={() => setShowMobileDetails((prev) => !prev)}
         title="Tap or hover to view description & specifications"
       >
@@ -69,7 +69,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-104"
           />
         ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center text-black/30">
+          <div className="w-full h-full flex flex-col items-center justify-center text-white/30">
             <ImageIcon className="w-10 h-10 stroke-[1.5]" />
             <span className="text-[10px] mt-2 font-mono-code">CABAI 3D STUDIO</span>
           </div>
@@ -79,12 +79,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         <div className="absolute top-2.5 left-2.5 right-2.5 h-6 flex items-center justify-between pointer-events-none z-10">
           <div className="flex items-center gap-1.5 overflow-hidden">
             {product.isBestSeller && (
-              <span className="bg-[#af101a] text-white text-[9px] sm:text-[10px] font-mono-code font-bold px-2 py-0.5 rounded-full shadow-xs uppercase tracking-wider whitespace-nowrap">
+              <span className="bg-[#af101a] text-white text-[9px] sm:text-[10px] font-mono-code font-bold px-2 py-0.5 rounded-full shadow-md uppercase tracking-wider whitespace-nowrap">
                 Flagship 🌶️
               </span>
             )}
             {isBadge && !product.isBestSeller && (
-              <span className="bg-[#18181b] text-white text-[9px] sm:text-[10px] font-mono-code font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
+              <span className="bg-white/20 backdrop-blur-md text-white text-[9px] sm:text-[10px] font-mono-code font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
                 Badge
               </span>
             )}
@@ -92,12 +92,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
           <div className="flex items-center gap-1.5 shrink-0">
             {isDrawable && (
-              <span className="bg-purple-900 text-white text-[9px] sm:text-[10px] font-mono-code font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-2xs whitespace-nowrap">
+              <span className="bg-purple-900/90 text-white text-[9px] sm:text-[10px] font-mono-code font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-2xs whitespace-nowrap">
                 <Palette className="w-2.5 h-2.5" />
                 <span>Draw</span>
               </span>
             )}
-            <span className="bg-black/70 text-white text-[9px] sm:text-[10px] font-mono-code font-bold px-2 py-0.5 rounded-full backdrop-blur-md border border-white/15 shadow-2xs whitespace-nowrap">
+            <span className="bg-black/80 text-white text-[9px] sm:text-[10px] font-mono-code font-bold px-2 py-0.5 rounded-full backdrop-blur-md border border-white/15 shadow-2xs whitespace-nowrap">
               {product.specifications?.material || 'PLA+'}
             </span>
 
@@ -201,7 +201,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             <div className="flex flex-wrap items-center gap-1.5">
               {product.specifications?.dimensions && (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/10 text-[10px] font-mono-code text-white/90">
-                  <Layers className="w-3 h-3 text-[#af101a]" />
+                  <Layers className="w-3 h-3 text-[#FF4D5A]" />
                   <span>{product.specifications.dimensions}</span>
                 </span>
               )}
@@ -228,7 +228,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                   className="rounded-lg bg-white/15 hover:bg-white/25 border border-white/20 px-2.5 py-1.5 text-[11px] font-bold uppercase tracking-wider text-white transition-all cursor-pointer flex items-center gap-1 active:scale-95"
                   title="Inspect Full 3D Options"
                 >
-                  <Eye className="w-3.5 h-3.5 text-[#af101a]" />
+                  <Eye className="w-3.5 h-3.5 text-[#FF4D5A]" />
                   <span>Inspect</span>
                 </button>
 
@@ -276,28 +276,28 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       </div>
 
       {/* Static Information Footer on Card */}
-      <div className="p-4 flex-1 flex flex-col justify-between space-y-3 bg-[#f8f7f4]">
+      <div className="p-4 flex-1 flex flex-col justify-between space-y-3 bg-[#111113]">
         <div 
           className="cursor-pointer"
           onClick={() => onViewProduct(product)}
         >
-          <div className="flex items-center justify-between text-[10px] text-[#18181b]/50 uppercase font-mono-code font-bold">
+          <div className="flex items-center justify-between text-[10px] text-white/50 uppercase font-mono-code font-bold">
             <span>{product.category}</span>
-            <span className="text-black/40">• 0.12mm PLA</span>
+            <span className="text-white/40">• 0.12mm PLA</span>
           </div>
           
-          <h3 className="font-heading font-extrabold text-sm sm:text-base text-[#18181b] line-clamp-1 mt-1 group-hover:text-[#af101a] transition-colors">
+          <h3 className="font-heading font-extrabold text-sm sm:text-base text-white line-clamp-1 mt-1 group-hover:text-[#FF4D5A] transition-colors">
             {product.name}
           </h3>
         </div>
 
-        <div className="pt-2.5 border-t border-black/8 flex items-center justify-between gap-2">
+        <div className="pt-2.5 border-t border-white/10 flex items-center justify-between gap-2">
           <div className="flex items-baseline gap-1.5">
-            <span className="font-mono-code font-black text-base sm:text-lg text-[#af101a]">
+            <span className="font-mono-code font-black text-base sm:text-lg text-white">
               RM {Number(product.price).toFixed(2)}
             </span>
             {product.originalPrice && product.originalPrice > product.price && (
-              <span className="font-mono-code text-[11px] text-black/40 line-through">
+              <span className="font-mono-code text-[11px] text-white/40 line-through">
                 RM {Number(product.originalPrice).toFixed(2)}
               </span>
             )}
@@ -324,7 +324,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               ${
                 justAdded 
                   ? 'bg-emerald-600 text-white' 
-                  : 'bg-[#18181b] hover:bg-[#af101a] text-white'
+                  : 'bg-[#1C1C20] hover:bg-[#AF101A] text-white border border-white/10 hover:border-[#AF101A]'
               }
             `}
           >

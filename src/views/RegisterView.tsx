@@ -32,7 +32,7 @@ export const StepItem: React.FC<StepItemProps> = ({ number, text, active = false
       className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all ${
         active
           ? 'bg-white text-black border border-white'
-          : 'bg-[#1A1A1A] text-white border-none'
+          : 'bg-[#18181B] text-white border border-white/10'
       }`}
     >
       <div
@@ -62,7 +62,7 @@ export const SocialButton: React.FC<SocialButtonProps> = ({ icon, label, onClick
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="flex items-center justify-center gap-2.5 h-12 bg-black border border-white/10 rounded-xl hover:bg-white/5 text-white text-sm font-medium transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer w-full px-3"
+      className="flex items-center justify-center gap-2.5 h-11 bg-[#18181B] border border-white/10 rounded-xl hover:bg-[#27272A] hover:border-white/20 text-white text-xs font-mono-code font-bold transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer w-full px-3"
     >
       <span className="shrink-0">{icon}</span>
       <span className="truncate">{label}</span>
@@ -95,7 +95,7 @@ export const InputGroup: React.FC<InputGroupProps> = ({
 }) => {
   return (
     <div className="space-y-1.5 w-full text-left">
-      <label htmlFor={name} className="block text-sm font-medium text-white">
+      <label htmlFor={name} className="block text-xs font-mono-code font-bold text-white/80">
         {label}
       </label>
       <input
@@ -107,11 +107,11 @@ export const InputGroup: React.FC<InputGroupProps> = ({
         placeholder={placeholder}
         autoComplete={autoComplete}
         required={required}
-        className={`w-full bg-[#1A1A1A] rounded-xl h-11 px-4 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 text-sm transition-all ${
-          error ? 'border border-red-500/50 focus:ring-red-500/30' : 'border-none focus:ring-white/20'
+        className={`w-full bg-[#18181B] rounded-xl h-11 px-4 text-white placeholder:text-white/25 focus:outline-none focus:ring-1 focus:ring-[#AF101A] focus:border-[#AF101A] border text-xs font-mono-code transition-all ${
+          error ? 'border-red-500/80 focus:ring-red-500/50' : 'border-white/10'
         }`}
       />
-      {error && <p className="text-xs text-red-400 mt-1">{error}</p>}
+      {error && <p className="text-xs text-red-400 font-mono-code mt-1">{error}</p>}
     </div>
   );
 };
@@ -141,7 +141,7 @@ export const PasswordInput: React.FC<PasswordInputProps> = ({
 
   return (
     <div className="space-y-1.5 w-full text-left">
-      <label htmlFor={name} className="block text-sm font-medium text-white">
+      <label htmlFor={name} className="block text-xs font-mono-code font-bold text-white/80">
         {label}
       </label>
       <div className="relative">
@@ -153,21 +153,21 @@ export const PasswordInput: React.FC<PasswordInputProps> = ({
           onChange={onChange}
           placeholder={placeholder}
           autoComplete={autoComplete}
-          className={`w-full bg-[#1A1A1A] rounded-xl h-11 pl-4 pr-11 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 text-sm transition-all ${
-            error ? 'border border-red-500/50 focus:ring-red-500/30' : 'border-none focus:ring-white/20'
+          className={`w-full bg-[#18181B] rounded-xl h-11 pl-4 pr-11 text-white placeholder:text-white/25 focus:outline-none focus:ring-1 focus:ring-[#AF101A] focus:border-[#AF101A] border text-xs font-mono-code transition-all ${
+            error ? 'border-red-500/80 focus:ring-red-500/50' : 'border-white/10'
           }`}
         />
         <button
           type="button"
           onClick={() => setShowPassword(!showPassword)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white transition-colors p-1"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white transition-colors p-1 cursor-pointer"
           aria-label={showPassword ? 'Hide password' : 'Show password'}
         >
           {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
         </button>
       </div>
-      {hint && <p className="text-xs text-white/30">{hint}</p>}
-      {error && <p className="text-xs text-red-400 mt-1">{error}</p>}
+      {hint && <p className="text-[11px] text-white/30 font-mono-code">{hint}</p>}
+      {error && <p className="text-xs text-red-400 font-mono-code mt-1">{error}</p>}
     </div>
   );
 };
@@ -429,26 +429,26 @@ export const RegisterView: React.FC = () => {
   };
 
   return (
-    <div className="relative min-h-screen w-full bg-[#0a0a0c] selection:bg-white/30 p-2 lg:p-4 font-sans text-white flex flex-col lg:flex-row items-center justify-center overflow-x-hidden">
+    <div className="relative min-h-screen w-full bg-[#111113] selection:bg-[#AF101A]/30 p-2 lg:p-4 font-sans text-white flex flex-col lg:flex-row items-center justify-center overflow-x-hidden">
       {/* 3D Interactive WebGL Background */}
-      <Auth3DCanvas className="opacity-80" />
+      <Auth3DCanvas className="opacity-70" />
 
       {/* Back to Store Navigation (Mobile & Desktop Accessible) */}
       <button
         onClick={() => setCurrentView('home')}
-        className="fixed top-4 left-4 z-50 inline-flex items-center gap-2 px-3.5 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-medium backdrop-blur-md transition-all cursor-pointer border border-white/15 shadow-lg"
+        className="fixed top-4 left-4 z-50 inline-flex items-center gap-2 px-3.5 py-2 rounded-full bg-[#18181B]/90 hover:bg-[#27272A] text-white text-xs font-mono-code font-bold backdrop-blur-md transition-all cursor-pointer border border-white/10 shadow-xl"
         title="Back to Cabai Enterprise Catalog"
       >
         <ArrowLeft className="w-3.5 h-3.5" />
-        <span>Explore Creations</span>
+        <span>Explore Catalog</span>
       </button>
 
       <div className="relative z-10 w-full max-w-6xl mx-auto flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-12 my-auto py-8">
         {/* LEFT: Brand / 3D Maker Studio section (Desktop) */}
-        <div className="hidden lg:flex w-[46%] flex-col justify-between p-8 rounded-3xl bg-black/40 border border-white/10 backdrop-blur-xl shadow-2xl relative overflow-hidden">
+        <div className="hidden lg:flex w-[46%] flex-col justify-between p-8 rounded-3xl bg-[#18181B]/80 border border-white/10 backdrop-blur-xl shadow-2xl relative overflow-hidden">
           <div className="space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-mono-code font-bold">
-              <Box className="w-3.5 h-3.5 animate-spin text-red-500" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-950/80 border border-red-800/80 text-[#FF4D5A] text-xs font-mono-code font-bold">
+              <Box className="w-3.5 h-3.5 animate-spin text-[#FF4D5A]" />
               <span>CABAI 3D ENGINE v2.6</span>
             </div>
 
@@ -456,15 +456,15 @@ export const RegisterView: React.FC = () => {
               <h2 className="text-4xl font-heading font-extrabold tracking-tight text-white leading-tight">
                 Craft Physical Reality in 3D.
               </h2>
-              <p className="text-white/60 text-sm mt-3 leading-relaxed">
+              <p className="text-white/60 text-xs sm:text-sm mt-3 leading-relaxed">
                 Join Malaysia&apos;s custom maker hub. Direct slice-to-order pipeline, industrial PLA-CF precision, and tracked production stages.
               </p>
             </div>
 
             {/* Registration 3D Steps */}
-            <div className="space-y-3 pt-2">
-              <div className="flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/10">
-                <div className="w-8 h-8 rounded-xl bg-red-600 text-white flex items-center justify-center font-extrabold text-sm shadow-md">
+            <div className="space-y-3 pt-2 font-mono-code">
+              <div className="flex items-center gap-3 p-3 rounded-2xl bg-[#111113] border border-white/10">
+                <div className="w-8 h-8 rounded-xl bg-[#AF101A] text-white flex items-center justify-center font-extrabold text-sm shadow-md">
                   1
                 </div>
                 <div>
@@ -473,7 +473,7 @@ export const RegisterView: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/10 opacity-70">
+              <div className="flex items-center gap-3 p-3 rounded-2xl bg-[#111113]/60 border border-white/10 opacity-70">
                 <div className="w-8 h-8 rounded-xl bg-white/10 text-white/70 flex items-center justify-center font-bold text-sm">
                   2
                 </div>
@@ -483,7 +483,7 @@ export const RegisterView: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/10 opacity-50">
+              <div className="flex items-center gap-3 p-3 rounded-2xl bg-[#111113]/40 border border-white/10 opacity-50">
                 <div className="w-8 h-8 rounded-xl bg-white/10 text-white/70 flex items-center justify-center font-bold text-sm">
                   3
                 </div>
@@ -510,10 +510,10 @@ export const RegisterView: React.FC = () => {
         {/* RIGHT: 3D Perspective Registration Card */}
         <div className="w-full lg:w-[54%] max-w-lg">
           <Auth3DCard maxTilt={8} glowColor="rgba(175, 16, 26, 0.4)">
-            <div className="bg-[#18181b]/95 backdrop-blur-2xl border border-white/15 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 transform-style-3d">
+            <div className="bg-[#111113]/95 backdrop-blur-2xl border border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 transform-style-3d">
               {/* Form Header */}
               <div className="space-y-1.5 text-left translate-z-20">
-                <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-red-500/20 text-red-300 text-[10px] font-bold tracking-wide uppercase border border-red-500/30 mb-1">
+                <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-red-950/80 text-[#FF4D5A] text-[10px] font-mono-code font-bold tracking-wide uppercase border border-red-800/80 mb-1">
                   New Maker Registration
                 </div>
                 <h1 className="text-2xl sm:text-3xl font-heading font-extrabold tracking-tight text-white">
@@ -545,7 +545,7 @@ export const RegisterView: React.FC = () => {
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-white/10" />
                 </div>
-                <div className="relative bg-[#18181b] px-3 text-[11px] font-mono-code text-white/40 uppercase tracking-widest">
+                <div className="relative bg-[#111113] px-3 text-[10px] font-mono-code text-white/40 uppercase tracking-widest">
                   Or Email Pass
                 </div>
               </div>
@@ -553,7 +553,7 @@ export const RegisterView: React.FC = () => {
               {/* Registration Form */}
               <form onSubmit={handleRegister} className="space-y-3.5 text-left" noValidate>
                 {formError && (
-                  <div className="p-3 rounded-xl bg-red-950/80 border border-red-500/40 text-red-300 text-xs flex items-center gap-2">
+                  <div className="p-3 rounded-xl bg-red-950/80 border border-red-800/80 text-red-300 text-xs flex items-center gap-2 font-mono-code">
                     <div className="w-2 h-2 rounded-full bg-red-500 animate-ping shrink-0" />
                     <span>{formError}</span>
                   </div>
@@ -640,7 +640,7 @@ export const RegisterView: React.FC = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full h-12 bg-gradient-to-r from-[#af101a] to-[#d81b28] hover:from-[#920c15] hover:to-[#b71521] active:scale-[0.98] text-white font-extrabold rounded-xl shadow-lg shadow-red-950/50 mt-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer transition-all flex items-center justify-center gap-2 text-sm translate-z-20"
+                  className="w-full h-12 bg-[#AF101A] hover:bg-[#E11D48] active:scale-[0.98] text-white font-mono-code font-bold rounded-xl shadow-lg shadow-red-950/50 mt-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer transition-all flex items-center justify-center gap-2 text-xs uppercase tracking-wider translate-z-20"
                 >
                   {loading ? (
                     <>
@@ -657,13 +657,13 @@ export const RegisterView: React.FC = () => {
               </form>
 
               {/* Login Footer */}
-              <div className="text-center pt-1 border-t border-white/10">
+              <div className="text-center pt-1 border-t border-white/10 font-mono-code">
                 <p className="text-white/60 text-xs">
                   Already have an account?{' '}
                   <button
                     type="button"
                     onClick={handleGoToLogin}
-                    className="text-red-400 hover:text-red-300 font-bold hover:underline transition-all cursor-pointer inline-block ml-1"
+                    className="text-[#FF4D5A] hover:text-white font-bold hover:underline transition-all cursor-pointer inline-block ml-1"
                   >
                     Sign In here
                   </button>

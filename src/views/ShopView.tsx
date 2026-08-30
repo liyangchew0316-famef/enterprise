@@ -78,33 +78,33 @@ export const ShopView: React.FC = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
       {/* Page Title & Sort Row */}
-      <div className="bg-white/90 p-6 rounded-3xl border border-black/8 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-[#111113] p-6 rounded-3xl border border-white/10 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-50 text-[#af101a] border border-red-200/80 rounded-full text-xs font-mono-code font-bold uppercase tracking-wider mb-1">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#AF101A]/20 text-[#FF4D5A] border border-[#AF101A]/40 rounded-full text-xs font-mono-code font-bold uppercase tracking-wider mb-1">
             <Sparkles className="w-3.5 h-3.5" />
             <span>100% Eco PLA+ 3D Studio Catalog</span>
           </div>
-          <h1 className="font-heading font-extrabold text-2xl sm:text-3xl text-[#18181b]">
+          <h1 className="font-heading font-extrabold text-2xl sm:text-3xl text-white">
             All 3D Printed Products
           </h1>
-          <p className="text-[#18181b]/65 text-xs sm:text-sm">
+          <p className="text-white/65 text-xs sm:text-sm">
             Explore our complete collection of custom namebadges, interactive DIY chili canvases, keychains, and desk accessories.
           </p>
         </div>
 
         {/* Sort selector */}
         <div className="flex items-center gap-2 shrink-0">
-          <ArrowUpDown className="w-4 h-4 text-[#18181b]/50" />
-          <span className="text-xs font-mono-code font-bold text-[#18181b]/70 uppercase">Sort By:</span>
+          <ArrowUpDown className="w-4 h-4 text-white/50" />
+          <span className="text-xs font-mono-code font-bold text-white/70 uppercase">Sort By:</span>
           <select
             value={sortBy}
             onChange={(e: any) => setSortBy(e.target.value)}
-            className="px-3.5 py-2 bg-[#f8f7f4] text-[#18181b] text-xs font-mono-code font-bold rounded-xl border border-black/10 focus:outline-hidden focus:border-[#af101a] cursor-pointer"
+            className="px-3.5 py-2 bg-[#18181B] text-white text-xs font-mono-code font-bold rounded-xl border border-white/10 focus:outline-hidden focus:border-[#AF101A] cursor-pointer"
           >
-            <option value="featured">Featured</option>
-            <option value="price-asc">Price: Low to High</option>
-            <option value="price-desc">Price: High to Low</option>
-            <option value="rating">Highest Rated</option>
+            <option value="featured" className="bg-[#18181B] text-white">Featured</option>
+            <option value="price-asc" className="bg-[#18181B] text-white">Price: Low to High</option>
+            <option value="price-desc" className="bg-[#18181B] text-white">Price: High to Low</option>
+            <option value="rating" className="bg-[#18181B] text-white">Highest Rated</option>
           </select>
         </div>
       </div>
@@ -120,8 +120,8 @@ export const ShopView: React.FC = () => {
             }}
             className={`px-4 py-2.5 rounded-xl text-xs font-mono-code font-bold whitespace-nowrap transition-all flex items-center gap-2 cursor-pointer active:scale-[0.98] ${
               activeCategory === cat.id
-                ? 'bg-[#af101a] text-white shadow-sm ring-2 ring-[#af101a]/30'
-                : 'bg-white text-[#18181b]/80 hover:bg-black/5 border border-black/8'
+                ? 'bg-[#AF101A] text-white shadow-md ring-2 ring-[#AF101A]/40'
+                : 'bg-[#111113] text-white/80 hover:bg-white/10 border border-white/10'
             }`}
           >
             <span>{cat.icon}</span>
@@ -135,19 +135,19 @@ export const ShopView: React.FC = () => {
         
         {/* Left Filters Sidebar */}
         <div className="lg:col-span-1 space-y-6">
-          <div className="bg-white/90 p-5 rounded-2xl border border-black/8 shadow-xs space-y-6">
+          <div className="bg-[#111113] p-5 rounded-2xl border border-white/10 shadow-md space-y-6">
             
-            <div className="flex items-center gap-2 pb-3 border-b border-black/6">
-              <SlidersHorizontal className="w-4 h-4 text-[#af101a]" />
-              <h3 className="font-heading font-extrabold text-sm text-[#18181b] uppercase tracking-wider">
+            <div className="flex items-center gap-2 pb-3 border-b border-white/10">
+              <SlidersHorizontal className="w-4 h-4 text-[#FF4D5A]" />
+              <h3 className="font-heading font-extrabold text-sm text-white uppercase tracking-wider">
                 Filter Catalog
               </h3>
             </div>
 
             {/* Keychain Filter Switch if in Keychains Category */}
             {activeCategory === 'keychains' && (
-              <div className="p-3 bg-red-50/70 rounded-xl border border-red-200/80 space-y-2">
-                <label className="text-xs font-mono-code font-bold text-[#18181b] flex items-center gap-1.5">
+              <div className="p-3 bg-red-950/30 rounded-xl border border-red-800/40 space-y-2">
+                <label className="text-xs font-mono-code font-bold text-white flex items-center gap-1.5">
                   <span>Keychain Style Type</span>
                 </label>
                 <div className="grid grid-cols-3 gap-1">
@@ -161,8 +161,8 @@ export const ShopView: React.FC = () => {
                       onClick={() => setKeychainFilter(f.id as any)}
                       className={`py-1.5 px-2 rounded-lg text-[11px] font-mono-code font-bold cursor-pointer transition-all active:scale-95 ${
                         keychainFilter === f.id
-                          ? 'bg-[#af101a] text-white shadow-xs'
-                          : 'bg-white text-[#18181b]/80 hover:bg-black/5 border border-black/8'
+                          ? 'bg-[#AF101A] text-white shadow-xs'
+                          : 'bg-[#18181B] text-white/80 hover:bg-white/10 border border-white/10'
                       }`}
                     >
                       {f.label}
@@ -173,20 +173,20 @@ export const ShopView: React.FC = () => {
             )}
 
             {/* Quick Drawable Toggle */}
-            <div className="p-3 bg-purple-50/70 rounded-xl border border-purple-200/80 space-y-2">
+            <div className="p-3 bg-purple-950/30 rounded-xl border border-purple-800/40 space-y-2">
               <label className="flex items-center gap-2.5 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={onlyDrawable}
                   onChange={(e) => setOnlyDrawable(e.target.checked)}
-                  className="w-4 h-4 accent-purple-700 rounded cursor-pointer"
+                  className="w-4 h-4 accent-purple-600 rounded cursor-pointer"
                 />
-                <span className="text-xs font-mono-code font-bold text-purple-950 flex items-center gap-1">
-                  <Palette className="w-3.5 h-3.5 text-purple-700" />
+                <span className="text-xs font-mono-code font-bold text-purple-200 flex items-center gap-1">
+                  <Palette className="w-3.5 h-3.5 text-purple-400" />
                   Only Drawable Products
                 </span>
               </label>
-              <p className="text-[11px] text-purple-700/90 leading-relaxed">
+              <p className="text-[11px] text-purple-300/80 leading-relaxed">
                 Products you can draw &amp; customize on canvas!
               </p>
             </div>
@@ -194,10 +194,10 @@ export const ShopView: React.FC = () => {
             {/* Daily Spin Wheel Callout */}
             <div 
               onClick={() => setCurrentView('daily_spin')}
-              className="p-4 bg-gradient-to-br from-amber-500 via-red-600 to-purple-700 rounded-2xl text-white shadow-md cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-all space-y-2"
+              className="p-4 bg-gradient-to-br from-amber-600 via-red-700 to-purple-900 rounded-2xl text-white shadow-md cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-all space-y-2 border border-white/15"
             >
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono-code font-bold uppercase tracking-wider bg-black/30 px-2 py-0.5 rounded-full">
+                <span className="text-[10px] font-mono-code font-bold uppercase tracking-wider bg-black/40 px-2 py-0.5 rounded-full">
                   Daily Lucky Wheel
                 </span>
                 <span className="text-xl">🎡</span>
@@ -209,30 +209,30 @@ export const ShopView: React.FC = () => {
                 Spin once every day for a chance to win up to 20% OFF or RM5 OFF promo codes!
               </p>
               <div className="pt-1">
-                <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-white text-[#18181b] font-mono-code font-bold text-[11px] rounded-xl shadow-xs">
+                <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-white text-[#111113] font-mono-code font-bold text-[11px] rounded-xl shadow-xs">
                   <span>Spin Wheel Now</span>
-                  <ArrowRight className="w-3 h-3 text-[#af101a]" />
+                  <ArrowRight className="w-3 h-3 text-[#AF101A]" />
                 </span>
               </div>
             </div>
 
             {/* Material Filter */}
             <div className="space-y-2">
-              <label className="text-xs font-mono-code font-bold text-[#18181b]/70 uppercase tracking-wider block">
+              <label className="text-xs font-mono-code font-bold text-white/70 uppercase tracking-wider block">
                 Filament Material
               </label>
-              <div className="space-y-1.5 text-xs text-[#18181b]/80 font-medium">
+              <div className="space-y-1.5 text-xs text-white/80 font-medium">
                 {['ALL', 'PLA'].map((mat) => (
                   <label 
                     key={mat} 
-                    className="flex items-center gap-2.5 p-1.5 rounded-lg hover:bg-black/5 cursor-pointer"
+                    className="flex items-center gap-2.5 p-1.5 rounded-lg hover:bg-white/5 cursor-pointer"
                   >
                     <input
                       type="radio"
                       name="material"
                       checked={selectedMaterial === mat}
                       onChange={() => setSelectedMaterial(mat as any)}
-                      className="accent-[#af101a]"
+                      className="accent-[#AF101A]"
                     />
                     <span>{mat === 'ALL' ? 'All (100% PLA)' : 'Pure PLA Filament'}</span>
                   </label>
@@ -241,10 +241,10 @@ export const ShopView: React.FC = () => {
             </div>
 
             {/* Price Range Slider */}
-            <div className="space-y-2 pt-2 border-t border-black/6">
-              <div className="flex justify-between text-xs font-mono-code font-bold text-[#18181b]/80">
+            <div className="space-y-2 pt-2 border-t border-white/10">
+              <div className="flex justify-between text-xs font-mono-code font-bold text-white/80">
                 <span>Max Price:</span>
-                <span className="text-[#af101a]">RM {maxPrice.toFixed(2)}</span>
+                <span className="text-[#FF4D5A]">RM {maxPrice.toFixed(2)}</span>
               </div>
               <input
                 type="range"
@@ -253,9 +253,9 @@ export const ShopView: React.FC = () => {
                 step="0.5"
                 value={maxPrice}
                 onChange={(e) => setMaxPrice(Number(e.target.value))}
-                className="w-full accent-[#af101a]"
+                className="w-full accent-[#AF101A]"
               />
-              <div className="flex justify-between text-[10px] text-[#18181b]/40 font-mono-code">
+              <div className="flex justify-between text-[10px] text-white/40 font-mono-code">
                 <span>RM 2.50</span>
                 <span>RM 50.00</span>
               </div>
@@ -269,7 +269,7 @@ export const ShopView: React.FC = () => {
                 setOnlyDrawable(false);
                 setMaxPrice(50);
               }}
-              className="w-full py-2.5 bg-[#f8f7f4] hover:bg-black/5 text-[#18181b] font-mono-code font-bold text-xs rounded-xl border border-black/8 transition-colors cursor-pointer active:scale-[0.98]"
+              className="w-full py-2.5 bg-[#18181B] hover:bg-white/10 text-white font-mono-code font-bold text-xs rounded-xl border border-white/10 transition-colors cursor-pointer active:scale-[0.98]"
             >
               Reset All Filters
             </button>
@@ -280,10 +280,10 @@ export const ShopView: React.FC = () => {
         {/* Right Products Grid */}
         <div className="lg:col-span-3">
           {filtered.length === 0 ? (
-            <div className="bg-white/90 p-12 rounded-2xl border border-black/8 text-center space-y-4">
+            <div className="bg-[#111113] p-12 rounded-2xl border border-white/10 text-center space-y-4">
               <div className="text-4xl">🔍</div>
-              <h3 className="font-heading font-extrabold text-lg text-[#18181b]">No products match your filters</h3>
-              <p className="text-xs text-[#18181b]/60">Try resetting filters to see our full PLA catalog.</p>
+              <h3 className="font-heading font-extrabold text-lg text-white">No products match your filters</h3>
+              <p className="text-xs text-white/60">Try resetting filters to see our full PLA catalog.</p>
               <button
                 onClick={() => {
                   setActiveCategory('all');
@@ -291,7 +291,7 @@ export const ShopView: React.FC = () => {
                   setOnlyDrawable(false);
                   setMaxPrice(50);
                 }}
-                className="px-5 py-2.5 bg-[#af101a] text-white font-mono-code font-bold text-xs rounded-xl cursor-pointer active:scale-[0.98]"
+                className="px-5 py-2.5 bg-[#AF101A] text-white font-mono-code font-bold text-xs rounded-xl cursor-pointer active:scale-[0.98]"
               >
                 Reset Filters
               </button>
@@ -313,11 +313,11 @@ export const ShopView: React.FC = () => {
       </div>
 
       {/* Natural SEO Information Section */}
-      <div className="bg-white/90 p-6 sm:p-8 rounded-3xl border border-black/8 shadow-xs space-y-4">
-        <h2 className="font-heading font-extrabold text-lg sm:text-xl text-[#18181b]">
+      <div className="bg-[#111113] p-6 sm:p-8 rounded-3xl border border-white/10 shadow-lg space-y-4">
+        <h2 className="font-heading font-extrabold text-lg sm:text-xl text-white">
           3D Printed Products in Malaysia — Quality, Variety & Customization
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-[#18181b]/70 leading-relaxed font-sans">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-white/70 leading-relaxed font-sans">
           <div>
             <p className="mb-2">
               At <strong>Cabai Enterprise</strong>, our shop catalog is engineered for makers, professionals, and 3D printing enthusiasts across Malaysia. From signature <strong>Cabai 3D keychains</strong> and articulated fidget toys to modular desk organizers and custom badge nameplates, every product is manufactured in-house using high-tensile, eco-friendly PLA.
@@ -327,12 +327,12 @@ export const ShopView: React.FC = () => {
             </p>
           </div>
           <div>
-            <h3 className="font-heading font-bold text-[#18181b] text-sm mb-2">Featured Product Categories:</h3>
-            <ul className="list-disc list-inside space-y-1 text-[#18181b]/70">
-              <li><strong className="text-[#18181b]">3D Printed Keychains:</strong> Studio-signature chili peppers, couples sets, kawaii anime charms, and DIY drawable surfaces.</li>
-              <li><strong className="text-[#18181b]">Custom 3D Badges:</strong> Upload company logos, personalized artwork, or embossed text with pin or neodymium magnetic backings.</li>
-              <li><strong className="text-[#18181b]">Desk & Tech Accessories:</strong> Honeycomb pen holders, SD card organizers, cable winders, and ergonomic phone stands.</li>
-              <li><strong className="text-[#18181b]">3D Printed Toys & Fidgets:</strong> Mechanical switch clickers, flexi dragons, and interactive art pieces.</li>
+            <h3 className="font-heading font-bold text-white text-sm mb-2">Featured Product Categories:</h3>
+            <ul className="list-disc list-inside space-y-1 text-white/70">
+              <li><strong className="text-white">3D Printed Keychains:</strong> Studio-signature chili peppers, couples sets, kawaii anime charms, and DIY drawable surfaces.</li>
+              <li><strong className="text-white">Custom 3D Badges:</strong> Upload company logos, personalized artwork, or embossed text with pin or neodymium magnetic backings.</li>
+              <li><strong className="text-white">Desk & Tech Accessories:</strong> Honeycomb pen holders, SD card organizers, cable winders, and ergonomic phone stands.</li>
+              <li><strong className="text-white">3D Printed Toys & Fidgets:</strong> Mechanical switch clickers, flexi dragons, and interactive art pieces.</li>
             </ul>
           </div>
         </div>

@@ -51,11 +51,11 @@ const MainContent: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#f9f9f9] relative">
+    <div className="min-h-screen flex flex-col bg-[#070708] text-white relative selection:bg-[#af101a] selection:text-white">
       <SEOHead />
       <Header />
       
-      <main className="flex-1">
+      <main className="flex-1 bg-[#070708]">
         {currentView === 'home' && <HomeView />}
         {currentView === 'shop' && <ShopView />}
         {currentView === 'product_detail' && <ProductDetailView />}
@@ -74,7 +74,7 @@ const MainContent: React.FC = () => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
               <button
                 onClick={() => setCurrentView('shop')}
-                className="inline-flex items-center gap-2 text-xs font-bold text-gray-600 hover:text-[#af101a] transition-colors"
+                className="inline-flex items-center gap-2 text-xs font-bold text-white/60 hover:text-[#ff4d5a] transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span>Back to 3D Shop Catalog</span>
@@ -91,27 +91,27 @@ const MainContent: React.FC = () => {
       {/* Floating Cabai AI Floating Launcher */}
       <button
         onClick={() => setIsAiOpen(true)}
-        className="fixed bottom-6 right-6 z-30 bg-[#1a1c1c] hover:bg-black text-white px-4 py-3 rounded-full shadow-2xl border-2 border-red-600/50 flex items-center gap-2.5 font-bold text-sm group hover:scale-105 transition-all active:scale-95 cursor-pointer"
+        className="fixed bottom-6 right-6 z-30 bg-[#151517] hover:bg-[#1C1C20] text-white px-4 py-3 rounded-full shadow-2xl border border-white/15 hover:border-red-500/40 flex items-center gap-2.5 font-bold text-sm group hover:scale-105 transition-all active:scale-95 cursor-pointer backdrop-blur-md"
         title="Ask Cabai AI 3D Printing Assistant"
       >
-        <div className="w-7 h-7 rounded-full bg-[#af101a] flex items-center justify-center text-white shadow-sm">
+        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#AF101A] to-[#E11D48] flex items-center justify-center text-white shadow-md">
           <Sparkles className="w-4 h-4 animate-pulse" />
         </div>
         <span className="font-heading tracking-wide">Ask Cabai AI</span>
-        <span className="flex h-2.5 w-2.5 relative">
+        <span className="flex h-2 w-2 relative">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-[#AF101A]"></span>
         </span>
       </button>
 
       {/* Quick Daily Spin Floating Button (Bottom Left) */}
       <button
         onClick={() => setIsSpinModalOpen(true)}
-        className="fixed bottom-6 left-6 z-30 bg-gradient-to-r from-amber-500 to-red-600 hover:from-amber-600 hover:to-red-700 text-white px-3.5 py-2.5 rounded-full shadow-2xl border border-white/30 flex items-center gap-2 font-black text-xs group hover:scale-105 transition-all active:scale-95 cursor-pointer"
+        className="fixed bottom-6 left-6 z-30 bg-[#151517] hover:bg-[#1C1C20] text-white px-3.5 py-2.5 rounded-full shadow-2xl border border-white/15 hover:border-amber-500/40 flex items-center gap-2 font-bold text-xs group hover:scale-105 transition-all active:scale-95 cursor-pointer backdrop-blur-md"
         title="Daily Lucky Spin Wheel (10%/20%/RM5 OFF)"
       >
         <span className="text-base group-hover:rotate-180 transition-transform duration-500">🎡</span>
-        <span>Daily Spin</span>
+        <span className="text-amber-300 font-mono-code font-bold">Spin &amp; Win</span>
       </button>
 
       <Footer />

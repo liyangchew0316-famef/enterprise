@@ -13,7 +13,7 @@ export const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="bg-[#1a1a1a] text-[#f8f7f4] pt-16 pb-12 border-t-2 border-[#af101a]">
+    <footer className="bg-[#111113] text-white pt-16 pb-12 border-t border-white/10 font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-white/10">
@@ -21,7 +21,7 @@ export const Footer: React.FC = () => {
           {/* Col 1: Brand Info */}
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-md bg-white/5 border border-white/10 overflow-hidden flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-[#18181B] border border-white/10 overflow-hidden flex items-center justify-center shrink-0">
                 <img 
                   src={imageConfig.logos.footer} 
                   alt="Cabai Enterprise Logo" 
@@ -33,10 +33,10 @@ export const Footer: React.FC = () => {
                 />
               </div>
               <div>
-                <div className="font-heading font-extrabold text-lg tracking-tight text-white leading-none">
-                  CABAI <span className="text-[#af101a]">ENTERPRISE</span>
+                <div className="font-heading font-extrabold text-base tracking-tight text-white leading-none">
+                  CABAI <span className="text-[#FF4D5A]">ENTERPRISE</span>
                 </div>
-                <div className="studio-label text-[9px] text-white/50 uppercase mt-0.5">
+                <div className="text-[10px] font-mono-code text-white/50 uppercase mt-1">
                   Maker Studio • Penang
                 </div>
               </div>
@@ -45,13 +45,13 @@ export const Footer: React.FC = () => {
               Specialist maker studio based in Penang, Malaysia. Focused on precision rapid prototyping, 0.12mm layer resolution, and custom 3D printing solutions.
             </p>
 
-            <div className="pt-1 space-y-1 text-xs text-white/60 font-mono-code">
+            <div className="pt-1 space-y-1.5 text-xs text-white/60 font-mono-code">
               <div className="flex items-center gap-2">
-                <MapPin className="w-3.5 h-3.5 text-[#af101a] shrink-0" />
+                <MapPin className="w-3.5 h-3.5 text-[#FF4D5A] shrink-0" />
                 <span>Bukit Mertajam, Penang, MY</span>
               </div>
               <div className="flex items-center gap-2">
-                <Phone className="w-3.5 h-3.5 text-[#af101a] shrink-0" />
+                <Phone className="w-3.5 h-3.5 text-[#FF4D5A] shrink-0" />
                 <a href="https://wa.me/60129058515" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
                   +60 12-905 8515 (WhatsApp)
                 </a>
@@ -60,8 +60,8 @@ export const Footer: React.FC = () => {
           </div>
 
           {/* Col 2: Products */}
-          <div className="space-y-3">
-            <span className="studio-label text-[#af101a] block font-bold">
+          <div className="space-y-3 font-mono-code">
+            <span className="text-xs text-[#FF4D5A] block font-bold tracking-wider">
               [ PRODUCTS ]
             </span>
             <ul className="space-y-2 text-xs text-white/70">
@@ -81,7 +81,7 @@ export const Footer: React.FC = () => {
                 </button>
               </li>
               <li>
-                <button onClick={() => navTo('custom_print')} className="hover:text-white transition-colors cursor-pointer text-[#af101a] font-semibold flex items-center gap-1">
+                <button onClick={() => navTo('custom_print')} className="hover:text-white transition-colors cursor-pointer text-[#FF4D5A] font-semibold flex items-center gap-1">
                   <span>Custom Prints &amp; Draw Lab</span>
                   <ArrowUpRight className="w-3.5 h-3.5" />
                 </button>
@@ -95,8 +95,8 @@ export const Footer: React.FC = () => {
           </div>
 
           {/* Col 3: Studio */}
-          <div className="space-y-3">
-            <span className="studio-label text-[#af101a] block font-bold">
+          <div className="space-y-3 font-mono-code">
+            <span className="text-xs text-[#FF4D5A] block font-bold tracking-wider">
               [ STUDIO ]
             </span>
             <ul className="space-y-2 text-xs text-white/70">
@@ -129,19 +129,19 @@ export const Footer: React.FC = () => {
           </div>
 
           {/* Col 4: Connect & Admin */}
-          <div className="space-y-3">
-            <span className="studio-label text-[#af101a] block font-bold">
+          <div className="space-y-3 font-mono-code">
+            <span className="text-xs text-[#FF4D5A] block font-bold tracking-wider">
               [ CONNECT ]
             </span>
-            <p className="text-xs text-white/60 leading-relaxed">
+            <p className="text-xs text-white/60 leading-relaxed font-sans">
               Inquiries for custom bulk prints, corporate merchandise, or 3D prototyping assistance.
             </p>
-            <div className="pt-1 space-y-2">
+            <div className="pt-1 space-y-2 font-mono-code">
               <a 
                 href="https://wa.me/60129058515" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-white/10 hover:bg-white/20 text-white text-xs font-semibold uppercase tracking-wider transition-colors"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#18181B] hover:bg-[#27272A] border border-white/10 text-white text-xs font-semibold uppercase tracking-wider transition-colors"
               >
                 <span>WhatsApp Fast Chat</span>
                 <ArrowUpRight className="w-3 h-3" />
@@ -152,7 +152,7 @@ export const Footer: React.FC = () => {
                   href="https://admin-beta-pink-11.vercel.app/" 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#af101a] hover:bg-[#8d0a12] text-white text-xs font-bold uppercase tracking-wider transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#AF101A] hover:bg-[#E11D48] text-white text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
                 >
                   <ShieldCheck className="w-3.5 h-3.5" />
                   <span>Boss Admin Console</span>

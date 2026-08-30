@@ -195,22 +195,22 @@ export const CustomPrintView: React.FC = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
       
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-[#1a1c1c] via-[#2a2c2e] to-[#1a1c1c] text-white p-8 sm:p-10 rounded-3xl border-2 border-red-900/50 shadow-2xl space-y-4 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-red-900/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="bg-[#111113] text-white p-8 sm:p-10 rounded-3xl border border-white/10 shadow-2xl space-y-4 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-[#AF101A]/10 rounded-full blur-3xl pointer-events-none" />
         
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-red-950/80 text-red-300 text-xs font-extrabold border border-red-800 shadow-inner">
-            <Flame className="w-3.5 h-3.5 text-[#af101a] animate-pulse" />
-            <span>CUSTOM CHILI DRAWING LAB & 3D MAKER</span>
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-red-950/80 text-[#FF4D5A] text-xs font-mono-code font-extrabold border border-red-900/60 shadow-inner">
+            <Flame className="w-3.5 h-3.5 text-[#FF4D5A] animate-pulse" />
+            <span>CUSTOM CHILI DRAWING LAB &amp; 3D MAKER</span>
           </div>
 
           <div className="flex items-center gap-2">
             <button
               onClick={() => setActiveTab('canvas')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+              className={`px-4 py-2 rounded-xl text-xs font-mono-code font-bold transition-all flex items-center gap-2 cursor-pointer ${
                 activeTab === 'canvas'
-                  ? 'bg-[#af101a] text-white shadow-lg shadow-red-950/50'
-                  : 'bg-gray-800/80 text-gray-300 hover:bg-gray-700'
+                  ? 'bg-[#AF101A] text-white shadow-lg shadow-red-950/50'
+                  : 'bg-[#18181B] text-white/70 hover:bg-white/10 border border-white/10'
               }`}
             >
               <Paintbrush className="w-4 h-4" />
@@ -221,10 +221,10 @@ export const CustomPrintView: React.FC = () => {
                 setActiveTab('gallery');
                 loadGalleryFromFirestore();
               }}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+              className={`px-4 py-2 rounded-xl text-xs font-mono-code font-bold transition-all flex items-center gap-2 cursor-pointer ${
                 activeTab === 'gallery'
-                  ? 'bg-[#af101a] text-white shadow-lg shadow-red-950/50'
-                  : 'bg-gray-800/80 text-gray-300 hover:bg-gray-700'
+                  ? 'bg-[#AF101A] text-white shadow-lg shadow-red-950/50'
+                  : 'bg-[#18181B] text-white/70 hover:bg-white/10 border border-white/10'
               }`}
             >
               <Cloud className="w-4 h-4 text-emerald-400" />
@@ -237,7 +237,7 @@ export const CustomPrintView: React.FC = () => {
           <h1 className="font-heading font-extrabold text-2xl sm:text-4xl text-white tracking-tight">
             Draw Your Own 3D Chili Keychain 🌶️
           </h1>
-          <p className="text-gray-300 text-sm max-w-2xl mt-2">
+          <p className="text-white/70 text-sm max-w-2xl mt-2 font-mono-code">
             Draw, stamp 3D emojis, add embossed text labels directly on top of the signature Cabai pepper, and save your custom designs directly to Firebase Firestore for 3D printing!
           </p>
         </div>
@@ -252,18 +252,18 @@ export const CustomPrintView: React.FC = () => {
           <div className="lg:col-span-8 space-y-8">
             
             {/* STEP 1: Interactive Canvas */}
-            <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm space-y-4">
-              <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+            <div className="bg-[#111113] p-6 rounded-3xl border border-white/10 shadow-xl space-y-4">
+              <div className="flex items-center justify-between border-b border-white/10 pb-3">
                 <div className="flex items-center gap-2">
-                  <span className="w-7 h-7 rounded-full bg-[#af101a] text-white text-xs font-extrabold flex items-center justify-center shadow-xs">1</span>
+                  <span className="w-7 h-7 rounded-full bg-[#AF101A] text-white text-xs font-mono-code font-extrabold flex items-center justify-center shadow-xs">1</span>
                   <div>
-                    <h2 className="font-heading font-bold text-base text-[#1a1c1c]">
-                      Chili Canvas & 3D Drawing Pad
+                    <h2 className="font-heading font-bold text-base text-white">
+                      Chili Canvas &amp; 3D Drawing Pad
                     </h2>
-                    <p className="text-xs text-gray-500">Pick brushes, stickers, or text to customize your pepper.</p>
+                    <p className="text-xs text-white/50 font-mono-code">Pick brushes, stickers, or text to customize your pepper.</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-bold bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
+                <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-mono-code font-bold bg-emerald-950/80 px-2.5 py-1 rounded-lg border border-emerald-800/80">
                   <Database className="w-3.5 h-3.5" />
                   <span>Firestore Sync Ready</span>
                 </div>
@@ -284,37 +284,37 @@ export const CustomPrintView: React.FC = () => {
             </div>
 
             {/* STEP 2: Choose 3D Print Material */}
-            <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm space-y-4">
+            <div className="bg-[#111113] p-6 rounded-3xl border border-white/10 shadow-xl space-y-4">
               <div className="flex items-center gap-2">
-                <span className="w-7 h-7 rounded-full bg-[#af101a] text-white text-xs font-extrabold flex items-center justify-center shadow-xs">2</span>
-                <h2 className="font-heading font-bold text-base text-[#1a1c1c]">
-                  3D Print Material: <strong className="text-[#af101a]">100% Eco PLA+</strong>
+                <span className="w-7 h-7 rounded-full bg-[#AF101A] text-white text-xs font-mono-code font-extrabold flex items-center justify-center shadow-xs">2</span>
+                <h2 className="font-heading font-bold text-base text-white">
+                  3D Print Material: <strong className="text-[#FF4D5A]">100% Eco PLA+</strong>
                 </h2>
               </div>
 
-              <div className="p-4 rounded-2xl border border-[#af101a] bg-red-50/50 ring-2 ring-red-200 shadow-xs flex items-center justify-between">
+              <div className="p-4 rounded-2xl border border-[#AF101A] bg-[#18181B] shadow-md flex items-center justify-between">
                 <div>
-                  <div className="font-extrabold text-sm text-[#1a1c1c] flex items-center gap-2">
+                  <div className="font-heading font-extrabold text-sm text-white flex items-center gap-2">
                     <span>Eco PLA+ (Food-Safe &amp; Rigid Decor)</span>
-                    <span className="px-2 py-0.5 rounded-md bg-[#af101a] text-white text-[10px] font-black uppercase">Selected</span>
+                    <span className="px-2 py-0.5 rounded-md bg-[#AF101A] text-white text-[10px] font-mono-code font-black uppercase">Selected</span>
                   </div>
-                  <div className="text-xs text-gray-600 mt-1 max-w-xl">
+                  <div className="text-xs text-white/60 mt-1 max-w-xl font-mono-code">
                     Ultra-smooth surface finish with zero warping, perfectly tuned for vivid color canvas drawings, keychain loops, and crisp dimensional relief.
                   </div>
                 </div>
-                <div className="text-right shrink-0">
-                  <div className="text-[11px] font-bold text-[#af101a]">RM 0.12 / gram</div>
-                  <div className="text-[10px] text-gray-500">Pure Bio-Based PLA</div>
+                <div className="text-right shrink-0 font-mono-code">
+                  <div className="text-[11px] font-bold text-[#FF4D5A]">RM 0.12 / gram</div>
+                  <div className="text-[10px] text-white/40">Pure Bio-Based PLA</div>
                 </div>
               </div>
             </div>
 
             {/* STEP 3: Base Filament Color */}
-            <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm space-y-4">
+            <div className="bg-[#111113] p-6 rounded-3xl border border-white/10 shadow-xl space-y-4">
               <div className="flex items-center gap-2">
-                <span className="w-7 h-7 rounded-full bg-[#af101a] text-white text-xs font-extrabold flex items-center justify-center shadow-xs">3</span>
-                <h2 className="font-heading font-bold text-base text-[#1a1c1c]">
-                  Base Filament Color: <strong className="text-[#af101a]">{color.name}</strong>
+                <span className="w-7 h-7 rounded-full bg-[#AF101A] text-white text-xs font-mono-code font-extrabold flex items-center justify-center shadow-xs">3</span>
+                <h2 className="font-heading font-bold text-base text-white">
+                  Base Filament Color: <strong className="text-[#FF4D5A]">{color.name}</strong>
                 </h2>
               </div>
 
@@ -323,13 +323,13 @@ export const CustomPrintView: React.FC = () => {
                   <button
                     key={c.name}
                     onClick={() => setColor(c)}
-                    className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold border transition-all ${
+                    className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-mono-code font-bold border transition-all cursor-pointer ${
                       color.name === c.name
-                        ? 'border-[#af101a] bg-red-50 text-[#af101a] ring-2 ring-red-200 shadow-xs'
-                        : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                        ? 'border-[#AF101A] bg-red-950/60 text-[#FF4D5A] shadow-md'
+                        : 'border-white/10 bg-[#18181B] text-white/70 hover:border-white/20'
                     }`}
                   >
-                    <span className="w-4 h-4 rounded-full border border-gray-400" style={{ backgroundColor: c.hex }} />
+                    <span className="w-4 h-4 rounded-full border border-white/20 shadow-xs" style={{ backgroundColor: c.hex }} />
                     <span>{c.name}</span>
                   </button>
                 ))}
@@ -337,11 +337,11 @@ export const CustomPrintView: React.FC = () => {
             </div>
 
             {/* STEP 4: Infill Density & Layer Resolution */}
-            <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm space-y-6">
+            <div className="bg-[#111113] p-6 rounded-3xl border border-white/10 shadow-xl space-y-6">
               <div className="flex items-center gap-2">
-                <span className="w-7 h-7 rounded-full bg-[#af101a] text-white text-xs font-extrabold flex items-center justify-center shadow-xs">4</span>
-                <h2 className="font-heading font-bold text-base text-[#1a1c1c]">
-                  Print Resolution & Infill Density
+                <span className="w-7 h-7 rounded-full bg-[#AF101A] text-white text-xs font-mono-code font-extrabold flex items-center justify-center shadow-xs">4</span>
+                <h2 className="font-heading font-bold text-base text-white">
+                  Print Resolution &amp; Infill Density
                 </h2>
               </div>
 
@@ -349,9 +349,9 @@ export const CustomPrintView: React.FC = () => {
                 
                 {/* Infill Density Slider */}
                 <div className="space-y-2">
-                  <div className="flex justify-between text-xs font-bold text-gray-700">
+                  <div className="flex justify-between text-xs font-mono-code font-bold text-white">
                     <span>Internal Infill Density:</span>
-                    <span className="text-[#af101a] font-extrabold">{infillPercent}%</span>
+                    <span className="text-[#FF4D5A] font-extrabold">{infillPercent}%</span>
                   </div>
                   <input
                     type="range"
@@ -360,16 +360,16 @@ export const CustomPrintView: React.FC = () => {
                     step="5"
                     value={infillPercent}
                     onChange={(e) => setInfillPercent(Number(e.target.value))}
-                    className="w-full accent-[#af101a]"
+                    className="w-full accent-[#AF101A]"
                   />
-                  <div className="text-[11px] text-gray-500">
+                  <div className="text-[11px] text-white/40 font-mono-code">
                     20% standard for keychains; 50%+ for ultra-solid feel.
                   </div>
                 </div>
 
                 {/* Layer Resolution */}
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-700 block">
+                  <label className="text-xs font-mono-code font-bold text-white block">
                     Layer Resolution Precision
                   </label>
                   <div className="grid grid-cols-3 gap-2">
@@ -381,10 +381,10 @@ export const CustomPrintView: React.FC = () => {
                       <button
                         key={opt.id}
                         onClick={() => setLayerHeight(opt.id as any)}
-                        className={`py-2 px-2 rounded-xl text-xs font-bold border text-center transition-all ${
+                        className={`py-2 px-2 rounded-xl text-xs font-mono-code font-bold border text-center transition-all cursor-pointer ${
                           layerHeight === opt.id
-                            ? 'bg-[#1a1c1c] text-white border-[#1a1c1c] shadow-xs'
-                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                            ? 'bg-[#AF101A] text-white border-[#AF101A] shadow-md'
+                            : 'bg-[#18181B] text-white/70 border-white/10 hover:bg-white/10'
                         }`}
                       >
                         <div>{opt.name}</div>
@@ -397,10 +397,10 @@ export const CustomPrintView: React.FC = () => {
               </div>
 
               {/* Model Scaling Slider */}
-              <div className="space-y-2 pt-4 border-t border-gray-100">
-                <div className="flex justify-between text-xs font-bold text-gray-700">
+              <div className="space-y-2 pt-4 border-t border-white/10">
+                <div className="flex justify-between text-xs font-mono-code font-bold text-white">
                   <span>Physical Scale Factor:</span>
-                  <span className="text-[#af101a] font-extrabold">{scalePercent}%</span>
+                  <span className="text-[#FF4D5A] font-extrabold">{scalePercent}%</span>
                 </div>
                 <input
                   type="range"
@@ -409,13 +409,13 @@ export const CustomPrintView: React.FC = () => {
                   step="10"
                   value={scalePercent}
                   onChange={(e) => setScalePercent(Number(e.target.value))}
-                  className="w-full accent-[#af101a]"
+                  className="w-full accent-[#AF101A]"
                 />
               </div>
 
               {/* Special Instructions */}
               <div className="space-y-1.5 pt-2">
-                <label className="text-xs font-bold text-gray-700 block">
+                <label className="text-xs font-mono-code font-bold text-white block">
                   Additional Maker Instructions / Notes (Optional)
                 </label>
                 <textarea
@@ -423,7 +423,7 @@ export const CustomPrintView: React.FC = () => {
                   placeholder="e.g. Include dual-color loop ring or smooth surface ironing..."
                   value={specialInstructions}
                   onChange={(e) => setSpecialInstructions(e.target.value)}
-                  className="w-full p-3 text-xs bg-gray-50 border border-gray-300 rounded-xl focus:outline-hidden focus:border-[#af101a]"
+                  className="w-full p-3 text-xs bg-[#18181B] border border-white/10 rounded-xl focus:outline-hidden focus:border-[#AF101A] font-mono-code text-white placeholder-white/30"
                 />
               </div>
 
@@ -433,83 +433,83 @@ export const CustomPrintView: React.FC = () => {
 
           {/* Right Column: Sticky Quote Summary Card (4 cols) */}
           <div className="lg:col-span-4">
-            <div className="sticky top-28 bg-white p-6 rounded-3xl border border-gray-200 shadow-xl space-y-5">
+            <div className="sticky top-28 bg-[#111113] p-6 rounded-3xl border border-white/10 shadow-2xl space-y-5">
               
-              <div className="border-b border-gray-100 pb-3 flex items-center justify-between">
-                <h3 className="font-heading font-extrabold text-base text-[#1a1c1c] uppercase tracking-wider">
+              <div className="border-b border-white/10 pb-3 flex items-center justify-between">
+                <h3 className="font-heading font-extrabold text-base text-white uppercase tracking-wider">
                   Custom Print Quote
                 </h3>
-                <span className="text-xs bg-red-100 text-[#af101a] font-extrabold px-2.5 py-0.5 rounded-full">
+                <span className="text-xs bg-red-950/80 text-[#FF4D5A] font-mono-code font-extrabold px-2.5 py-0.5 rounded-full border border-red-800/60">
                   Live Calculator
                 </span>
               </div>
 
               {/* Thumbnail of Current Drawing */}
               {currentCanvasImage ? (
-                <div className="rounded-2xl border border-gray-200 overflow-hidden bg-gray-900 p-1 shadow-inner">
+                <div className="rounded-2xl border border-white/10 overflow-hidden bg-black/60 p-1 shadow-inner">
                   <img 
                     src={currentCanvasImage} 
                     alt="Custom Drawing Preview" 
                     className="w-full h-40 object-contain rounded-xl"
                   />
-                  <div className="text-center text-[11px] text-gray-400 py-1 font-bold truncate px-2">
+                  <div className="text-center text-[11px] text-white/50 py-1 font-mono-code font-bold truncate px-2">
                     {designTitle}
                   </div>
                 </div>
               ) : (
-                <div className="rounded-2xl border border-dashed border-gray-300 bg-gray-50 p-4 text-center text-xs text-gray-400">
+                <div className="rounded-2xl border border-dashed border-white/15 bg-[#18181B] p-4 text-center text-xs text-white/40 font-mono-code">
                   Draw on the canvas to generate custom preview
                 </div>
               )}
 
-              <div className="space-y-2 text-xs text-gray-600">
+              <div className="space-y-2 text-xs text-white/70 font-mono-code">
                 <div className="flex justify-between">
                   <span>Design:</span>
-                  <span className="font-bold text-gray-900 truncate max-w-[160px]">{designTitle}</span>
+                  <span className="font-bold text-white truncate max-w-[160px]">{designTitle}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Material & Color:</span>
-                  <span className="font-bold text-gray-900">{material} ({color.name})</span>
+                  <span>Material &amp; Color:</span>
+                  <span className="font-bold text-white">{material} ({color.name})</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Est. Part Weight:</span>
-                  <span className="font-bold text-gray-900">~{estimatedWeightGrams} grams</span>
+                  <span className="font-bold text-white">~{estimatedWeightGrams} grams</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Est. Print Time:</span>
-                  <span className="font-bold text-gray-900">~{estimatedHours} hours</span>
+                  <span className="font-bold text-white">~{estimatedHours} hours</span>
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-gray-100 space-y-2 text-xs text-gray-600">
+              <div className="pt-3 border-t border-white/10 space-y-2 text-xs text-white/70 font-mono-code">
                 <div className="flex justify-between">
                   <span>Filament Material Cost</span>
-                  <span>RM {(estimatedWeightGrams * materialCostPerGram).toFixed(2)}</span>
+                  <span className="text-white">RM {(estimatedWeightGrams * materialCostPerGram).toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Studio Machine Runtime</span>
-                  <span>RM {(estimatedHours * machineRatePerHour).toFixed(2)}</span>
+                  <span className="text-white">RM {(estimatedHours * machineRatePerHour).toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Base Studio Setup Fee</span>
-                  <span>RM {setupFee.toFixed(2)}</span>
+                  <span className="text-white">RM {setupFee.toFixed(2)}</span>
                 </div>
               </div>
 
               {/* Quantity Selector */}
-              <div className="pt-3 border-t border-gray-100 flex items-center justify-between">
-                <span className="text-xs font-bold text-gray-700">Quantity:</span>
-                <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden">
+              <div className="pt-3 border-t border-white/10 flex items-center justify-between">
+                <span className="text-xs font-mono-code font-bold text-white">Quantity:</span>
+                <div className="flex items-center border border-white/10 bg-[#18181B] rounded-lg overflow-hidden font-mono-code">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="px-2.5 py-1 text-gray-600 hover:bg-gray-100 font-bold"
+                    className="px-2.5 py-1 text-white/70 hover:bg-white/10 font-bold cursor-pointer"
                   >
                     -
                   </button>
-                  <span className="px-3 text-xs font-bold text-gray-900">{quantity}</span>
+                  <span className="px-3 text-xs font-bold text-white">{quantity}</span>
                   <button
                     onClick={() => setQuantity(quantity + 1)}
-                    className="px-2.5 py-1 text-gray-600 hover:bg-gray-100 font-bold"
+                    className="px-2.5 py-1 text-white/70 hover:bg-white/10 font-bold cursor-pointer"
                   >
                     +
                   </button>
@@ -517,19 +517,19 @@ export const CustomPrintView: React.FC = () => {
               </div>
 
               {/* Total Calculation */}
-              <div className="pt-3 border-t border-gray-200">
-                <div className="text-xs text-gray-400">Total Custom Quote Price</div>
-                <div className="font-heading font-extrabold text-3xl text-[#af101a]">
+              <div className="pt-3 border-t border-white/10">
+                <div className="text-xs text-white/40 font-mono-code">Total Custom Quote Price</div>
+                <div className="font-heading font-extrabold text-3xl text-[#FF4D5A]">
                   RM {totalQuotePrice.toFixed(2)}
                 </div>
-                <div className="text-[10px] text-gray-500 mt-1">
+                <div className="text-[10px] text-white/40 mt-1 font-mono-code">
                   Crafted at Subang Jaya Studio • SST 6% included
                 </div>
               </div>
 
               <button
                 onClick={() => handleAddToCart()}
-                className="w-full py-4 bg-[#af101a] hover:bg-[#8d0a12] text-white font-extrabold text-sm rounded-2xl shadow-lg shadow-red-950/20 transition-all flex items-center justify-center gap-2 group cursor-pointer"
+                className="w-full py-4 bg-[#AF101A] hover:bg-[#E11D48] text-white font-mono-code font-extrabold text-sm rounded-2xl shadow-xl shadow-red-950/40 transition-all flex items-center justify-center gap-2 group cursor-pointer"
               >
                 <span>Add Custom Chili to Cart</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -544,10 +544,10 @@ export const CustomPrintView: React.FC = () => {
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="font-heading font-extrabold text-xl text-gray-900">
+              <h2 className="font-heading font-extrabold text-xl text-white">
                 Firebase Cloud Creations Gallery
               </h2>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-white/50 font-mono-code">
                 Browse, like, or load custom 3D chili designs saved by makers into Firestore.
               </p>
             </div>
@@ -555,7 +555,7 @@ export const CustomPrintView: React.FC = () => {
             <button
               onClick={loadGalleryFromFirestore}
               disabled={isLoadingGallery}
-              className="px-3.5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold rounded-xl flex items-center gap-2 transition-colors"
+              className="px-3.5 py-2 bg-[#18181B] hover:bg-white/10 text-white text-xs font-mono-code font-bold rounded-xl flex items-center gap-2 border border-white/10 transition-colors cursor-pointer"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isLoadingGallery ? 'animate-spin' : ''}`} />
               <span>Refresh</span>
@@ -564,21 +564,21 @@ export const CustomPrintView: React.FC = () => {
 
           {isLoadingGallery ? (
             <div className="py-20 text-center space-y-3">
-              <RefreshCw className="w-8 h-8 text-[#af101a] animate-spin mx-auto" />
-              <p className="text-xs text-gray-500 font-bold">Connecting to Firebase Firestore...</p>
+              <RefreshCw className="w-8 h-8 text-[#FF4D5A] animate-spin mx-auto" />
+              <p className="text-xs text-white/50 font-mono-code font-bold">Connecting to Firebase Firestore...</p>
             </div>
           ) : savedDrawings.length === 0 ? (
-            <div className="bg-white p-12 rounded-3xl border border-gray-200 text-center space-y-4">
-              <div className="w-16 h-16 rounded-full bg-red-50 text-[#af101a] flex items-center justify-center mx-auto">
+            <div className="bg-[#111113] p-12 rounded-3xl border border-white/10 text-center space-y-4">
+              <div className="w-16 h-16 rounded-full bg-red-950/60 border border-red-800/60 text-[#FF4D5A] flex items-center justify-center mx-auto">
                 <Paintbrush className="w-8 h-8" />
               </div>
-              <h3 className="font-bold text-base text-gray-900">No Chili Creations Saved Yet</h3>
-              <p className="text-xs text-gray-500 max-w-md mx-auto">
+              <h3 className="font-heading font-bold text-base text-white">No Chili Creations Saved Yet</h3>
+              <p className="text-xs text-white/50 max-w-md mx-auto font-mono-code">
                 Be the first maker to draw on the chili image and save your custom artwork to Firebase!
               </p>
               <button
                 onClick={() => setActiveTab('canvas')}
-                className="px-5 py-2.5 bg-[#af101a] hover:bg-red-800 text-white text-xs font-bold rounded-xl shadow transition-colors"
+                className="px-5 py-2.5 bg-[#AF101A] hover:bg-[#E11D48] text-white text-xs font-mono-code font-bold rounded-xl shadow-lg transition-colors cursor-pointer"
               >
                 Open Drawing Canvas
               </button>
@@ -588,16 +588,16 @@ export const CustomPrintView: React.FC = () => {
               {savedDrawings.map((drawing) => (
                 <div 
                   key={drawing.id}
-                  className="bg-white rounded-3xl border border-gray-200 shadow-xs hover:shadow-lg transition-all overflow-hidden flex flex-col group"
+                  className="bg-[#111113] rounded-3xl border border-white/10 shadow-xl hover:border-white/20 transition-all overflow-hidden flex flex-col group"
                 >
                   {/* Image Display */}
-                  <div className="relative h-60 bg-[#181a1b] p-2 flex items-center justify-center overflow-hidden">
+                  <div className="relative h-60 bg-black/60 p-2 flex items-center justify-center overflow-hidden border-b border-white/10">
                     <img 
                       src={drawing.imageData} 
                       alt={drawing.title}
                       className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
                     />
-                    <div className="absolute top-3 left-3 bg-black/70 backdrop-blur-xs text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full border border-gray-700">
+                    <div className="absolute top-3 left-3 bg-black/80 backdrop-blur-xs text-white text-[10px] font-mono-code font-extrabold px-2.5 py-1 rounded-full border border-white/10">
                       {drawing.material || 'PLA+'}
                     </div>
                   </div>
@@ -605,25 +605,25 @@ export const CustomPrintView: React.FC = () => {
                   {/* Body Content */}
                   <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
                     <div>
-                      <div className="flex items-center justify-between text-xs text-gray-400 mb-1">
+                      <div className="flex items-center justify-between text-xs text-white/40 mb-1 font-mono-code">
                         <span>By {drawing.creatorName || 'Anonymous Maker'}</span>
                         <span>{new Date(drawing.createdAt).toLocaleDateString()}</span>
                       </div>
-                      <h3 className="font-bold text-base text-gray-900 group-hover:text-[#af101a] transition-colors">
+                      <h3 className="font-heading font-bold text-base text-white group-hover:text-[#FF4D5A] transition-colors">
                         {drawing.title}
                       </h3>
-                      <div className="text-xs text-gray-500 mt-1">
-                        Color: <span className="font-bold text-gray-800">{drawing.colorName || 'Chili Red'}</span>
+                      <div className="text-xs text-white/50 mt-1 font-mono-code">
+                        Color: <span className="font-bold text-white">{drawing.colorName || 'Chili Red'}</span>
                       </div>
                     </div>
 
                     {/* Actions */}
-                    <div className="pt-3 border-t border-gray-100 flex items-center justify-between gap-2">
+                    <div className="pt-3 border-t border-white/10 flex items-center justify-between gap-2">
                       <button
                         onClick={() => handleLikeDrawing(drawing.id, drawing.likesCount || 0)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-50 text-[#af101a] text-xs font-bold hover:bg-red-100 transition-colors"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-950/60 border border-red-800/60 text-[#FF4D5A] text-xs font-mono-code font-bold hover:bg-red-900/60 transition-colors cursor-pointer"
                       >
-                        <Heart className="w-3.5 h-3.5 fill-[#af101a]" />
+                        <Heart className="w-3.5 h-3.5 fill-[#FF4D5A]" />
                         <span>{drawing.likesCount || 0}</span>
                       </button>
 
@@ -631,17 +631,17 @@ export const CustomPrintView: React.FC = () => {
                         <button
                           onClick={() => handleDeleteDrawing(drawing.id)}
                           title="Delete from Firebase"
-                          className="p-2 text-gray-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition-colors"
+                          className="p-2 text-white/40 hover:text-[#FF4D5A] rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
 
                         <button
                           onClick={() => handleLoadDrawingIntoCanvas(drawing)}
-                          className="px-3 py-1.5 rounded-lg bg-[#1a1c1c] text-white hover:bg-black text-xs font-bold transition-colors flex items-center gap-1.5"
+                          className="px-3 py-1.5 rounded-lg bg-[#18181B] text-white border border-white/10 hover:bg-white/10 text-xs font-mono-code font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
                         >
                           <Paintbrush className="w-3.5 h-3.5" />
-                          <span>Load & Edit</span>
+                          <span>Load &amp; Edit</span>
                         </button>
                       </div>
                     </div>

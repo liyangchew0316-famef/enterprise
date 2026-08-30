@@ -212,19 +212,19 @@ export const OrderTrackingView: React.FC = () => {
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-fadeIn">
       
       {/* Top Banner */}
-      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
+      <div className="bg-[#111113] p-6 sm:p-8 rounded-3xl border border-white/10 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 bg-red-50 text-[#af101a] rounded-2xl flex items-center justify-center text-2xl shadow-xs shrink-0">
-            <PackageCheck className="w-8 h-8 text-[#af101a]" />
+          <div className="w-14 h-14 bg-red-950/80 text-[#FF4D5A] border border-red-800/80 rounded-2xl flex items-center justify-center text-2xl shadow-inner shrink-0">
+            <PackageCheck className="w-8 h-8 text-[#FF4D5A]" />
           </div>
           <div>
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-red-100/70 text-[#af101a] text-[11px] font-extrabold rounded-full mb-1">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-red-950/80 text-[#FF4D5A] text-[11px] font-mono-code font-extrabold rounded-full border border-red-900/60 mb-1">
               <span>Cabai Live Production Hub</span>
             </div>
-            <h1 className="font-heading font-extrabold text-2xl sm:text-3xl text-[#1a1c1c]">
-              Purchases & Order Tracker
+            <h1 className="font-heading font-extrabold text-2xl sm:text-3xl text-white">
+              Purchases &amp; Order Tracker
             </h1>
-            <p className="text-gray-500 text-xs sm:text-sm mt-0.5">
+            <p className="text-white/60 text-xs sm:text-sm mt-0.5 font-mono-code">
               Track your 3D print queue, slicing progress, and courier delivery live.
             </p>
           </div>
@@ -233,13 +233,13 @@ export const OrderTrackingView: React.FC = () => {
         {/* Filter / Search Bar */}
         <div className="w-full md:w-72">
           <div className="relative">
-            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40" />
             <input
               type="text"
               placeholder="Search Order #, Name, Phone..."
               value={filterQuery}
               onChange={(e) => setFilterQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl font-medium text-xs focus:outline-hidden focus:border-[#af101a] focus:bg-white transition-all"
+              className="w-full pl-9 pr-3 py-2.5 bg-[#18181B] border border-white/10 rounded-xl font-mono-code text-xs text-white placeholder-white/30 focus:outline-hidden focus:border-[#AF101A] transition-all"
             />
           </div>
         </div>
@@ -247,18 +247,18 @@ export const OrderTrackingView: React.FC = () => {
 
       {/* Orders List / Empty State / Guest Tracker */}
       {displayedOrders.length === 0 ? (
-        <div className="bg-white p-8 sm:p-12 rounded-3xl border border-gray-200 text-center space-y-6 shadow-xs">
+        <div className="bg-[#111113] p-8 sm:p-12 rounded-3xl border border-white/10 text-center space-y-6 shadow-2xl">
           {!currentUser ? (
             /* Guest Not Logged In & No Order Query */
             <div className="space-y-6 max-w-lg mx-auto">
-              <div className="w-16 h-16 rounded-3xl bg-red-50 text-[#af101a] flex items-center justify-center mx-auto text-3xl shadow-xs">
+              <div className="w-16 h-16 rounded-3xl bg-red-950/80 text-[#FF4D5A] border border-red-900/60 flex items-center justify-center mx-auto text-3xl shadow-inner">
                 🔍
               </div>
               <div className="space-y-2">
-                <h3 className="font-heading font-extrabold text-gray-900 text-xl">
+                <h3 className="font-heading font-extrabold text-white text-xl">
                   {filterQuery ? 'Order Not Found' : 'Track Your 3D Print Order'}
                 </h3>
-                <p className="text-xs text-gray-500 leading-relaxed">
+                <p className="text-xs text-white/60 leading-relaxed font-mono-code">
                   {filterQuery 
                     ? `No order found matching "${filterQuery}". Please verify your Order ID (e.g. CBI-1001) or phone number.`
                     : 'Enter your specific Order ID or Phone Number to check your 3D print progress, or sign in with your Google account.'}
@@ -272,12 +272,12 @@ export const OrderTrackingView: React.FC = () => {
                   placeholder="Enter Order ID (e.g. CBI-1001) or Phone..."
                   value={filterQuery}
                   onChange={(e) => setFilterQuery(e.target.value)}
-                  className="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-[#af101a] outline-hidden"
+                  className="flex-1 px-4 py-3 bg-[#18181B] border border-white/10 rounded-xl text-xs font-mono-code text-white placeholder:text-white/30 focus:border-[#AF101A] outline-hidden"
                 />
                 {filterQuery && (
                   <button
                     onClick={() => setFilterQuery('')}
-                    className="px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold rounded-xl transition-colors"
+                    className="px-4 py-3 bg-[#18181B] hover:bg-white/10 text-white/80 text-xs font-mono-code font-bold rounded-xl border border-white/10 transition-colors cursor-pointer"
                   >
                     Clear
                   </button>
@@ -285,14 +285,14 @@ export const OrderTrackingView: React.FC = () => {
               </div>
 
               {/* Sign In Callout */}
-              <div className="p-4 bg-gradient-to-r from-red-50 to-amber-50 rounded-2xl border border-red-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-left">
-                <div className="text-xs">
-                  <div className="font-bold text-gray-900">Signed in before?</div>
-                  <div className="text-gray-600 text-[11px]">Sign in with your Google account to automatically view all your orders.</div>
+              <div className="p-4 bg-[#18181B] rounded-2xl border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-left">
+                <div className="text-xs font-mono-code">
+                  <div className="font-bold text-white">Signed in before?</div>
+                  <div className="text-white/50 text-[11px]">Sign in with your Google account to automatically view all your orders.</div>
                 </div>
                 <button
                   onClick={() => setIsAuthModalOpen(true)}
-                  className="px-4 py-2 bg-[#af101a] hover:bg-[#8d0a12] text-white text-xs font-extrabold rounded-xl transition-all shadow-xs shrink-0 cursor-pointer"
+                  className="px-4 py-2 bg-[#AF101A] hover:bg-[#E11D48] text-white text-xs font-mono-code font-extrabold rounded-xl transition-all shadow-md shrink-0 cursor-pointer"
                 >
                   Sign In with Google
                 </button>
@@ -301,12 +301,12 @@ export const OrderTrackingView: React.FC = () => {
           ) : userBaseOrders.length === 0 ? (
             /* Logged in user with 0 orders */
             <div className="space-y-5 max-w-md mx-auto">
-              <div className="w-16 h-16 rounded-full bg-red-50 text-[#af101a] flex items-center justify-center mx-auto text-3xl">
+              <div className="w-16 h-16 rounded-full bg-red-950/80 border border-red-900/60 text-[#FF4D5A] flex items-center justify-center mx-auto text-3xl">
                 📦
               </div>
               <div className="space-y-1.5">
-                <h3 className="font-heading font-bold text-gray-900 text-lg">No Orders Placed Yet</h3>
-                <p className="text-xs text-gray-500 leading-relaxed">
+                <h3 className="font-heading font-bold text-white text-lg">No Orders Placed Yet</h3>
+                <p className="text-xs text-white/60 leading-relaxed font-mono-code">
                   You haven't placed any 3D print orders on this account yet. Browse our shop catalog or design your own custom item!
                 </p>
               </div>
@@ -316,7 +316,7 @@ export const OrderTrackingView: React.FC = () => {
                     setCurrentView('shop');
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
-                  className="px-6 py-3 bg-[#af101a] hover:bg-[#8d0a12] text-white font-extrabold text-xs rounded-xl transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                  className="px-6 py-3 bg-[#AF101A] hover:bg-[#E11D48] text-white font-mono-code font-extrabold text-xs rounded-xl transition-all shadow-lg flex items-center gap-2 cursor-pointer"
                 >
                   <ShoppingBag className="w-4 h-4" />
                   <span>Browse Shop</span>
@@ -326,18 +326,18 @@ export const OrderTrackingView: React.FC = () => {
           ) : (
             /* Logged in user with filter query that didn't match their orders */
             <div className="space-y-4 max-w-md mx-auto">
-              <div className="w-12 h-12 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mx-auto text-xl">
+              <div className="w-12 h-12 rounded-full bg-amber-950/60 border border-amber-800/60 text-amber-400 flex items-center justify-center mx-auto text-xl">
                 🔍
               </div>
               <div className="space-y-1">
-                <h3 className="font-heading font-bold text-gray-800 text-base">No Orders Match "{filterQuery}"</h3>
-                <p className="text-xs text-gray-500 leading-relaxed">
+                <h3 className="font-heading font-bold text-white text-base">No Orders Match "{filterQuery}"</h3>
+                <p className="text-xs text-white/50 leading-relaxed font-mono-code">
                   We couldn't find any orders in your account matching this query.
                 </p>
               </div>
               <button
                 onClick={() => setFilterQuery('')}
-                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs rounded-xl transition-colors cursor-pointer"
+                className="px-4 py-2 bg-[#18181B] hover:bg-white/10 text-white font-mono-code font-bold text-xs rounded-xl border border-white/10 transition-colors cursor-pointer"
               >
                 Show My Orders ({userBaseOrders.length})
               </button>
@@ -349,13 +349,13 @@ export const OrderTrackingView: React.FC = () => {
 
           {/* Orders Switcher / Tabs if multiple orders */}
           {displayedOrders.length > 1 && (
-            <div className="bg-white p-4 sm:p-5 rounded-3xl border border-gray-200 shadow-xs space-y-3">
+            <div className="bg-[#111113] p-4 sm:p-5 rounded-3xl border border-white/10 shadow-xl space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-extrabold text-gray-800 flex items-center gap-1.5">
-                  <PackageCheck className="w-4 h-4 text-[#af101a]" />
+                <span className="text-xs font-mono-code font-extrabold text-white flex items-center gap-1.5">
+                  <PackageCheck className="w-4 h-4 text-[#FF4D5A]" />
                   <span>Select an Order to View ({displayedOrders.length} Available)</span>
                 </span>
-                <span className="text-[11px] text-gray-400 font-medium">Click to inspect status</span>
+                <span className="text-[11px] text-white/40 font-mono-code">Click to inspect status</span>
               </div>
               <div className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-thin">
                 {displayedOrders.map((ord) => {
@@ -368,27 +368,27 @@ export const OrderTrackingView: React.FC = () => {
                         setSelectedOrderId(ord.id);
                         setTrackedOrderId(ord.id);
                       }}
-                      className={`px-4 py-3 rounded-2xl border text-left shrink-0 transition-all ${
+                      className={`px-4 py-3 rounded-2xl border text-left shrink-0 transition-all cursor-pointer ${
                         isSel
-                          ? 'border-[#af101a] bg-red-50/80 shadow-xs ring-2 ring-red-200'
-                          : 'border-gray-200 bg-white hover:bg-gray-50'
+                          ? 'border-[#AF101A] bg-red-950/60 shadow-md ring-1 ring-[#AF101A]'
+                          : 'border-white/10 bg-[#18181B] hover:bg-white/10'
                       }`}
                     >
                       <div className="flex items-center justify-between gap-3">
-                        <span className="font-mono font-extrabold text-xs text-gray-900">{ord.id}</span>
-                        <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${
-                          ord.status === 'Cancelled' ? 'bg-red-100 text-red-700' :
-                          ord.status === 'Delivered' ? 'bg-emerald-100 text-emerald-800' :
-                          ord.paymentStatus === 'paid' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
-                          'bg-amber-100 text-amber-800'
+                        <span className="font-mono-code font-extrabold text-xs text-white">{ord.id}</span>
+                        <span className={`text-[10px] font-mono-code font-extrabold px-2 py-0.5 rounded-full border ${
+                          ord.status === 'Cancelled' ? 'bg-red-950 text-red-400 border-red-800' :
+                          ord.status === 'Delivered' ? 'bg-emerald-950 text-emerald-400 border-emerald-800' :
+                          ord.paymentStatus === 'paid' ? 'bg-emerald-950 text-emerald-400 border-emerald-800' :
+                          'bg-amber-950 text-amber-400 border-amber-800'
                         }`}>
                           {ord.status}
                         </span>
                       </div>
-                      <p className="text-[11px] text-gray-500 truncate max-w-[200px] mt-1">
+                      <p className="text-[11px] text-white/50 truncate max-w-[200px] mt-1 font-mono-code">
                         {itemSummary}
                       </p>
-                      <div className="flex items-center justify-between text-[10px] text-gray-400 mt-1.5 font-medium">
+                      <div className="flex items-center justify-between text-[10px] text-white/40 mt-1.5 font-mono-code">
                         <span>RM {ord.total.toFixed(2)}</span>
                         <span>{new Date(ord.createdAt).toLocaleDateString()}</span>
                       </div>
@@ -402,24 +402,24 @@ export const OrderTrackingView: React.FC = () => {
           {/* Active Order Details Card */}
           {activeOrder && (
             <>
-              <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-xs space-y-6">
+              <div className="bg-[#111113] p-6 sm:p-8 rounded-3xl border border-white/10 shadow-2xl space-y-6">
                 
                 {/* Top Info Bar */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-gray-100 gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-white/10 gap-4">
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-gray-400 font-bold uppercase tracking-wider">Order Reference:</span>
-                      <span className="font-mono font-extrabold text-xl text-gray-900">{activeOrder.id}</span>
-                      <span className={`text-[11px] font-extrabold px-2.5 py-0.5 rounded-full ${
-                        isCancelled ? 'bg-red-100 text-red-700' :
-                        activeOrder.status === 'Delivered' ? 'bg-emerald-100 text-emerald-800' :
-                        isPaid ? 'bg-emerald-100 text-emerald-800' :
-                        'bg-amber-100 text-amber-800'
+                      <span className="text-xs text-white/40 font-mono-code font-bold uppercase tracking-wider">Order Reference:</span>
+                      <span className="font-mono-code font-extrabold text-xl text-white">{activeOrder.id}</span>
+                      <span className={`text-[11px] font-mono-code font-extrabold px-2.5 py-0.5 rounded-full border ${
+                        isCancelled ? 'bg-red-950 text-red-400 border-red-800' :
+                        activeOrder.status === 'Delivered' ? 'bg-emerald-950 text-emerald-400 border-emerald-800' :
+                        isPaid ? 'bg-emerald-950 text-emerald-400 border-emerald-800' :
+                        'bg-amber-950 text-amber-400 border-amber-800'
                       }`}>
                         {activeOrder.status}
                       </span>
                     </div>
-                    <p className="text-xs text-gray-400 mt-1">
+                    <p className="text-xs text-white/40 mt-1 font-mono-code">
                       Placed on: {new Date(activeOrder.createdAt).toLocaleDateString('en-MY', { 
                         weekday: 'short', 
                         year: 'numeric', 
@@ -442,16 +442,16 @@ export const OrderTrackingView: React.FC = () => {
                           showToast('Could not generate invoice PDF', 'warning');
                         }
                       }}
-                      className="px-3.5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs rounded-xl transition-colors flex items-center gap-1.5 shadow-2xs"
+                      className="px-3.5 py-2 bg-[#18181B] hover:bg-white/10 text-white font-mono-code font-bold text-xs rounded-xl border border-white/10 transition-colors flex items-center gap-1.5 cursor-pointer"
                     >
-                      <FileText className="w-4 h-4 text-gray-600" />
+                      <FileText className="w-4 h-4 text-white/70" />
                       <span>Download Invoice PDF</span>
                     </button>
 
                     {/* Copy Tracking */}
                     <button
                       onClick={() => copyTracking(activeOrder.trackingNumber || activeOrder.id)}
-                      className="px-3.5 py-2 bg-red-50 hover:bg-red-100 text-[#af101a] font-bold text-xs rounded-xl transition-colors flex items-center gap-1.5 shadow-2xs"
+                      className="px-3.5 py-2 bg-red-950/80 hover:bg-red-900/80 text-[#FF4D5A] font-mono-code font-bold text-xs rounded-xl border border-red-900/60 transition-colors flex items-center gap-1.5 cursor-pointer"
                     >
                       <Copy className="w-4 h-4" />
                       <span>Copy Tracking #{activeOrder.trackingNumber?.slice(-6) || 'CODE'}</span>
@@ -460,23 +460,23 @@ export const OrderTrackingView: React.FC = () => {
                 </div>
 
                 {/* Tracking & Courier Status Card */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-100 text-xs">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-[#18181B] p-4 rounded-2xl border border-white/10 text-xs font-mono-code">
                   <div>
-                    <span className="text-gray-400 block font-bold mb-0.5">Courier Partner</span>
-                    <strong className="text-gray-900 flex items-center gap-1.5">
-                      <Truck className="w-4 h-4 text-[#af101a]" />
-                      J&T Express / Pos Laju Malaysia
+                    <span className="text-white/40 block font-bold mb-0.5">Courier Partner</span>
+                    <strong className="text-white flex items-center gap-1.5">
+                      <Truck className="w-4 h-4 text-[#FF4D5A]" />
+                      J&amp;T Express / Pos Laju Malaysia
                     </strong>
                   </div>
                   <div>
-                    <span className="text-gray-400 block font-bold mb-0.5">Tracking Number</span>
-                    <strong className="text-gray-900 font-mono flex items-center gap-1">
+                    <span className="text-white/40 block font-bold mb-0.5">Tracking Number</span>
+                    <strong className="text-white font-mono-code flex items-center gap-1">
                       {activeOrder.trackingNumber || 'MY-CBI-982103'}
                     </strong>
                   </div>
                   <div>
-                    <span className="text-gray-400 block font-bold mb-0.5">Estimated Delivery</span>
-                    <strong className="text-emerald-700 font-bold">
+                    <span className="text-white/40 block font-bold mb-0.5">Estimated Delivery</span>
+                    <strong className="text-emerald-400 font-bold">
                       {activeOrder.estimatedDelivery || '1–3 Business Days'}
                     </strong>
                   </div>
@@ -484,18 +484,18 @@ export const OrderTrackingView: React.FC = () => {
 
                 {/* Bambu Lab Live Printing Status Preview if in Printing state */}
                 {activeOrder.status === 'Printing' && (
-                  <div className="p-4 bg-gray-900 text-white rounded-2xl space-y-3">
+                  <div className="p-4 bg-black/60 border border-white/10 text-white rounded-2xl space-y-3 font-mono-code">
                     <div className="flex items-center justify-between text-xs font-bold">
-                      <span className="flex items-center gap-2 text-red-400">
+                      <span className="flex items-center gap-2 text-[#FF4D5A]">
                         <Printer className="w-4 h-4 animate-pulse" />
                         PRINTER #02 — BAMBU LAB X1-CARBON (ACTIVE PRINTING)
                       </span>
-                      <span className="text-gray-400">Bed: 60°C | Nozzle: 220°C</span>
+                      <span className="text-white/40">Bed: 60°C | Nozzle: 220°C</span>
                     </div>
-                    <div className="w-full bg-gray-800 h-2 rounded-full overflow-hidden">
-                      <div className="bg-[#af101a] h-full w-2/3 animate-pulse" />
+                    <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden">
+                      <div className="bg-[#AF101A] h-full w-2/3 animate-pulse" />
                     </div>
-                    <div className="flex justify-between text-[10px] text-gray-400 font-mono">
+                    <div className="flex justify-between text-[10px] text-white/40 font-mono-code">
                       <span>Layer 185 / 280 (66% complete)</span>
                       <span>Est. completion: 22 mins</span>
                     </div>
@@ -504,7 +504,7 @@ export const OrderTrackingView: React.FC = () => {
 
                 {/* Step Timeline */}
                 <div className="pt-2 space-y-5">
-                  <h3 className="font-heading font-extrabold text-sm text-gray-800 uppercase tracking-wider">
+                  <h3 className="font-heading font-extrabold text-sm text-white uppercase tracking-wider">
                     {isCancelled ? 'Order Status' : 'Production & Delivery Timeline'}
                   </h3>
 
@@ -513,12 +513,12 @@ export const OrderTrackingView: React.FC = () => {
                       const state = getStepState(step.status);
 
                       return (
-                        <div key={step.status} className="flex gap-4 items-start">
-                          <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm shrink-0 border-2 transition-all ${
-                            state === 'cancelled' ? 'bg-red-600 text-white border-red-600 ring-4 ring-red-100' :
-                            state === 'completed' ? 'bg-emerald-600 text-white border-emerald-600' :
-                            state === 'current' ? (isPaid ? 'bg-[#af101a] text-white border-[#af101a] ring-4 ring-red-100' : 'bg-amber-500 text-white border-amber-500 ring-4 ring-amber-100') :
-                            'bg-gray-100 text-gray-400 border-gray-300'
+                        <div key={step.status} className="flex gap-4 items-start font-mono-code">
+                          <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm shrink-0 border transition-all ${
+                            state === 'cancelled' ? 'bg-red-950 text-red-400 border-red-700' :
+                            state === 'completed' ? 'bg-emerald-950 text-emerald-400 border-emerald-700' :
+                            state === 'current' ? (isPaid ? 'bg-[#AF101A] text-white border-[#FF4D5A] shadow-lg shadow-red-950/80' : 'bg-amber-950 text-amber-400 border-amber-600') :
+                            'bg-[#18181B] text-white/30 border-white/10'
                           }`}>
                             {state === 'cancelled' ? '✕' : state === 'completed' ? '✓' : step.icon}
                           </div>
@@ -526,26 +526,26 @@ export const OrderTrackingView: React.FC = () => {
                           <div className="flex-1 pt-1">
                             <div className="flex items-baseline justify-between">
                               <h4 className={`font-bold text-sm ${
-                                state === 'cancelled' ? 'text-red-700' :
-                                state === 'current' ? (isPaid ? 'text-[#af101a]' : 'text-amber-800') : 
-                                state === 'completed' ? 'text-gray-900' : 'text-gray-400'
+                                state === 'cancelled' ? 'text-red-400' :
+                                state === 'current' ? (isPaid ? 'text-[#FF4D5A]' : 'text-amber-400') : 
+                                state === 'completed' ? 'text-white' : 'text-white/40'
                               }`}>
                                 {step.label}
                               </h4>
                               {state === 'current' && !isCancelled && (
-                                <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded uppercase ${
-                                  isPaid ? 'bg-red-100 text-[#af101a]' : 'bg-amber-100 text-amber-800 animate-pulse'
+                                <span className={`text-[10px] font-mono-code font-extrabold px-2 py-0.5 rounded border uppercase ${
+                                  isPaid ? 'bg-red-950 text-[#FF4D5A] border-red-800' : 'bg-amber-950 text-amber-400 border-amber-800 animate-pulse'
                                 }`}>
                                   {isPaid ? 'In Progress' : 'Pending Verification'}
                                 </span>
                               )}
                               {state === 'cancelled' && (
-                                <span className="text-[10px] bg-red-100 text-red-700 font-extrabold px-2 py-0.5 rounded uppercase">
+                                <span className="text-[10px] bg-red-950 text-red-400 border border-red-800 font-extrabold px-2 py-0.5 rounded uppercase">
                                   Cancelled
                                 </span>
                               )}
                             </div>
-                            <p className="text-xs text-gray-500 mt-0.5">{step.desc}</p>
+                            <p className="text-xs text-white/50 mt-0.5">{step.desc}</p>
                           </div>
                         </div>
                       );
@@ -558,38 +558,38 @@ export const OrderTrackingView: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 
                 {/* Customer Information Card */}
-                <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-xs space-y-3.5 text-xs">
-                  <div className="flex items-center justify-between border-b border-gray-100 pb-2.5">
-                    <h4 className="font-heading font-extrabold text-sm text-gray-900 flex items-center gap-2">
-                      <User className="w-4 h-4 text-[#af101a]" />
-                      <span>Customer & Delivery Details</span>
+                <div className="bg-[#111113] p-6 rounded-3xl border border-white/10 shadow-xl space-y-3.5 text-xs font-mono-code">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
+                    <h4 className="font-heading font-extrabold text-sm text-white flex items-center gap-2">
+                      <User className="w-4 h-4 text-[#FF4D5A]" />
+                      <span>Customer &amp; Delivery Details</span>
                     </h4>
-                    <span className="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full font-bold border border-emerald-200">
+                    <span className="text-[10px] text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded-full font-bold border border-emerald-800">
                       Active Order
                     </span>
                   </div>
 
-                  <div className="space-y-2 text-gray-600">
+                  <div className="space-y-2 text-white/70">
                     <div className="flex justify-between">
-                      <span className="text-gray-400">Full Name:</span>
-                      <strong className="text-gray-900">{activeOrder.customer.fullName}</strong>
+                      <span className="text-white/40">Full Name:</span>
+                      <strong className="text-white">{activeOrder.customer.fullName}</strong>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-400">Phone Number:</span>
-                      <strong className="text-gray-900 font-mono">{activeOrder.customer.phone}</strong>
+                      <span className="text-white/40">Phone Number:</span>
+                      <strong className="text-white font-mono-code">{activeOrder.customer.phone}</strong>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-400">Email Address:</span>
-                      <span className="text-gray-800">{activeOrder.customer.email || '—'}</span>
+                      <span className="text-white/40">Email Address:</span>
+                      <span className="text-white">{activeOrder.customer.email || '—'}</span>
                     </div>
-                    <div className="pt-2 border-t border-gray-100">
-                      <span className="text-gray-400 block mb-0.5">Shipping Address:</span>
-                      <span className="text-gray-800 leading-relaxed block">
+                    <div className="pt-2 border-t border-white/10">
+                      <span className="text-white/40 block mb-0.5">Shipping Address:</span>
+                      <span className="text-white leading-relaxed block">
                         {activeOrder.customer.address}, {activeOrder.customer.city}, {activeOrder.customer.state} {activeOrder.customer.postcode}
                       </span>
                     </div>
                     {activeOrder.customer.notes && (
-                      <div className="pt-1 text-[11px] text-gray-500 italic">
+                      <div className="pt-1 text-[11px] text-white/50 italic">
                         Note: "{activeOrder.customer.notes}"
                       </div>
                     )}
@@ -597,34 +597,34 @@ export const OrderTrackingView: React.FC = () => {
                 </div>
 
                 {/* Purchased Items Card */}
-                <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-xs space-y-3.5 text-xs">
-                  <div className="flex items-center justify-between border-b border-gray-100 pb-2.5">
-                    <h4 className="font-heading font-extrabold text-sm text-gray-900 flex items-center gap-2">
-                      <PackageCheck className="w-4 h-4 text-[#af101a]" />
+                <div className="bg-[#111113] p-6 rounded-3xl border border-white/10 shadow-xl space-y-3.5 text-xs font-mono-code">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
+                    <h4 className="font-heading font-extrabold text-sm text-white flex items-center gap-2">
+                      <PackageCheck className="w-4 h-4 text-[#FF4D5A]" />
                       <span>Things You Bought ({activeOrder.items.length})</span>
                     </h4>
-                    <span className="font-mono font-bold text-gray-900">Total: RM {activeOrder.total.toFixed(2)}</span>
+                    <span className="font-mono-code font-bold text-[#FF4D5A]">Total: RM {activeOrder.total.toFixed(2)}</span>
                   </div>
 
-                  <div className="space-y-3 max-h-80 overflow-y-auto pr-1 divide-y divide-gray-100">
+                  <div className="space-y-3 max-h-80 overflow-y-auto pr-1 divide-y divide-white/10">
                     {activeOrder.items.map((it, idx) => (
                       <div key={idx} className="pt-3 first:pt-0 space-y-1.5">
                         <div className="flex justify-between items-start">
                           <div>
-                            <strong className="text-gray-900 block font-bold text-sm">{it.name}</strong>
-                            <span className="text-gray-500 text-[11px]">
-                              Color: <strong>{it.color}</strong> • Material: <strong>{it.material}</strong> • Qty: <strong>{it.quantity}</strong>
+                            <strong className="text-white block font-bold text-sm">{it.name}</strong>
+                            <span className="text-white/50 text-[11px]">
+                              Color: <strong className="text-white">{it.color}</strong> • Material: <strong className="text-white">{it.material}</strong> • Qty: <strong className="text-white">{it.quantity}</strong>
                             </span>
                           </div>
-                          <span className="font-bold text-gray-900 text-sm">
+                          <span className="font-bold text-white text-sm">
                             RM {(it.price * it.quantity).toFixed(2)}
                           </span>
                         </div>
 
                         {/* Custom print specifications if any */}
                         {(it.customDetails || it.customText) && (
-                          <div className="p-2.5 bg-red-50/60 rounded-xl text-gray-700 text-xs border border-red-100 space-y-1">
-                            <span className="font-bold text-[#af101a] block text-[11px]">Custom 3D Print Specs:</span>
+                          <div className="p-2.5 bg-[#18181B] rounded-xl text-white/80 text-xs border border-white/10 space-y-1">
+                            <span className="font-bold text-[#FF4D5A] block text-[11px]">Custom 3D Print Specs:</span>
                             <p className="whitespace-pre-wrap break-words text-[11px] leading-relaxed">
                               {it.customDetails || it.customText}
                             </p>
@@ -637,31 +637,31 @@ export const OrderTrackingView: React.FC = () => {
                             <img 
                               src={it.customDesignUrl || it.drawingImage} 
                               alt="Custom Chili Artwork" 
-                              className="w-12 h-12 object-contain bg-white rounded-lg border border-red-200 p-1 shadow-2xs"
+                              className="w-12 h-12 object-contain bg-black/60 rounded-lg border border-white/10 p-1 shadow-inner"
                             />
-                            <span className="text-[10px] text-gray-500 font-medium">Custom Artwork / 3D Extrusion</span>
+                            <span className="text-[10px] text-white/50 font-mono-code">Custom Artwork / 3D Extrusion</span>
                           </div>
                         )}
                       </div>
                     ))}
                   </div>
 
-                  <div className="pt-2 border-t border-gray-100 flex justify-between items-center text-xs">
-                    <span className="text-gray-500 font-medium">Payment Status:</span>
+                  <div className="pt-2 border-t border-white/10 flex justify-between items-center text-xs">
+                    <span className="text-white/50 font-medium">Payment Status:</span>
                     {isCancelled ? (
-                      <span className="font-extrabold text-red-700 bg-red-50 px-2.5 py-0.5 rounded-full border border-red-200 uppercase text-[10px]">
+                      <span className="font-extrabold text-red-400 bg-red-950 px-2.5 py-0.5 rounded-full border border-red-800 uppercase text-[10px]">
                         Order Cancelled (Not Paid)
                       </span>
                     ) : isPaid ? (
-                      <span className="font-extrabold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 uppercase text-[10px]">
-                        Paid & Verified via Touch 'n Go
+                      <span className="font-extrabold text-emerald-400 bg-emerald-950 px-2.5 py-0.5 rounded-full border border-emerald-800 uppercase text-[10px]">
+                        Paid &amp; Verified via Touch 'n Go
                       </span>
                     ) : activeOrder.paymentStatus === 'payment_submitted' ? (
-                      <span className="font-extrabold text-amber-800 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200 uppercase text-[10px] animate-pulse">
+                      <span className="font-extrabold text-amber-400 bg-amber-950 px-2.5 py-0.5 rounded-full border border-amber-800 uppercase text-[10px] animate-pulse">
                         Payment Submitted (Pending Verification)
                       </span>
                     ) : (
-                      <span className="font-extrabold text-gray-700 bg-gray-100 px-2.5 py-0.5 rounded-full border border-gray-200 uppercase text-[10px]">
+                      <span className="font-extrabold text-white/70 bg-[#18181B] px-2.5 py-0.5 rounded-full border border-white/10 uppercase text-[10px]">
                         Pending Touch 'n Go Payment
                       </span>
                     )}
