@@ -81,11 +81,10 @@ export const Header: React.FC = () => {
     };
   }, [mobileMenuOpen]);
 
-  // Navigation Items Definition (Home, Shop, Custom, About, Contact matching reference)
+  // Navigation Items Definition (Home, Shop, About, Contact matching reference)
   const primaryNavItems: NavItem[] = [
     { id: 'home', label: 'Home', icon: Home, view: 'home' },
     { id: 'shop', label: 'Shop', icon: ShoppingBag, view: 'shop' },
-    { id: 'custom_print', label: 'Custom', icon: Palette, view: 'custom_print' },
     { id: 'about', label: 'About', icon: Info, view: 'about' },
     { id: 'contact', label: 'Contact', icon: MessageSquare, view: 'contact' },
   ];

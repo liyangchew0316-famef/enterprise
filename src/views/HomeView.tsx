@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { ProductCard } from '../components/ProductCard';
-import { imageConfig } from '../config/assets';
+import { Cabai3DHero } from '../components/Cabai3DHero';
+import { soundFx } from '../utils/audio';
 import { 
   ArrowRight, 
   ShieldCheck,
@@ -14,7 +15,11 @@ import {
   Layers,
   Cpu,
   CheckCircle2,
-  Sliders
+  Sliders,
+  Volume2,
+  VolumeX,
+  Flame,
+  MousePointerClick
 } from 'lucide-react';
 
 export const HomeView: React.FC = () => {
@@ -27,17 +32,30 @@ export const HomeView: React.FC = () => {
     addToCart
   } = useApp();
 
+  // Interactive Switch Tester State
+  const [activeSwitch, setActiveSwitch] = useState<'blue' | 'red' | 'brown'>('blue');
+  const [clickCount, setClickCount] = useState<number>(0);
+  const [keycapColor, setKeycapColor] = useState<string>('#AF101A');
+  const [isKeyPressed, setIsKeyPressed] = useState<boolean>(false);
+
   const handleShopCategory = (cat: any) => {
     setActiveCategory(cat);
     setCurrentView('shop');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleSwitchClick = () => {
+    setClickCount(prev => prev + 1);
+    setIsKeyPressed(true);
+    soundFx.playSwitchClick(activeSwitch);
+    setTimeout(() => setIsKeyPressed(false), 120);
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-16 sm:space-y-20">
       
       {/* ========================================================================= */}
-      {/* 1. HERO SECTION (DARK TECHNICAL MAKER STUDIO) */}
+      {/* 1. HERO SECTION WITH CONTINUOUSLY ROTATING 3D CABAI */}
       {/* ========================================================================= */}
       <section className="space-y-8 pb-12 sm:pb-16 border-b border-white/10">
         
@@ -59,7 +77,7 @@ export const HomeView: React.FC = () => {
             </h1>
             
             <p className="text-white/70 text-base sm:text-lg leading-relaxed">
-              Penang’s premier custom 3D printing studio. Explore signature chili keychains, tactile mechanical clickers, custom badges, and precision on-demand fabrication sliced at ultra-fine 0.12mm layer resolution.
+              Penang’s premier custom 3D printing studio. Interact with our signature 3D Cabai chili keychain below — rendered live in WebGL, spinning continuously, and ready for custom fabrication.
             </p>
 
             {/* Quick Action Buttons */}
@@ -73,85 +91,18 @@ export const HomeView: React.FC = () => {
               </button>
 
               <button
-                onClick={() => setCurrentView('custom_print')}
-                className="group px-5 py-3.5 rounded-xl bg-[#151517] hover:bg-[#1F1F24] border border-white/15 hover:border-white/30 text-white text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer inline-flex items-center gap-2"
+                onClick={() => handleShopCategory('keychains')}
+                className="group px-5 py-3.5 rounded-xl bg-[#151517] hover:bg-[#1F1F24] border border-white/15 hover:border-white/30 text-white text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer inline-flex items-center gap-2 font-mono-code"
               >
-                <Palette className="w-4 h-4 text-[#FF4D5A]" />
-                <span>Custom Print Quote</span>
+                <Flame className="w-4 h-4 text-[#FF4D5A]" />
+                <span>Signature Keychains</span>
               </button>
-            </div>
-          </div>
-
-          {/* Quick Studio Specs Pill */}
-          <div className="lg:max-w-xs w-full p-4 rounded-2xl bg-[#111113] border border-white/10 space-y-3 shrink-0">
-            <div className="flex items-center justify-between text-xs font-mono-code font-bold text-white/80 pb-2 border-b border-white/10">
-              <span className="flex items-center gap-1.5 text-emerald-400">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                Fleet Active
-              </span>
-              <span className="text-white/40">Bambu Lab Core-XY</span>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-2 text-[11px] font-mono-code">
-              <div className="bg-[#18181B] p-2 rounded-lg border border-white/5">
-                <span className="text-white/40 block text-[9px]">LAYER RES</span>
-                <span className="text-white font-bold">0.12 mm</span>
-              </div>
-              <div className="bg-[#18181B] p-2 rounded-lg border border-white/5">
-                <span className="text-white/40 block text-[9px]">MATERIAL</span>
-                <span className="text-white font-bold">100% Eco PLA+</span>
-              </div>
-              <div className="bg-[#18181B] p-2 rounded-lg border border-white/5">
-                <span className="text-white/40 block text-[9px]">DISPATCH</span>
-                <span className="text-white font-bold">24-48 Hours</span>
-              </div>
-              <div className="bg-[#18181B] p-2 rounded-lg border border-white/5">
-                <span className="text-white/40 block text-[9px]">FREE SHIP</span>
-                <span className="text-amber-400 font-bold">&gt; RM 80</span>
-              </div>
             </div>
           </div>
         </div>
 
-        {/* Hero Visual Stage Showcase */}
-        {imageConfig.heroStage && (
-          <div className="relative rounded-3xl overflow-hidden border border-white/15 bg-[#0D0D10] shadow-2xl group">
-            <div className="relative aspect-[21/9] sm:aspect-[24/9] w-full overflow-hidden max-h-[360px]">
-              <img 
-                src={imageConfig.heroStage} 
-                alt="Cabai Enterprise 3D Printing Maker Studio Stage"
-                className="w-full h-full object-cover object-center group-hover:scale-102 transition-transform duration-700 opacity-80"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#070708] via-black/40 to-transparent" />
-              <div className="absolute inset-0 bg-gradient-to-r from-[#070708] via-transparent to-transparent" />
-              
-              {/* Overlay Content on Stage */}
-              <div className="absolute inset-0 p-6 sm:p-8 flex flex-col justify-between">
-                <div className="flex items-center justify-between">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/70 backdrop-blur-md text-[10px] sm:text-xs font-mono-code font-bold text-white border border-white/20">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#FF4D5A] animate-ping" />
-                    <span>STUDIO FABRICATION BENCH</span>
-                  </span>
-                  <span className="hidden sm:inline-flex text-[11px] font-mono-code text-white/60 bg-black/60 px-2.5 py-1 rounded-md border border-white/10">
-                    Penang Studio Core
-                  </span>
-                </div>
-
-                <div className="max-w-md space-y-1 sm:space-y-2">
-                  <span className="text-[10px] font-mono-code uppercase tracking-widest text-[#FF4D5A] font-bold">
-                    Signature Flagship Edition
-                  </span>
-                  <h3 className="font-heading font-black text-lg sm:text-2xl text-white tracking-tight">
-                    Malaysian Chili Pepper Keychain 🌶️
-                  </h3>
-                  <p className="text-xs sm:text-sm text-white/70 line-clamp-2">
-                    Our iconic 3D printed chili pepper keychain. Ergonomic curved stem, vibrant dual-tone rigid PLA+, and stainless key ring.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* 3D CABAI CONTINUOUSLY TURNING SHOWCASE HERO */}
+        <Cabai3DHero />
 
       </section>
 
@@ -240,6 +191,113 @@ export const HomeView: React.FC = () => {
           </p>
         </div>
 
+      </section>
+
+      {/* ========================================================================= */}
+      {/* 2.5 INTERACTIVE MAKER BENCH: MECHANICAL SWITCH SOUNDBOARD & FIDGET TESTER */}
+      {/* ========================================================================= */}
+      <section className="p-6 sm:p-8 rounded-3xl bg-[#111113] border border-white/15 shadow-2xl relative overflow-hidden">
+        <div className="absolute -right-20 -bottom-20 w-80 h-80 bg-[#AF101A]/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8 relative z-10">
+          
+          <div className="space-y-3 max-w-lg">
+            <div className="flex items-center gap-2">
+              <span className="studio-label text-[#FF4D5A] font-bold">
+                [ INTERACTIVE MAKER LAB ]
+              </span>
+              <span className="text-[10px] font-mono-code bg-white/10 px-2 py-0.5 rounded text-white/70">
+                Synthesized Web Audio
+              </span>
+            </div>
+
+            <h3 className="font-heading font-black text-2xl sm:text-3xl text-white tracking-tight">
+              Test Tactile Clickers &amp; Keycaps Live
+            </h3>
+
+            <p className="text-white/70 text-sm leading-relaxed">
+              We 3D print custom mechanical keyboard switch clickers. Select a switch type below, customize the filament keycap, and tap to test the tactile sound profile.
+            </p>
+
+            {/* Switch Type Tabs */}
+            <div className="flex flex-wrap items-center gap-2 pt-2">
+              {[
+                { id: 'blue', label: 'Clicky Blue (50g)', color: '#0284c7' },
+                { id: 'red', label: 'Linear Red (45g)', color: '#e11d48' },
+                { id: 'brown', label: 'Tactile Brown (55g)', color: '#b45309' }
+              ].map((sw) => (
+                <button
+                  key={sw.id}
+                  onClick={() => {
+                    setActiveSwitch(sw.id as any);
+                    soundFx.playSwitchClick(sw.id as any);
+                  }}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-mono-code font-bold uppercase transition-all cursor-pointer border ${
+                    activeSwitch === sw.id
+                      ? 'bg-[#1F1F24] text-white border-white/30 shadow-md ring-1 ring-white/20'
+                      : 'bg-[#18181B] text-white/60 border-white/10 hover:text-white'
+                  }`}
+                >
+                  <span className="inline-block w-2 h-2 rounded-full mr-1.5" style={{ backgroundColor: sw.color }} />
+                  <span>{sw.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Interactive Clickable 3D Keycap Pad */}
+          <div className="flex flex-col items-center gap-4 bg-[#16161A] p-6 rounded-2xl border border-white/10 w-full lg:w-auto min-w-[280px]">
+            
+            <div className="text-center space-y-1">
+              <span className="text-[11px] font-mono-code text-white/50 uppercase block">
+                Total Studio Clicks
+              </span>
+              <span className="font-heading font-black text-3xl text-white">
+                {clickCount.toLocaleString()}
+              </span>
+            </div>
+
+            {/* Simulated 3D Keycap Button */}
+            <button
+              onClick={handleSwitchClick}
+              className={`relative w-24 h-24 rounded-2xl flex flex-col items-center justify-center font-heading font-black text-lg text-white shadow-2xl transition-all duration-75 select-none cursor-pointer border-2 ${
+                isKeyPressed 
+                  ? 'translate-y-2.5 shadow-xs brightness-125' 
+                  : 'shadow-[0_12px_24px_rgba(0,0,0,0.8),0_4px_0_rgba(0,0,0,0.6)] hover:-translate-y-0.5'
+              }`}
+              style={{
+                backgroundColor: keycapColor,
+                borderColor: `${keycapColor}88`
+              }}
+              title="Click to activate mechanical switch!"
+            >
+              <MousePointerClick className="w-5 h-5 mb-0.5" />
+              <span className="text-xs uppercase tracking-wider">PRESS</span>
+            </button>
+
+            {/* Keycap Color Swatches */}
+            <div className="flex items-center gap-2 pt-2">
+              {['#AF101A', '#0284C7', '#10B981', '#D97706', '#18181B', '#F4F4F5'].map((color) => (
+                <button
+                  key={color}
+                  onClick={() => {
+                    setKeycapColor(color);
+                    soundFx.playStudioBeep(900);
+                  }}
+                  className={`w-6 h-6 rounded-full border transition-all cursor-pointer ${
+                    keycapColor === color ? 'border-white scale-110 shadow-sm ring-1 ring-white/50' : 'border-white/20 hover:scale-105'
+                  }`}
+                  style={{ backgroundColor: color }}
+                />
+              ))}
+            </div>
+
+            <span className="text-[10px] font-mono-code text-white/40">
+              Tap keycap to test switch sound
+            </span>
+          </div>
+
+        </div>
       </section>
 
       {/* ========================================================================= */}

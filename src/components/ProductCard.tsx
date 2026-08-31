@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { Product } from '../types';
 import { ProductImage } from './ProductImage';
+import { soundFx } from '../utils/audio';
 import { 
   Image as ImageIcon, 
   Palette, 
@@ -36,6 +37,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
+    soundFx.playSpicySizzle();
     onAddToCart(product);
     setJustAdded(true);
     setTimeout(() => {
@@ -45,6 +47,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
   const handleToggleDetails = (e: React.MouseEvent) => {
     e.stopPropagation();
+    soundFx.playStudioBeep(700);
     setShowMobileDetails((prev) => !prev);
   };
 
