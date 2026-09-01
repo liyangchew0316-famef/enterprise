@@ -257,7 +257,6 @@ export type ViewMode =
   | 'product_detail'
   | 'custom_print'
   | 'badge_custom'
-  | 'daily_spin'
   | 'checkout'
   | 'tng_payment'
   | 'order_tracking'

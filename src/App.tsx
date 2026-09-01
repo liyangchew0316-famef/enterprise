@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
@@ -7,7 +7,6 @@ import { CartDrawer } from './components/CartDrawer';
 import { SearchModal } from './components/SearchModal';
 import { AiAssistantModal } from './components/AiAssistantModal';
 import { AuthModal } from './components/AuthModal';
-import { DailySpinModal } from './components/DailySpinModal';
 import { BadgeCustomizer } from './components/BadgeCustomizer';
 import { KeyboardCustomizer } from './components/KeyboardCustomizer';
 import { SEOHead } from './components/SEOHead';
@@ -29,14 +28,6 @@ import { RegisterView, StepItem, SocialButton, InputGroup, PasswordInput } from 
 const MainContent: React.FC = () => {
   const { currentView, setCurrentView } = useApp();
   const [isAiOpen, setIsAiOpen] = useState(false);
-  const [isSpinModalOpen, setIsSpinModalOpen] = useState(false);
-
-  // If view is daily_spin, trigger spin modal
-  useEffect(() => {
-    if (currentView === 'daily_spin') {
-      setIsSpinModalOpen(true);
-    }
-  }, [currentView]);
 
   // If on register view, render the dedicated full-screen modern registration experience
   if (currentView === 'register') {
@@ -74,7 +65,7 @@ const MainContent: React.FC = () => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
               <button
                 onClick={() => setCurrentView('shop')}
-                className="inline-flex items-center gap-2 text-xs font-bold text-white/60 hover:text-[#ff4d5a] transition-colors"
+                className="inline-flex items-center gap-2 text-xs font-bold text-white/60 hover:text-[#ff4d5a] transition-colors cursor-pointer"
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span>Back to 3D Shop Catalog</span>
@@ -83,12 +74,9 @@ const MainContent: React.FC = () => {
             <BadgeCustomizer />
           </div>
         )}
-
-        {/* If daily_spin fallback background view is shop */}
-        {currentView === 'daily_spin' && <ShopView />}
       </main>
 
-      {/* Floating Cabai AI Floating Launcher */}
+      {/* Floating Cabai AI Assistant Launcher */}
       <button
         onClick={() => setIsAiOpen(true)}
         className="fixed bottom-6 right-6 z-30 bg-[#151517] hover:bg-[#1C1C20] text-white px-4 py-3 rounded-full shadow-2xl border border-white/15 hover:border-red-500/40 flex items-center gap-2.5 font-bold text-sm group hover:scale-105 transition-all active:scale-95 cursor-pointer backdrop-blur-md"
@@ -104,27 +92,10 @@ const MainContent: React.FC = () => {
         </span>
       </button>
 
-      {/* Quick Daily Spin Floating Button (Bottom Left) */}
-      <button
-        onClick={() => setIsSpinModalOpen(true)}
-        className="fixed bottom-6 left-6 z-30 bg-[#151517] hover:bg-[#1C1C20] text-white px-3.5 py-2.5 rounded-full shadow-2xl border border-white/15 hover:border-amber-500/40 flex items-center gap-2 font-bold text-xs group hover:scale-105 transition-all active:scale-95 cursor-pointer backdrop-blur-md"
-        title="Daily Lucky Spin Wheel (10%/20%/RM5 OFF)"
-      >
-        <span className="text-base group-hover:rotate-180 transition-transform duration-500">🎡</span>
-        <span className="text-amber-300 font-mono-code font-bold">Spin &amp; Win</span>
-      </button>
-
       <Footer />
       <CartDrawer />
       <SearchModal />
       <AiAssistantModal isOpen={isAiOpen} onClose={() => setIsAiOpen(false)} />
-      <DailySpinModal 
-        isOpen={isSpinModalOpen} 
-        onClose={() => {
-          setIsSpinModalOpen(false);
-          if (currentView === 'daily_spin') setCurrentView('shop');
-        }} 
-      />
       <AuthModal />
       <Toast />
     </div>

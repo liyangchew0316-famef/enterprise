@@ -90,14 +90,6 @@ export const Header: React.FC = () => {
   ];
 
   const secondaryNavItems: NavItem[] = [
-    { 
-      id: 'daily_spin', 
-      label: 'Spin & Win', 
-      icon: Sparkles, 
-      view: 'daily_spin', 
-      badge: 'Win RM20',
-      badgeClass: 'bg-gradient-to-r from-amber-500 to-[#AF101A] text-white animate-pulse' 
-    },
     { id: 'order_tracking', label: 'Tracking', icon: PackageCheck, view: 'order_tracking' },
   ];
 
@@ -111,7 +103,6 @@ export const Header: React.FC = () => {
     if (currentView === 'custom_print' || currentView === 'badge_custom') return 'custom_print';
     if (currentView === 'about') return 'about';
     if (currentView === 'contact') return 'contact';
-    if (currentView === 'daily_spin') return 'daily_spin';
     if (currentView === 'order_tracking') return 'order_tracking';
     return null;
   })();
@@ -572,25 +563,6 @@ export const Header: React.FC = () => {
                   className="px-3.5 py-2 bg-[#AF101A] hover:bg-[#8E0C15] text-white text-xs font-bold rounded-xl shadow-xs shrink-0 cursor-pointer active:scale-95"
                 >
                   {currentUser ? 'Profile' : 'Sign In'}
-                </button>
-              </div>
-
-              {/* Quick Spin Hub in Mobile Menu */}
-              <div className="pt-1">
-                <button
-                  onClick={() => handleNav('daily_spin')}
-                  className="w-full p-3 rounded-xl bg-gradient-to-br from-amber-950/60 to-red-950/60 border border-amber-500/40 text-white text-left flex items-center justify-between shadow-md cursor-pointer active:scale-[0.99]"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-xl">🎡</span>
-                    <div>
-                      <div className="text-xs font-bold text-amber-300">Daily Lucky Spin</div>
-                      <div className="text-[10px] text-white/70">Win vouchers &amp; discounts up to RM20</div>
-                    </div>
-                  </div>
-                  <span className="text-[9px] px-2 py-0.5 rounded-full bg-[#AF101A] text-white font-mono-code font-bold uppercase animate-pulse border border-red-400/50">
-                    Win RM20
-                  </span>
                 </button>
               </div>
 

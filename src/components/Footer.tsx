@@ -111,11 +111,6 @@ export const Footer: React.FC = () => {
                 </button>
               </li>
               <li>
-                <button onClick={() => navTo('daily_spin')} className="hover:text-white transition-colors cursor-pointer">
-                  Daily Spin &amp; Rewards
-                </button>
-              </li>
-              <li>
                 <button onClick={() => navTo('about')} className="hover:text-white transition-colors cursor-pointer">
                   The Hall of Glory 🏆
                 </button>

@@ -1,5 +1,11 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+import { 
+  initializeFirestore, 
+  getFirestore, 
+  persistentLocalCache, 
+  persistentMultipleTabManager,
+  memoryLocalCache
+} from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { getStorage } from 'firebase/storage';
 import config from '../../firebase-applet-config.json';
@@ -16,12 +22,39 @@ const firebaseConfig = {
 // Initialize Firebase App
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
-// Connect to default Cloud Firestore database
-const customDatabaseId = import.meta.env.VITE_FIREBASE_DATABASE_ID || config.firestoreDatabaseId;
-export const db = customDatabaseId && customDatabaseId !== '(default)'
-  ? getFirestore(app, customDatabaseId)
-  : getFirestore(app);
+// Connect to Cloud Firestore database with reliable Long-Polling & Local Caching
+// to guarantee rock-solid connectivity in sandboxed iframes & web environments
+let dbInstance;
+try {
+  const customDatabaseId = import.meta.env.VITE_FIREBASE_DATABASE_ID || config.firestoreDatabaseId;
+  const firestoreSettings = {
+    experimentalForceLongPolling: true,
+    localCache: persistentLocalCache({
+      tabManager: persistentMultipleTabManager()
+    })
+  };
 
+  if (customDatabaseId && customDatabaseId !== '(default)') {
+    dbInstance = initializeFirestore(app, firestoreSettings, customDatabaseId);
+  } else {
+    dbInstance = initializeFirestore(app, firestoreSettings);
+  }
+} catch (err) {
+  // If Firestore is already initialized or IndexedDB cache is restricted in sandbox, fallback gracefully
+  try {
+    const customDatabaseId = import.meta.env.VITE_FIREBASE_DATABASE_ID || config.firestoreDatabaseId;
+    if (customDatabaseId && customDatabaseId !== '(default)') {
+      dbInstance = getFirestore(app, customDatabaseId);
+    } else {
+      dbInstance = getFirestore(app);
+    }
+  } catch (fallbackErr) {
+    console.warn('[Firebase] Fallback getFirestore initialized:', fallbackErr);
+    dbInstance = getFirestore(app);
+  }
+}
+
+export const db = dbInstance;
 export const auth = getAuth(app);
 export const storage = getStorage(app);
 export default app;
