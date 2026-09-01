@@ -1,17 +1,15 @@
-import React, { useState } from 'react';
-import { AppProvider, useApp } from './context/AppContext';
-import { Header } from './components/Header';
-import { Footer } from './components/Footer';
-import { Toast } from './components/Toast';
-import { CartDrawer } from './components/CartDrawer';
-import { SearchModal } from './components/SearchModal';
-import { AiAssistantModal } from './components/AiAssistantModal';
-import { AuthModal } from './components/AuthModal';
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AppProvider } from './context/AppContext';
+import { ProtectedRoute } from './components/ProtectedRoute';
+import { AuthenticatedLayout } from './components/AuthenticatedLayout';
 import { BadgeCustomizer } from './components/BadgeCustomizer';
 import { KeyboardCustomizer } from './components/KeyboardCustomizer';
-import { SEOHead } from './components/SEOHead';
-import { Sparkles, ArrowLeft } from 'lucide-react';
 
+// Views
+import { LandingView } from './views/LandingView';
+import { LoginView } from './views/LoginView';
+import { RegisterView, StepItem, SocialButton, InputGroup, PasswordInput } from './views/RegisterView';
 import { HomeView } from './views/HomeView';
 import { ShopView } from './views/ShopView';
 import { ProductDetailView } from './views/ProductDetailView';
@@ -23,89 +21,199 @@ import { BossAdminView } from './views/BossAdminView';
 import { AboutView } from './views/AboutView';
 import { ContactView } from './views/ContactView';
 import { TermsView } from './views/TermsView';
-import { RegisterView, StepItem, SocialButton, InputGroup, PasswordInput } from './views/RegisterView';
-
-const MainContent: React.FC = () => {
-  const { currentView, setCurrentView } = useApp();
-  const [isAiOpen, setIsAiOpen] = useState(false);
-
-  // If on register view, render the dedicated full-screen modern registration experience
-  if (currentView === 'register') {
-    return (
-      <>
-        <SEOHead />
-        <RegisterView />
-        <AuthModal />
-        <Toast />
-      </>
-    );
-  }
-
-  return (
-    <div className="min-h-screen flex flex-col bg-[#070708] text-white relative selection:bg-[#af101a] selection:text-white">
-      <SEOHead />
-      <Header />
-      
-      <main className="flex-1 bg-[#070708]">
-        {currentView === 'home' && <HomeView />}
-        {currentView === 'shop' && <ShopView />}
-        {currentView === 'product_detail' && <ProductDetailView />}
-        {currentView === 'custom_print' && <CustomPrintView />}
-        {currentView === 'checkout' && <CheckoutView />}
-        {currentView === 'tng_payment' && <TngPaymentView />}
-        {currentView === 'order_tracking' && <OrderTrackingView />}
-        {currentView === 'boss_admin' && <BossAdminView />}
-        {currentView === 'about' && <AboutView />}
-        {currentView === 'contact' && <ContactView />}
-        {currentView === 'terms' && <TermsView />}
-        
-        {/* Custom Badge Studio View */}
-        {currentView === 'badge_custom' && (
-          <div className="space-y-6">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-              <button
-                onClick={() => setCurrentView('shop')}
-                className="inline-flex items-center gap-2 text-xs font-bold text-white/60 hover:text-[#ff4d5a] transition-colors cursor-pointer"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span>Back to 3D Shop Catalog</span>
-              </button>
-            </div>
-            <BadgeCustomizer />
-          </div>
-        )}
-      </main>
-
-      {/* Floating Cabai AI Assistant Launcher */}
-      <button
-        onClick={() => setIsAiOpen(true)}
-        className="fixed bottom-6 right-6 z-30 bg-[#151517] hover:bg-[#1C1C20] text-white px-4 py-3 rounded-full shadow-2xl border border-white/15 hover:border-red-500/40 flex items-center gap-2.5 font-bold text-sm group hover:scale-105 transition-all active:scale-95 cursor-pointer backdrop-blur-md"
-        title="Ask Cabai AI 3D Printing Assistant"
-      >
-        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#AF101A] to-[#E11D48] flex items-center justify-center text-white shadow-md">
-          <Sparkles className="w-4 h-4 animate-pulse" />
-        </div>
-        <span className="font-heading tracking-wide">Ask Cabai AI</span>
-        <span className="flex h-2 w-2 relative">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-          <span className="relative inline-flex rounded-full h-2 w-2 bg-[#AF101A]"></span>
-        </span>
-      </button>
-
-      <Footer />
-      <CartDrawer />
-      <SearchModal />
-      <AiAssistantModal isOpen={isAiOpen} onClose={() => setIsAiOpen(false)} />
-      <AuthModal />
-      <Toast />
-    </div>
-  );
-};
 
 export default function App() {
   return (
     <AppProvider>
-      <MainContent />
+      <BrowserRouter>
+        <Routes>
+          {/* Public Landing Page */}
+          <Route path="/" element={<LandingView />} />
+
+          {/* Authentication Routes */}
+          <Route path="/login" element={<LoginView />} />
+          <Route path="/register" element={<RegisterView />} />
+
+          {/* Protected Main Application Routes */}
+          <Route
+            path="/home"
+            element={
+              <ProtectedRoute>
+                <AuthenticatedLayout>
+                  <HomeView />
+                </AuthenticatedLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/shop"
+            element={
+              <ProtectedRoute>
+                <AuthenticatedLayout>
+                  <ShopView />
+                </AuthenticatedLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/shop/:productId"
+            element={
+              <ProtectedRoute>
+                <AuthenticatedLayout>
+                  <ProductDetailView />
+                </AuthenticatedLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/custom"
+            element={
+              <ProtectedRoute>
+                <AuthenticatedLayout>
+                  <CustomPrintView />
+                </AuthenticatedLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/badge-custom"
+            element={
+              <ProtectedRoute>
+                <AuthenticatedLayout>
+                  <div className="pt-6">
+                    <BadgeCustomizer />
+                  </div>
+                </AuthenticatedLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/keyboard-custom"
+            element={
+              <ProtectedRoute>
+                <AuthenticatedLayout>
+                  <div className="pt-6">
+                    <KeyboardCustomizer />
+                  </div>
+                </AuthenticatedLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/about"
+            element={
+              <ProtectedRoute>
+                <AuthenticatedLayout>
+                  <AboutView />
+                </AuthenticatedLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/contact"
+            element={
+              <ProtectedRoute>
+                <AuthenticatedLayout>
+                  <ContactView />
+                </AuthenticatedLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/terms"
+            element={
+              <ProtectedRoute>
+                <AuthenticatedLayout>
+                  <TermsView />
+                </AuthenticatedLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/cart"
+            element={
+              <ProtectedRoute>
+                <AuthenticatedLayout>
+                  <ShopView />
+                </AuthenticatedLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/checkout"
+            element={
+              <ProtectedRoute>
+                <AuthenticatedLayout>
+                  <CheckoutView />
+                </AuthenticatedLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/payment"
+            element={
+              <ProtectedRoute>
+                <AuthenticatedLayout>
+                  <TngPaymentView />
+                </AuthenticatedLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/payment/tng"
+            element={
+              <ProtectedRoute>
+                <AuthenticatedLayout>
+                  <TngPaymentView />
+                </AuthenticatedLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/track"
+            element={
+              <ProtectedRoute>
+                <AuthenticatedLayout>
+                  <OrderTrackingView />
+                </AuthenticatedLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/track/:orderId"
+            element={
+              <ProtectedRoute>
+                <AuthenticatedLayout>
+                  <OrderTrackingView />
+                </AuthenticatedLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/boss-admin"
+            element={
+              <ProtectedRoute>
+                <AuthenticatedLayout>
+                  <BossAdminView />
+                </AuthenticatedLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <AuthenticatedLayout>
+                  <BossAdminView />
+                </AuthenticatedLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Catch-all fallback redirect */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
     </AppProvider>
   );
 }

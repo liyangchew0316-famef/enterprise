@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { ProductImage } from '../components/ProductImage';
 import { ChiliDrawCanvas } from '../components/ChiliDrawCanvas';
@@ -23,12 +24,20 @@ import {
   Info,
   Brush,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Share2,
+  Copy,
+  ExternalLink,
+  MessageCircle,
+  Send,
+  Link2
 } from 'lucide-react';
 
 export const ProductDetailView: React.FC = () => {
+  const { productId } = useParams<{ productId?: string }>();
+  const navigate = useNavigate();
   const { 
-    selectedProduct, 
+    selectedProduct: contextProduct, 
     products, 
     openProductDetail, 
     addToCart, 
@@ -37,13 +46,26 @@ export const ProductDetailView: React.FC = () => {
     showToast
   } = useApp();
 
+  const [isLinkCopied, setIsLinkCopied] = useState<boolean>(false);
+
+  const selectedProduct = useMemo(() => {
+    if (productId) {
+      const found = products.find(p => p.id === productId);
+      if (found) return found;
+    }
+    return contextProduct || products[0];
+  }, [productId, products, contextProduct]);
+
   if (!selectedProduct) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-16 text-center">
         <p className="text-gray-500">No product selected.</p>
         <button 
-          onClick={() => setCurrentView('shop')}
-          className="mt-4 px-4 py-2 bg-[#af101a] text-white font-bold rounded-lg"
+          onClick={() => {
+            setCurrentView('shop');
+            navigate('/shop');
+          }}
+          className="mt-4 px-4 py-2 bg-[#af101a] text-white font-bold rounded-lg cursor-pointer"
         >
           Return to Shop
         </button>
@@ -57,8 +79,11 @@ export const ProductDetailView: React.FC = () => {
       <div className="space-y-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
           <button
-            onClick={() => setCurrentView('shop')}
-            className="inline-flex items-center gap-2 text-xs font-bold text-gray-600 hover:text-[#af101a] transition-colors"
+            onClick={() => {
+              setCurrentView('shop');
+              navigate('/shop');
+            }}
+            className="inline-flex items-center gap-2 text-xs font-bold text-gray-400 hover:text-[#FF4D5A] transition-colors cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Back to 3D Shop Catalog</span>
@@ -75,8 +100,11 @@ export const ProductDetailView: React.FC = () => {
       <div className="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div>
           <button
-            onClick={() => setCurrentView('shop')}
-            className="inline-flex items-center gap-2 text-xs font-bold text-gray-600 hover:text-[#af101a] transition-colors mb-4"
+            onClick={() => {
+              setCurrentView('shop');
+              navigate('/shop');
+            }}
+            className="inline-flex items-center gap-2 text-xs font-bold text-gray-400 hover:text-[#FF4D5A] transition-colors mb-4 cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Back to 3D Shop Catalog</span>
@@ -250,6 +278,70 @@ export const ProductDetailView: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // -------------------------------------------------------------
+  // MALAYSIAN SOCIAL SHARING HANDLERS (WhatsApp, Telegram & Link)
+  // -------------------------------------------------------------
+  const getShareData = () => {
+    const currentUrl = typeof window !== 'undefined' ? window.location.href : 'https://cabai3d.my';
+    const priceStr = `RM ${calculatedUnitPrice.toFixed(2)}`;
+    const title = `🌶️ ${selectedProduct.name} - ${priceStr} | Cabai Enterprise Penang`;
+    const message = `Check out this 3D printed piece by Cabai Enterprise Penang! 🌶️\n\n*${selectedProduct.name}* (${priceStr})\n• Material: ${selectedMaterial}\n• Color: ${selectedColor.name}\n• Precision 0.12mm 3D printing from Penang, Malaysia\n\n👉 View & Order: ${currentUrl}`;
+    return { title, message, url: currentUrl, priceStr };
+  };
+
+  const handleWhatsAppShare = () => {
+    const { message } = getShareData();
+    const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
+    window.open(waUrl, '_blank', 'noopener,noreferrer');
+    showToast('Opening WhatsApp to share... 💬', 'info');
+  };
+
+  const handleTelegramShare = () => {
+    const { url, selectedProduct: prod, priceStr } = { ...getShareData(), selectedProduct };
+    const tgText = `🌶️ ${prod.name} (${priceStr}) - Custom 3D Printed in Penang! Material: ${selectedMaterial} (${selectedColor.name})`;
+    const tgUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(tgText)}`;
+    window.open(tgUrl, '_blank', 'noopener,noreferrer');
+    showToast('Opening Telegram to share... ✈️', 'info');
+  };
+
+  const handleCopyLink = async () => {
+    const { url } = getShareData();
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(url);
+      } else {
+        const textArea = document.createElement('textarea');
+        textArea.value = url;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+      }
+      setIsLinkCopied(true);
+      showToast('Product link copied to clipboard! 📋', 'success');
+      setTimeout(() => setIsLinkCopied(false), 2500);
+    } catch (err) {
+      showToast('Product link ready to share!', 'info');
+    }
+  };
+
+  const handleNativeShare = async () => {
+    const { title, message, url } = getShareData();
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share({
+          title,
+          text: message,
+          url
+        });
+      } catch (err) {
+        // User closed native share sheet
+      }
+    } else {
+      handleCopyLink();
+    }
+  };
+
   const relatedProducts = products
     .filter(p => p.id !== selectedProduct.id)
     .slice(0, 3);
@@ -257,14 +349,55 @@ export const ProductDetailView: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12 animate-fadeIn">
       
-      {/* Back Button Breadcrumb */}
-      <button
-        onClick={() => setCurrentView('shop')}
-        className="inline-flex items-center gap-2 text-xs font-mono-code font-bold text-white/70 hover:text-[#FF4D5A] transition-colors cursor-pointer"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        <span>Back to 3D Shop Catalog</span>
-      </button>
+      {/* Top Header Row with Breadcrumb & Quick Share Action */}
+      <div className="flex items-center justify-between gap-4">
+        <button
+          onClick={() => setCurrentView('shop')}
+          className="inline-flex items-center gap-2 text-xs font-mono-code font-bold text-white/70 hover:text-[#FF4D5A] transition-colors cursor-pointer"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back to 3D Shop Catalog</span>
+        </button>
+
+        {/* Quick Social Share Pill (Header) */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleWhatsAppShare}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#25D366]/10 hover:bg-[#25D366]/20 border border-[#25D366]/30 text-[#25D366] text-xs font-mono-code font-bold transition-all cursor-pointer shadow-xs active:scale-95"
+            title="Share this product on WhatsApp"
+          >
+            <MessageCircle className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">WhatsApp</span>
+          </button>
+
+          <button
+            onClick={handleTelegramShare}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0088cc]/10 hover:bg-[#0088cc]/20 border border-[#0088cc]/30 text-[#38bdf8] text-xs font-mono-code font-bold transition-all cursor-pointer shadow-xs active:scale-95"
+            title="Share this product on Telegram"
+          >
+            <Send className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Telegram</span>
+          </button>
+
+          <button
+            onClick={handleCopyLink}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#18181B] hover:bg-white/10 border border-white/10 text-white/80 hover:text-white text-xs font-mono-code font-bold transition-all cursor-pointer shadow-xs active:scale-95"
+            title="Copy Product Link"
+          >
+            {isLinkCopied ? (
+              <>
+                <Check className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="text-emerald-400">Copied!</span>
+              </>
+            ) : (
+              <>
+                <Link2 className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Copy Link</span>
+              </>
+            )}
+          </button>
+        </div>
+      </div>
 
       {/* Main PDP Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 bg-[#111113] p-6 sm:p-10 rounded-3xl border border-white/10 shadow-xl">
@@ -868,6 +1001,79 @@ export const ProductDetailView: React.FC = () => {
               >
                 <span>Buy Now (Checkout)</span>
               </button>
+            </div>
+
+            {/* ================================================================= */}
+            {/* MALAYSIAN SOCIAL SHARING HUB (WHATSAPP, TELEGRAM & DIRECT LINK) */}
+            {/* ================================================================= */}
+            <div className="p-4 rounded-2xl bg-[#141417] border border-white/10 space-y-3 shadow-inner">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Share2 className="w-4 h-4 text-[#FF4D5A]" />
+                  <span className="text-xs font-mono-code font-bold text-white uppercase tracking-wider">
+                    Share with Friends &amp; Groups
+                  </span>
+                </div>
+                <span className="text-[10px] font-mono-code font-bold px-2 py-0.5 rounded-full bg-red-950/60 text-[#FF4D5A] border border-[#AF101A]/30">
+                  🇲🇾 Malaysia
+                </span>
+              </div>
+
+              <p className="text-[11px] text-white/60 leading-relaxed font-sans">
+                Instantly recommend this 3D printed model on WhatsApp or Telegram for group orders, gifts, or maker customization feedback.
+              </p>
+
+              {/* Action Buttons Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                {/* WhatsApp Button */}
+                <button
+                  type="button"
+                  onClick={handleWhatsAppShare}
+                  className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-[#25D366]/15 hover:bg-[#25D366]/25 border border-[#25D366]/40 text-[#25D366] text-xs font-mono-code font-bold transition-all cursor-pointer shadow-xs active:scale-[0.98]"
+                >
+                  <MessageCircle className="w-4 h-4 fill-current/20" />
+                  <span>Share on WhatsApp</span>
+                </button>
+
+                {/* Telegram Button */}
+                <button
+                  type="button"
+                  onClick={handleTelegramShare}
+                  className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-[#0088cc]/15 hover:bg-[#0088cc]/25 border border-[#0088cc]/40 text-[#38bdf8] text-xs font-mono-code font-bold transition-all cursor-pointer shadow-xs active:scale-[0.98]"
+                >
+                  <Send className="w-4 h-4" />
+                  <span>Share on Telegram</span>
+                </button>
+
+                {/* Copy Link Button */}
+                <button
+                  type="button"
+                  onClick={handleCopyLink}
+                  className="flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-[#1C1C20] hover:bg-white/10 border border-white/10 text-white/80 hover:text-white text-xs font-mono-code font-medium transition-all cursor-pointer shadow-xs active:scale-[0.98]"
+                >
+                  {isLinkCopied ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      <span className="text-emerald-400 font-bold">Link Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5 text-white/60" />
+                      <span>Copy Product Link</span>
+                    </>
+                  )}
+                </button>
+
+                {/* Native / More Options Button */}
+                <button
+                  type="button"
+                  onClick={handleNativeShare}
+                  className="flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-[#1C1C20] hover:bg-white/10 border border-white/10 text-white/80 hover:text-white text-xs font-mono-code font-medium transition-all cursor-pointer shadow-xs active:scale-[0.98]"
+                >
+                  <Share2 className="w-3.5 h-3.5 text-white/60" />
+                  <span>More Share Options</span>
+                </button>
+              </div>
             </div>
           </div>
 

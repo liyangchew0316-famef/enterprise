@@ -1,8 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useApp } from '../context/AppContext';
 import { ProductCard } from '../components/ProductCard';
-import { Cabai3DHero } from '../components/Cabai3DHero';
-import { soundFx } from '../utils/audio';
 import { 
   ArrowRight, 
   ShieldCheck,
@@ -15,11 +13,9 @@ import {
   Layers,
   Cpu,
   CheckCircle2,
-  Sliders,
-  Volume2,
-  VolumeX,
   Flame,
-  MousePointerClick
+  Clock,
+  Truck
 } from 'lucide-react';
 
 export const HomeView: React.FC = () => {
@@ -32,36 +28,23 @@ export const HomeView: React.FC = () => {
     addToCart
   } = useApp();
 
-  // Interactive Switch Tester State
-  const [activeSwitch, setActiveSwitch] = useState<'blue' | 'red' | 'brown'>('blue');
-  const [clickCount, setClickCount] = useState<number>(0);
-  const [keycapColor, setKeycapColor] = useState<string>('#AF101A');
-  const [isKeyPressed, setIsKeyPressed] = useState<boolean>(false);
-
   const handleShopCategory = (cat: any) => {
     setActiveCategory(cat);
     setCurrentView('shop');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleSwitchClick = () => {
-    setClickCount(prev => prev + 1);
-    setIsKeyPressed(true);
-    soundFx.playSwitchClick(activeSwitch);
-    setTimeout(() => setIsKeyPressed(false), 120);
-  };
-
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-16 sm:space-y-20">
       
       {/* ========================================================================= */}
-      {/* 1. HERO SECTION WITH CONTINUOUSLY ROTATING 3D CABAI */}
+      {/* 1. HERO SECTION (CLEAN MODERN MAKER STUDIO HERO) */}
       {/* ========================================================================= */}
       <section className="space-y-8 pb-12 sm:pb-16 border-b border-white/10">
         
         {/* Top Header Row with Studio Identification & CTAs */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
-          <div className="space-y-4 max-w-2xl">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+          <div className="space-y-5 max-w-2xl">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="studio-label text-[#FF4D5A] font-bold">
                 [ 3D MAKER STUDIO &amp; FABRICATION ]
@@ -77,14 +60,14 @@ export const HomeView: React.FC = () => {
             </h1>
             
             <p className="text-white/70 text-base sm:text-lg leading-relaxed">
-              Penang’s premier custom 3D printing studio. Interact with our signature 3D Cabai chili keychain below — rendered live in WebGL, spinning continuously, and ready for custom fabrication.
+              Penang’s premier custom 3D printing studio. We craft signature chili keychains, custom tactile badges, mechanical maker accessories, and on-demand precision prototyping sliced at ultra-fine 0.12mm layer resolution.
             </p>
 
             {/* Quick Action Buttons */}
             <div className="flex flex-wrap items-center gap-3 pt-2">
               <button
                 onClick={() => handleShopCategory('all')}
-                className="group px-6 py-3.5 rounded-xl bg-[#AF101A] hover:bg-[#E11D48] active:scale-[0.98] text-white text-xs font-bold uppercase tracking-wider transition-all duration-200 shadow-lg shadow-red-950/40 cursor-pointer inline-flex items-center gap-2"
+                className="group px-6 py-3.5 rounded-xl bg-[#AF101A] hover:bg-[#E11D48] active:scale-[0.98] text-white text-xs font-bold uppercase tracking-wider transition-all duration-200 shadow-lg shadow-red-950/40 cursor-pointer inline-flex items-center gap-2 font-mono-code"
               >
                 <span>Explore Catalog</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -97,12 +80,58 @@ export const HomeView: React.FC = () => {
                 <Flame className="w-4 h-4 text-[#FF4D5A]" />
                 <span>Signature Keychains</span>
               </button>
+
+              <button
+                onClick={() => {
+                  setCurrentView('custom_print');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className="group px-5 py-3.5 rounded-xl bg-[#151517] hover:bg-[#1F1F24] border border-white/15 hover:border-white/30 text-white text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer inline-flex items-center gap-2 font-mono-code"
+              >
+                <Palette className="w-4 h-4 text-purple-400" />
+                <span>Custom Print Quote</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Quick Studio Specs Card */}
+          <div className="w-full lg:max-w-sm p-6 rounded-2xl bg-[#111113] border border-white/10 space-y-4 shrink-0 shadow-xl">
+            <div className="flex items-center justify-between text-xs font-mono-code font-bold text-white/80 pb-3 border-b border-white/10">
+              <span className="flex items-center gap-2 text-emerald-400">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                Fleet Active
+              </span>
+              <span className="text-white/40">Bambu Lab Core-XY</span>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-3 text-xs font-mono-code">
+              <div className="bg-[#18181B] p-3 rounded-xl border border-white/5 space-y-1">
+                <span className="text-white/40 block text-[10px] font-bold">LAYER RESOLUTION</span>
+                <span className="text-white font-extrabold text-sm">0.12 mm</span>
+              </div>
+              <div className="bg-[#18181B] p-3 rounded-xl border border-white/5 space-y-1">
+                <span className="text-white/40 block text-[10px] font-bold">ECO FILAMENT</span>
+                <span className="text-emerald-400 font-extrabold text-sm">100% PLA+</span>
+              </div>
+              <div className="bg-[#18181B] p-3 rounded-xl border border-white/5 space-y-1">
+                <span className="text-white/40 block text-[10px] font-bold">STUDIO DISPATCH</span>
+                <span className="text-amber-300 font-extrabold text-sm">24-48 Hours</span>
+              </div>
+              <div className="bg-[#18181B] p-3 rounded-xl border border-white/5 space-y-1">
+                <span className="text-white/40 block text-[10px] font-bold">FREE SHIPPING</span>
+                <span className="text-[#FF4D5A] font-extrabold text-sm">&gt; RM 80</span>
+              </div>
+            </div>
+
+            <div className="pt-1 flex items-center justify-between text-[11px] text-white/50 font-mono-code">
+              <span className="flex items-center gap-1.5">
+                <Truck className="w-3.5 h-3.5 text-white/40" />
+                Pos Laju &amp; J&amp;T Express
+              </span>
+              <span className="text-emerald-400 font-bold">Penang Hub</span>
             </div>
           </div>
         </div>
-
-        {/* 3D CABAI CONTINUOUSLY TURNING SHOWCASE HERO */}
-        <Cabai3DHero />
 
       </section>
 
@@ -191,113 +220,6 @@ export const HomeView: React.FC = () => {
           </p>
         </div>
 
-      </section>
-
-      {/* ========================================================================= */}
-      {/* 2.5 INTERACTIVE MAKER BENCH: MECHANICAL SWITCH SOUNDBOARD & FIDGET TESTER */}
-      {/* ========================================================================= */}
-      <section className="p-6 sm:p-8 rounded-3xl bg-[#111113] border border-white/15 shadow-2xl relative overflow-hidden">
-        <div className="absolute -right-20 -bottom-20 w-80 h-80 bg-[#AF101A]/10 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8 relative z-10">
-          
-          <div className="space-y-3 max-w-lg">
-            <div className="flex items-center gap-2">
-              <span className="studio-label text-[#FF4D5A] font-bold">
-                [ INTERACTIVE MAKER LAB ]
-              </span>
-              <span className="text-[10px] font-mono-code bg-white/10 px-2 py-0.5 rounded text-white/70">
-                Synthesized Web Audio
-              </span>
-            </div>
-
-            <h3 className="font-heading font-black text-2xl sm:text-3xl text-white tracking-tight">
-              Test Tactile Clickers &amp; Keycaps Live
-            </h3>
-
-            <p className="text-white/70 text-sm leading-relaxed">
-              We 3D print custom mechanical keyboard switch clickers. Select a switch type below, customize the filament keycap, and tap to test the tactile sound profile.
-            </p>
-
-            {/* Switch Type Tabs */}
-            <div className="flex flex-wrap items-center gap-2 pt-2">
-              {[
-                { id: 'blue', label: 'Clicky Blue (50g)', color: '#0284c7' },
-                { id: 'red', label: 'Linear Red (45g)', color: '#e11d48' },
-                { id: 'brown', label: 'Tactile Brown (55g)', color: '#b45309' }
-              ].map((sw) => (
-                <button
-                  key={sw.id}
-                  onClick={() => {
-                    setActiveSwitch(sw.id as any);
-                    soundFx.playSwitchClick(sw.id as any);
-                  }}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-mono-code font-bold uppercase transition-all cursor-pointer border ${
-                    activeSwitch === sw.id
-                      ? 'bg-[#1F1F24] text-white border-white/30 shadow-md ring-1 ring-white/20'
-                      : 'bg-[#18181B] text-white/60 border-white/10 hover:text-white'
-                  }`}
-                >
-                  <span className="inline-block w-2 h-2 rounded-full mr-1.5" style={{ backgroundColor: sw.color }} />
-                  <span>{sw.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Interactive Clickable 3D Keycap Pad */}
-          <div className="flex flex-col items-center gap-4 bg-[#16161A] p-6 rounded-2xl border border-white/10 w-full lg:w-auto min-w-[280px]">
-            
-            <div className="text-center space-y-1">
-              <span className="text-[11px] font-mono-code text-white/50 uppercase block">
-                Total Studio Clicks
-              </span>
-              <span className="font-heading font-black text-3xl text-white">
-                {clickCount.toLocaleString()}
-              </span>
-            </div>
-
-            {/* Simulated 3D Keycap Button */}
-            <button
-              onClick={handleSwitchClick}
-              className={`relative w-24 h-24 rounded-2xl flex flex-col items-center justify-center font-heading font-black text-lg text-white shadow-2xl transition-all duration-75 select-none cursor-pointer border-2 ${
-                isKeyPressed 
-                  ? 'translate-y-2.5 shadow-xs brightness-125' 
-                  : 'shadow-[0_12px_24px_rgba(0,0,0,0.8),0_4px_0_rgba(0,0,0,0.6)] hover:-translate-y-0.5'
-              }`}
-              style={{
-                backgroundColor: keycapColor,
-                borderColor: `${keycapColor}88`
-              }}
-              title="Click to activate mechanical switch!"
-            >
-              <MousePointerClick className="w-5 h-5 mb-0.5" />
-              <span className="text-xs uppercase tracking-wider">PRESS</span>
-            </button>
-
-            {/* Keycap Color Swatches */}
-            <div className="flex items-center gap-2 pt-2">
-              {['#AF101A', '#0284C7', '#10B981', '#D97706', '#18181B', '#F4F4F5'].map((color) => (
-                <button
-                  key={color}
-                  onClick={() => {
-                    setKeycapColor(color);
-                    soundFx.playStudioBeep(900);
-                  }}
-                  className={`w-6 h-6 rounded-full border transition-all cursor-pointer ${
-                    keycapColor === color ? 'border-white scale-110 shadow-sm ring-1 ring-white/50' : 'border-white/20 hover:scale-105'
-                  }`}
-                  style={{ backgroundColor: color }}
-                />
-              ))}
-            </div>
-
-            <span className="text-[10px] font-mono-code text-white/40">
-              Tap keycap to test switch sound
-            </span>
-          </div>
-
-        </div>
       </section>
 
       {/* ========================================================================= */}

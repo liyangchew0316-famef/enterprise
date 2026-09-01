@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Circle, Chrome, Github, Eye, EyeOff, ArrowLeft, Box, Sparkles, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
@@ -177,7 +178,19 @@ export const PasswordInput: React.FC<PasswordInputProps> = ({
 // ==================================================
 
 export const RegisterView: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const { setCurrentView, setIsAuthModalOpen, currentUser } = useApp();
+
+  const searchParams = new URLSearchParams(location.search);
+  const redirectUrl = searchParams.get('redirect') || '/home';
+
+  // If already logged in, redirect
+  useEffect(() => {
+    if (currentUser) {
+      navigate(redirectUrl, { replace: true });
+    }
+  }, [currentUser, navigate, redirectUrl]);
 
   // Form State
   const [firstName, setFirstName] = useState('');
@@ -304,7 +317,7 @@ export const RegisterView: React.FC = () => {
       } catch (e) {}
 
       // 4. Redirect to customer dashboard/home
-      setCurrentView('home');
+      navigate(redirectUrl, { replace: true });
     } catch (err: any) {
       console.error('Registration error:', err);
       if (err.code === 'auth/email-already-in-use') {
@@ -357,7 +370,7 @@ export const RegisterView: React.FC = () => {
         localStorage.setItem('cabai_saved_user', JSON.stringify(profile));
       } catch (e) {}
 
-      setCurrentView('home');
+      navigate(redirectUrl, { replace: true });
     } catch (err: any) {
       console.error('Google Sign-In Error:', err);
       if (err.code === 'auth/popup-closed-by-user') {
@@ -408,7 +421,7 @@ export const RegisterView: React.FC = () => {
         localStorage.setItem('cabai_saved_user', JSON.stringify(profile));
       } catch (e) {}
 
-      setCurrentView('home');
+      navigate(redirectUrl, { replace: true });
     } catch (err: any) {
       console.error('GitHub Sign-In Error:', err);
       if (err.code === 'auth/popup-closed-by-user') {
@@ -424,8 +437,7 @@ export const RegisterView: React.FC = () => {
   };
 
   const handleGoToLogin = () => {
-    setCurrentView('home');
-    setIsAuthModalOpen(true);
+    navigate('/login');
   };
 
   return (
@@ -433,15 +445,15 @@ export const RegisterView: React.FC = () => {
       {/* 3D Interactive WebGL Background */}
       <Auth3DCanvas className="opacity-70" />
 
-      {/* Back to Store Navigation (Mobile & Desktop Accessible) */}
-      <button
-        onClick={() => setCurrentView('home')}
+      {/* Back to Landing Page */}
+      <Link
+        to="/"
         className="fixed top-4 left-4 z-50 inline-flex items-center gap-2 px-3.5 py-2 rounded-full bg-[#18181B]/90 hover:bg-[#27272A] text-white text-xs font-mono-code font-bold backdrop-blur-md transition-all cursor-pointer border border-white/10 shadow-xl"
-        title="Back to Cabai Enterprise Catalog"
+        title="Back to Cabai Enterprise"
       >
         <ArrowLeft className="w-3.5 h-3.5" />
-        <span>Explore Catalog</span>
-      </button>
+        <span>Back to Cabai</span>
+      </Link>
 
       <div className="relative z-10 w-full max-w-6xl mx-auto flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-12 my-auto py-8">
         {/* LEFT: Brand / 3D Maker Studio section (Desktop) */}

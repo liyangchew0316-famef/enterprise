@@ -63,6 +63,7 @@ interface AppContextType {
   
   // User Authentication
   currentUser: UserProfile | null;
+  isAuthLoading: boolean;
   isAuthModalOpen: boolean;
   setIsAuthModalOpen: (open: boolean) => void;
   isInitialLoginGateOpen: boolean;
@@ -146,17 +147,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   });
 
+  const [isAuthLoading, setIsAuthLoading] = useState<boolean>(true);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   
-  // Initial Login Gate (MANDATORY if not logged in - no guest bypass)
-  const [isInitialLoginGateOpen, setIsInitialLoginGateOpen] = useState<boolean>(() => {
-    try {
-      const savedUser = localStorage.getItem('cabai_saved_user');
-      return !savedUser;
-    } catch {
-      return true;
-    }
-  });
+  // Initial Login Gate
+  const [isInitialLoginGateOpen, setIsInitialLoginGateOpen] = useState<boolean>(false);
   
   // Cart state
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -200,6 +195,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     try {
       const unsubscribe = onAuthStateChanged(auth, (user) => {
+        setIsAuthLoading(false);
         if (user && !user.isAnonymous) {
           setCurrentUserId(user.uid);
           // Check if previously saved profile was VIP
@@ -231,11 +227,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           setCurrentUserId(`cust_${Math.random().toString(36).substring(2, 9)}`);
         }
       }, (err) => {
+        setIsAuthLoading(false);
         console.warn('Firebase Auth state listener note:', err?.message || err);
       });
 
       return () => unsubscribe();
     } catch (err) {
+      setIsAuthLoading(false);
       console.warn('Firebase Auth initialization note:', err);
     }
   }, []);
@@ -1147,6 +1145,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setSelectedProduct,
         openProductDetail,
         currentUser,
+        isAuthLoading,
         isAuthModalOpen,
         setIsAuthModalOpen,
         isInitialLoginGateOpen,

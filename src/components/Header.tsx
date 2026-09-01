@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { useApp } from '../context/AppContext';
 import TextMorph from './originkit/ui/textmorph-variant-2';
@@ -35,6 +36,8 @@ interface NavItem {
 }
 
 export const Header: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const { 
     currentView, 
     setCurrentView, 
@@ -98,6 +101,13 @@ export const Header: React.FC = () => {
 
   // Active target determination for SVG outline
   const activeNavId = (() => {
+    const p = location.pathname;
+    if (p === '/home') return 'home';
+    if (p.startsWith('/shop')) return 'shop';
+    if (p === '/about') return 'about';
+    if (p === '/contact') return 'contact';
+    if (p.startsWith('/track')) return 'order_tracking';
+
     if (currentView === 'home') return 'home';
     if (currentView === 'shop' || currentView === 'product_detail') return 'shop';
     if (currentView === 'custom_print' || currentView === 'badge_custom') return 'custom_print';
@@ -151,6 +161,28 @@ export const Header: React.FC = () => {
     setCurrentView(view);
     setMobileMenuOpen(false);
     setMoreMenuOpen(false);
+
+    const routeMap: Record<string, string> = {
+      home: '/home',
+      shop: '/shop',
+      custom_print: '/custom',
+      badge_custom: '/badge-custom',
+      keyboard_custom: '/keyboard-custom',
+      about: '/about',
+      contact: '/contact',
+      terms: '/terms',
+      order_tracking: '/track',
+      boss_admin: '/boss-admin',
+      register: '/register',
+      login: '/login',
+      checkout: '/checkout',
+      tng_payment: '/payment',
+      product_detail: '/shop'
+    };
+
+    if (routeMap[view]) {
+      navigate(routeMap[view]);
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
