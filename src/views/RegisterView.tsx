@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { motion } from 'motion/react';
 import { Circle, Chrome, Github, Eye, EyeOff, ArrowLeft, Box, Sparkles, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { auth } from '../lib/firebase';
@@ -180,7 +179,15 @@ export const PasswordInput: React.FC<PasswordInputProps> = ({
 export const RegisterView: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { setCurrentView, setIsAuthModalOpen, currentUser } = useApp();
+  const { 
+    setCurrentView, 
+    setIsAuthModalOpen, 
+    currentUser, 
+    signUpWithCredentials, 
+    loginWithGoogle, 
+    loginWithGoogleEmail,
+    showToast 
+  } = useApp();
 
   const searchParams = new URLSearchParams(location.search);
   const redirectUrl = searchParams.get('redirect') || '/home';
@@ -278,110 +285,33 @@ export const RegisterView: React.FC = () => {
     const cleanLastName = lastName.trim();
     const displayName = `${cleanFirstName} ${cleanLastName}`;
 
-    try {
-      // 1. Create Firebase Auth user
-      const userCredential = await createUserWithEmailAndPassword(auth, cleanEmail, password);
-      const user = userCredential.user;
+    const res = await signUpWithCredentials({
+      nameOrUsername: displayName,
+      email: cleanEmail,
+      pass: password,
+      passConfirm: confirmPassword
+    });
 
-      // 2. Update Auth display name
-      try {
-        await updateProfile(user, { displayName });
-      } catch (err) {
-        console.warn('Profile update note:', err);
-      }
+    setLoading(false);
 
-      // 3. Save basic customer profile to Firestore (WITHOUT password)
-      const now = new Date().toISOString();
-      const profile: UserProfile = {
-        uid: user.uid,
-        firstName: cleanFirstName,
-        lastName: cleanLastName,
-        email: cleanEmail,
-        displayName: displayName,
-        photoURL: null,
-        isAnonymous: false,
-        role: 'customer',
-        createdAt: now
-      };
-
-      await saveUserToFirestore({
-        ...profile,
-        authProvider: 'email_password',
-        createdAt: now,
-        signedUpAt: now
-      });
-
-      // Save active profile to localStorage for quick hydration
-      try {
-        localStorage.setItem('cabai_saved_user', JSON.stringify(profile));
-      } catch (e) {}
-
-      // 4. Redirect to customer dashboard/home
+    if (res.success) {
+      showToast('Account created successfully! Welcome to Cabai Enterprise 🌶️', 'success');
       navigate(redirectUrl, { replace: true });
-    } catch (err: any) {
-      console.error('Registration error:', err);
-      if (err.code === 'auth/email-already-in-use') {
-        setFormError('An account with this email address already exists. Please log in.');
-      } else if (err.code === 'auth/weak-password') {
-        setFieldErrors(prev => ({ ...prev, password: 'Password is too weak. Requires at least 8 characters.' }));
-      } else if (err.code === 'auth/invalid-email') {
-        setFieldErrors(prev => ({ ...prev, email: 'Please enter a valid email address.' }));
-      } else {
-        setFormError(err.message || 'Failed to create account. Please try again.');
-      }
-    } finally {
-      setLoading(false);
+    } else {
+      setFormError(res.error || 'Failed to create account. Please try again.');
     }
   };
 
   const handleGoogleSignIn = async () => {
     setFormError('');
     setLoading(true);
-    try {
-      const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-
-      const names = (user.displayName || '').split(' ');
-      const gFirstName = names[0] || 'Maker';
-      const gLastName = names.slice(1).join(' ') || '';
-
-      const now = new Date().toISOString();
-      const profile: UserProfile = {
-        uid: user.uid,
-        firstName: gFirstName,
-        lastName: gLastName,
-        email: user.email,
-        displayName: user.displayName || user.email?.split('@')[0] || 'Maker',
-        photoURL: user.photoURL,
-        isAnonymous: false,
-        role: 'customer',
-        createdAt: now
-      };
-
-      await saveUserToFirestore({
-        ...profile,
-        authProvider: 'google',
-        createdAt: now,
-        signedUpAt: now
-      });
-
-      try {
-        localStorage.setItem('cabai_saved_user', JSON.stringify(profile));
-      } catch (e) {}
-
+    const res = await loginWithGoogle();
+    setLoading(false);
+    if (res.success) {
+      showToast('Signed in with Google! Welcome 🚀', 'success');
       navigate(redirectUrl, { replace: true });
-    } catch (err: any) {
-      console.error('Google Sign-In Error:', err);
-      if (err.code === 'auth/popup-closed-by-user') {
-        // User cancelled popup, do nothing
-      } else if (err.code === 'auth/operation-not-allowed' || err.code === 'auth/configuration-not-found') {
-        setFormError('Google sign-in is not enabled in Firebase Console. Please register with Email.');
-      } else {
-        setFormError(err.message || 'Google sign-in failed. Please try again.');
-      }
-    } finally {
-      setLoading(false);
+    } else {
+      setFormError(res.error || 'Google sign-in could not be completed.');
     }
   };
 
@@ -421,15 +351,14 @@ export const RegisterView: React.FC = () => {
         localStorage.setItem('cabai_saved_user', JSON.stringify(profile));
       } catch (e) {}
 
+      showToast('Signed in with GitHub! Welcome 🚀', 'success');
       navigate(redirectUrl, { replace: true });
     } catch (err: any) {
       console.error('GitHub Sign-In Error:', err);
       if (err.code === 'auth/popup-closed-by-user') {
-        // Cancelled
-      } else if (err.code === 'auth/operation-not-allowed' || err.code === 'auth/configuration-not-found') {
-        setFormError('GitHub sign-in is not configured in Firebase. Please use Google or Email registration.');
+        // User cancelled popup
       } else {
-        setFormError(err.message || 'GitHub sign-in failed. Please try again.');
+        setFormError('GitHub sign-in is not enabled. Please register with Email or Google.');
       }
     } finally {
       setLoading(false);

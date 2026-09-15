@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   Product, 
   CartItem, 
@@ -132,10 +133,56 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [currentView, setCurrentView] = useState<ViewMode>('home');
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const [currentView, setCurrentViewState] = useState<ViewMode>('home');
   const [products, setProducts] = useState<Product[]>(() => normalizeProducts(INITIAL_PRODUCTS));
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(() => normalizeProduct(INITIAL_PRODUCTS[0]));
   const [activeCategory, setActiveCategory] = useState<ProductCategory>('all');
+
+  const routeMap: Record<string, string> = {
+    home: '/home',
+    shop: '/shop',
+    product_detail: '/shop',
+    custom_print: '/custom',
+    badge_custom: '/badge-custom',
+    keyboard_custom: '/keyboard-custom',
+    checkout: '/checkout',
+    tng_payment: '/payment',
+    order_tracking: '/track',
+    boss_admin: '/boss-admin',
+    about: '/about',
+    contact: '/contact',
+    terms: '/terms',
+    register: '/register'
+  };
+
+  const setCurrentView = useCallback((view: ViewMode) => {
+    setCurrentViewState(view);
+    const targetRoute = routeMap[view];
+    if (targetRoute && location.pathname !== targetRoute) {
+      navigate(targetRoute);
+    }
+  }, [navigate, location.pathname]);
+
+  // Synchronize currentView state with browser URL path changes
+  useEffect(() => {
+    const p = location.pathname;
+    if (p === '/home') setCurrentViewState('home');
+    else if (p === '/shop') setCurrentViewState('shop');
+    else if (p.startsWith('/shop/')) setCurrentViewState('product_detail');
+    else if (p === '/custom') setCurrentViewState('custom_print');
+    else if (p === '/badge-custom') setCurrentViewState('badge_custom');
+    else if (p === '/keyboard-custom') setCurrentViewState('keyboard_custom');
+    else if (p === '/checkout') setCurrentViewState('checkout');
+    else if (p === '/payment' || p === '/payment/tng') setCurrentViewState('tng_payment');
+    else if (p.startsWith('/track')) setCurrentViewState('order_tracking');
+    else if (p === '/boss-admin' || p === '/admin') setCurrentViewState('boss_admin');
+    else if (p === '/about') setCurrentViewState('about');
+    else if (p === '/contact') setCurrentViewState('contact');
+    else if (p === '/terms') setCurrentViewState('terms');
+  }, [location.pathname]);
   
   // User Authentication State
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(() => {
@@ -766,11 +813,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
   }, []);
 
-  const openProductDetail = (product: Product) => {
+  const openProductDetail = useCallback((product: Product) => {
     setSelectedProduct(product);
-    setCurrentView('product_detail');
+    setCurrentViewState('product_detail');
+    navigate(`/shop/${product.id}`);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  }, [navigate]);
 
   const addToCart = (
     product: Product, 

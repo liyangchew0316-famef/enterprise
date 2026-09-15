@@ -24,8 +24,8 @@ import { TermsView } from './views/TermsView';
 
 export default function App() {
   return (
-    <AppProvider>
-      <BrowserRouter>
+    <BrowserRouter>
+      <AppProvider>
         <Routes>
           {/* Public Landing Page */}
           <Route path="/" element={<LandingView />} />
@@ -213,8 +213,8 @@ export default function App() {
           {/* Catch-all fallback redirect */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
-      </BrowserRouter>
-    </AppProvider>
+      </AppProvider>
+    </BrowserRouter>
   );
 }
 

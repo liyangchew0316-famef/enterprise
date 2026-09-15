@@ -447,12 +447,46 @@ export interface StoredUserData extends UserProfile {
 
 const LOCAL_REGISTERED_USERS_KEY = 'cabai_registered_users';
 
+const DEFAULT_SYSTEM_ACCOUNTS: StoredUserData[] = [
+  {
+    uid: 'demo_maker_default',
+    email: 'maker@cabai.com',
+    username: 'maker',
+    displayName: 'Cabai Maker',
+    role: 'customer',
+    isAnonymous: false,
+    password: 'MakerPass123!',
+    authProvider: 'email_password',
+    createdAt: '2025-01-01T00:00:00.000Z'
+  },
+  {
+    uid: 'demo_vip_default',
+    email: 'vip@cabai.com',
+    username: 'vipmaker',
+    displayName: 'VIP Maker',
+    role: 'vip',
+    isAnonymous: false,
+    password: 'MakerPass123!',
+    authProvider: 'email_password',
+    createdAt: '2025-01-01T00:00:00.000Z'
+  }
+];
+
 function getLocalRegisteredUsers(): StoredUserData[] {
   try {
     const raw = localStorage.getItem(LOCAL_REGISTERED_USERS_KEY);
-    return raw ? JSON.parse(raw) : [];
+    const parsed: StoredUserData[] = raw ? JSON.parse(raw) : [];
+    for (const def of DEFAULT_SYSTEM_ACCOUNTS) {
+      if (!parsed.some(u => 
+        (u.email && u.email.toLowerCase() === def.email?.toLowerCase()) || 
+        (u.username && u.username.toLowerCase() === def.username?.toLowerCase())
+      )) {
+        parsed.push(def);
+      }
+    }
+    return parsed;
   } catch (e) {
-    return [];
+    return DEFAULT_SYSTEM_ACCOUNTS;
   }
 }
 

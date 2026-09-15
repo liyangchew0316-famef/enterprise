@@ -25,6 +25,12 @@ export const LandingView: React.FC = () => {
   const navigate = useNavigate();
   const { currentUser } = useApp();
 
+  React.useEffect(() => {
+    if (currentUser) {
+      navigate('/home', { replace: true });
+    }
+  }, [currentUser, navigate]);
+
   const handleExplore = () => {
     if (currentUser) {
       navigate('/home');
