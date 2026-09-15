@@ -56,5 +56,13 @@ service cloud.firestore {
       allow update: if true;
       allow delete: if true;
     }
+
+    // Contact messages (direct customer inquiries)
+    match /contact_messages/{messageId} {
+      allow read: if true;
+      allow create: if true;
+      allow update: if true;
+      allow delete: if true;
+    }
   }
 }

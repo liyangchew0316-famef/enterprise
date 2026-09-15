@@ -3,7 +3,6 @@ import path from 'path';
 import { createServer as createViteServer } from 'vite';
 import dotenv from 'dotenv';
 import { store } from './server/store';
-import { askCabaiAI } from './server/gemini';
 import { OrderStatus } from './src/types';
 
 dotenv.config();
@@ -215,19 +214,34 @@ async function startServer() {
     res.json(quoteResult);
   });
 
-  // --- GEMINI AI ASSISTANT ---
-  app.post('/api/ai/assistant', async (req: Request, res: Response) => {
+  // --- DIRECT CONTACT MESSAGES API ---
+  app.post('/api/contact', async (req: Request, res: Response) => {
     try {
-      const { prompt, context } = req.body;
-      if (!prompt) {
-        return res.status(400).json({ error: 'Prompt is required' });
+      const { name, email, message } = req.body;
+      if (!name || !email || !message) {
+        return res.status(400).json({ error: 'Name, email, and message are required' });
       }
 
-      const answer = await askCabaiAI(prompt, context);
-      res.json({ reply: answer });
+      const ticketId = `CBI-MSG-${Math.floor(1000 + Math.random() * 9000)}`;
+      const contactEntry = {
+        id: ticketId,
+        name: String(name).trim(),
+        email: String(email).trim(),
+        message: String(message).trim(),
+        receivedAt: new Date().toISOString(),
+        status: 'received'
+      };
+
+      console.log('[Server Contact] 📩 New direct message received:', contactEntry);
+      res.json({
+        success: true,
+        ticketId,
+        message: 'Direct message received by Cabai Maker Studio team.',
+        data: contactEntry
+      });
     } catch (err: any) {
-      console.error('Error in AI Assistant API:', err);
-      res.status(500).json({ error: 'Failed to consult Cabai AI' });
+      console.error('Error in Contact API:', err);
+      res.status(500).json({ error: 'Failed to record direct message' });
     }
   });
 

@@ -1,8 +1,8 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
-import { Flame, ArrowRight, Trophy, Award, Sparkles, MapPin, Phone, Mail, CheckCircle2, Shield, Cpu, Layers } from 'lucide-react';
+import { Flame, ArrowRight, Sparkles, MapPin, Phone, Mail, CheckCircle2, Shield, Layers } from 'lucide-react';
 import { imageConfig } from '../config/assets';
-import { HALL_OF_GLORY_MEMBERS, STUDIO_INFO } from '../data/mockData';
+import { STUDIO_INFO } from '../data/mockData';
 
 export const AboutView: React.FC = () => {
   const { setCurrentView } = useApp();
@@ -110,103 +110,6 @@ export const AboutView: React.FC = () => {
               </p>
             </div>
 
-          </div>
-        </div>
-
-        <hr className="border-white/10" />
-
-        {/* ========================================================================= */}
-        {/* THE HALL OF GLORY (4 LEGENDS OF CABAI ENTERPRISE)                         */}
-        {/* ========================================================================= */}
-        <div className="space-y-6 pt-2">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center shadow-md">
-                <Trophy className="w-6 h-6 text-amber-400" />
-              </div>
-              <div>
-                <h2 className="font-heading font-extrabold text-2xl text-white flex items-center gap-2">
-                  <span>THE HALL OF GLORY</span>
-                  <span className="text-xs font-bold px-2.5 py-0.5 bg-amber-500/20 text-amber-300 rounded-full border border-amber-500/40 uppercase">
-                    4 Legends
-                  </span>
-                </h2>
-                <p className="text-xs text-white/50">
-                  Honoring the visionary creators, architects, and masters behind CABAI ENTERPRISE™
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-            {HALL_OF_GLORY_MEMBERS.map((member, idx) => (
-              <div 
-                key={member.id}
-                className="bg-[#18181B] rounded-3xl p-6 border border-white/10 hover:border-amber-400/60 shadow-lg transition-all space-y-4 relative overflow-hidden group"
-              >
-                {/* Decorative corner glow */}
-                <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-bl-full -mr-10 -mt-10 pointer-events-none group-hover:scale-110 transition-transform" />
-
-                {/* Header with Avatar & Role */}
-                <div className="flex items-start gap-4">
-                  <div className="w-16 h-16 rounded-2xl bg-[#0D0D10] text-white flex items-center justify-center text-3xl shrink-0 shadow-md border border-white/15 relative group-hover:scale-105 transition-transform">
-                    <span>{member.avatarEmoji}</span>
-                    <span className="absolute -bottom-1 -right-1 w-6 h-6 bg-amber-500 text-black text-[11px] font-extrabold rounded-full flex items-center justify-center shadow-xs">
-                      #{idx + 1}
-                    </span>
-                  </div>
-
-                  <div className="space-y-1 flex-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="font-heading font-extrabold text-lg text-white">
-                        {member.name}
-                      </h3>
-                    </div>
-                    <div className="text-xs font-bold text-[#FF4D5A]">
-                      {member.role}
-                    </div>
-                    <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/20 text-amber-300 border border-amber-500/40">
-                      <Award className="w-3 h-3 text-amber-400" />
-                      <span>{member.badge}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Specialty Pill */}
-                <div className="bg-[#111113] rounded-xl p-2.5 text-xs text-white/80 flex items-center gap-2 border border-white/5">
-                  <Cpu className="w-3.5 h-3.5 text-[#FF4D5A] shrink-0" />
-                  <span className="font-semibold text-[11px] truncate">
-                    <strong>Specialty:</strong> {member.specialty}
-                  </span>
-                </div>
-
-                {/* Bio */}
-                <p className="text-xs text-white/70 leading-relaxed">
-                  {member.bio}
-                </p>
-
-                {/* Legendary Quote */}
-                <blockquote className="p-3 bg-red-950/40 rounded-xl border-l-4 border-[#AF101A] text-[11px] italic font-medium text-white/90 border border-white/5">
-                  {member.quote}
-                </blockquote>
-
-                {/* Key Achievements */}
-                <div className="space-y-1.5 pt-1">
-                  <span className="text-[10px] font-extrabold text-white/40 uppercase tracking-wider block">
-                    Hall of Fame Milestones:
-                  </span>
-                  <ul className="space-y-1 text-[11px] text-white/80">
-                    {member.achievements.map((ach, aIdx) => (
-                      <li key={aIdx} className="flex items-start gap-1.5">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                        <span>{ach}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-              </div>
-            ))}
           </div>
         </div>
 

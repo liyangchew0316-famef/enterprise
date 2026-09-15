@@ -229,7 +229,7 @@ export const SEOHead: React.FC = () => {
     case 'about':
       seo = {
         title: 'About Cabai Enterprise | 3D Printing Studio Penang & Bukit Mertajam Malaysia',
-        description: 'Learn about Cabai Enterprise, our journey from a maker joke to a leading 3D printing studio in Malaysia, and meet the 4 legends in our Hall of Glory.',
+        description: 'Learn about Cabai Enterprise, our journey from a maker joke to a leading 3D printing studio in Malaysia, creating quality custom 3D products.',
         canonicalUrl: `${baseUrl}/?view=about`,
         ogType: 'website',
         ogImage: defaultImage,
