@@ -590,6 +590,17 @@ export const ChiliDrawCanvas: React.FC<ChiliDrawCanvasProps> = ({
     link.click();
   };
 
+  // Helper for optimized data URL
+  const getOptimizedCanvasDataUrl = (): string => {
+    const canvas = canvasRef.current;
+    if (!canvas) return '';
+    try {
+      return canvas.toDataURL('image/jpeg', 0.85);
+    } catch {
+      return canvas.toDataURL('image/png');
+    }
+  };
+
   // Save to Firebase
   const handleFirebaseSave = async () => {
     const canvas = canvasRef.current;
@@ -598,7 +609,7 @@ export const ChiliDrawCanvas: React.FC<ChiliDrawCanvasProps> = ({
     setSaveSuccess(false);
 
     try {
-      const dataUrl = canvas.toDataURL('image/png');
+      const dataUrl = getOptimizedCanvasDataUrl();
       const ok = await onSaveToFirebase({
         title: designTitle.trim() || 'Custom Chili Keychain',
         creatorName: creatorName.trim() || 'Cabai Maker',
@@ -624,7 +635,7 @@ export const ChiliDrawCanvas: React.FC<ChiliDrawCanvasProps> = ({
   const handleDirectOrder = () => {
     const canvas = canvasRef.current;
     if (!canvas || !onOrderPrint) return;
-    const dataUrl = canvas.toDataURL('image/png');
+    const dataUrl = getOptimizedCanvasDataUrl();
     onOrderPrint(dataUrl, designTitle);
   };
 

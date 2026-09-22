@@ -33,7 +33,7 @@ import {
   updateUserPasswordInFirestore,
   StoredUserData
 } from '../lib/firestoreService';
-import { uploadCustomDesignToStorage } from '../lib/storageService';
+import { uploadCustomDesignToStorage, compressImageDataUrl } from '../lib/storageService';
 import { auth } from '../lib/firebase';
 import { 
   onAuthStateChanged, 
@@ -985,30 +985,49 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         ? `${item.customPrintDetails?.fileName || item.product.name} (${item.customPrintDetails?.infillPercent || 20}% infill, ${item.customPrintDetails?.layerHeight || '0.20'}mm layer)` 
         : (item.customText || '');
 
-      let finalDesignUrl = item.customDesignUrl || item.customPrintDetails?.customDesignUrl;
+      // Determine raw custom image source (could be in customDesignUrl, drawingImage, customPrintDetails, or custom badge image)
+      let rawImageSource = item.customDesignUrl || item.customPrintDetails?.customDesignUrl || item.drawingImage;
+      if (!rawImageSource && item.product.images?.[0]?.startsWith('data:')) {
+        rawImageSource = item.product.images[0];
+      }
 
-      // If customDesignUrl is not yet a Firebase Storage download URL and item has drawingImage, upload the optimized Blob now
-      if (!finalDesignUrl && item.drawingImage) {
-        try {
-          if (item.drawingImage.startsWith('http://') || item.drawingImage.startsWith('https://')) {
-            finalDesignUrl = item.drawingImage;
-          } else {
+      let finalDesignUrl: string | undefined = undefined;
+
+      if (rawImageSource) {
+        // If it's already a hosted URL (Firebase Storage or backend server), keep it
+        if (
+          rawImageSource.startsWith('http://') || 
+          rawImageSource.startsWith('https://') ||
+          rawImageSource.startsWith('/api/designs/')
+        ) {
+          finalDesignUrl = rawImageSource;
+        } else {
+          // It's a data URL or local blob; upload to tiered cloud/server storage
+          try {
             onProgress?.('Saving custom design to cloud...');
             finalDesignUrl = await uploadCustomDesignToStorage(
-              item.drawingImage, 
+              rawImageSource,
               `order_chili_${item.id}`,
               `cart_item_${item.id}`
             );
-            // Cache back into cart item in state to avoid re-upload if checkout is repeated
-            item.customDesignUrl = finalDesignUrl;
-            if (item.customPrintDetails) {
-              item.customPrintDetails.customDesignUrl = finalDesignUrl;
-            }
+          } catch (uploadErr: any) {
+            console.warn('[AppContext] Storage upload note during placeOrder:', uploadErr);
+            // Fallback: strictly compress to a safe thumbnail (< 40KB) so Firestore 1MB limit is NEVER exceeded
+            finalDesignUrl = await compressImageDataUrl(rawImageSource, 400, 0.65);
           }
-        } catch (uploadErr: any) {
-          console.warn('[AppContext] ⚠️ Storage upload note during placeOrder:', uploadErr);
-          // Graceful fallback: preserve drawingImage so Boss Admin can still view the artwork
-          finalDesignUrl = item.drawingImage;
+        }
+      }
+
+      // Hard check: If finalDesignUrl is still a data URL and exceeds 50KB, compress it
+      if (finalDesignUrl && finalDesignUrl.startsWith('data:') && finalDesignUrl.length > 50000) {
+        finalDesignUrl = await compressImageDataUrl(finalDesignUrl, 350, 0.6);
+      }
+
+      // Cache back into item so subsequent actions don't re-upload
+      if (finalDesignUrl) {
+        item.customDesignUrl = finalDesignUrl;
+        if (item.customPrintDetails) {
+          item.customPrintDetails.customDesignUrl = finalDesignUrl;
         }
       }
 
@@ -1022,7 +1041,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         customDetails,
         ...(finalDesignUrl ? { customDesignUrl: finalDesignUrl } : {}),
         ...(item.customText ? { customText: item.customText } : {}),
-        ...(item.drawingImage ? { drawingImage: finalDesignUrl || item.drawingImage } : {}),
+        ...(finalDesignUrl ? { drawingImage: finalDesignUrl } : {}),
         ...(item.customPrintDetails ? { 
           customPrintDetails: {
             ...item.customPrintDetails,

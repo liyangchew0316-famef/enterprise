@@ -7,6 +7,7 @@ export interface DBData {
   orders: Order[];
   spools: MaterialSpool[];
   customQuotes: any[];
+  customDesigns?: Record<string, { id: string; dataUrl: string; title?: string; createdAt: string }>;
 }
 
 const DB_FILE = path.join(process.cwd(), 'server', 'db.json');
@@ -469,6 +470,25 @@ class Store {
     this.data.customQuotes.unshift(quote);
     this.saveToFile(this.data);
     return quote;
+  }
+
+  // Custom Designs & Artwork Uploads
+  saveDesign(id: string, dataUrl: string, title?: string): { id: string; url: string } {
+    if (!this.data.customDesigns) {
+      this.data.customDesigns = {};
+    }
+    this.data.customDesigns[id] = {
+      id,
+      dataUrl,
+      title,
+      createdAt: new Date().toISOString()
+    };
+    this.saveToFile(this.data);
+    return { id, url: `/api/designs/${id}` };
+  }
+
+  getDesign(id: string): { id: string; dataUrl: string; title?: string; createdAt: string } | undefined {
+    return this.data.customDesigns?.[id];
   }
 }
 

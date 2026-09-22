@@ -245,6 +245,45 @@ async function startServer() {
     }
   });
 
+  // --- CUSTOM DESIGNS STORAGE API ---
+  app.post('/api/designs/upload', (req: Request, res: Response) => {
+    try {
+      const { dataUrl, title, prefix } = req.body;
+      if (!dataUrl) {
+        return res.status(400).json({ error: 'dataUrl is required' });
+      }
+      const safePrefix = (prefix || 'chili').replace(/[^a-zA-Z0-9_-]/g, '');
+      const designId = `${safePrefix}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+      const result = store.saveDesign(designId, dataUrl, title);
+      console.log(`[Server Designs] 🎨 Custom design saved successfully: ${designId}`);
+      res.json({
+        success: true,
+        id: designId,
+        url: result.url
+      });
+    } catch (err: any) {
+      console.error('Error saving custom design on server:', err);
+      res.status(500).json({ error: 'Failed to save design on server' });
+    }
+  });
+
+  app.get('/api/designs/:id', (req: Request, res: Response) => {
+    const design = store.getDesign(req.params.id);
+    if (!design) {
+      return res.status(404).send('Design not found');
+    }
+    const match = design.dataUrl.match(/^data:([^;]+);base64,(.+)$/);
+    if (match) {
+      const contentType = match[1];
+      const buffer = Buffer.from(match[2], 'base64');
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      return res.send(buffer);
+    }
+    // If it's already a URL or other format
+    res.redirect(design.dataUrl);
+  });
+
   // ==========================================
   // VITE / STATIC SERVING
   // ==========================================

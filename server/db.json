@@ -546,5 +546,12 @@
       "isLow": false
     }
   ],
-  "customQuotes": []
+  "customQuotes": [],
+  "customDesigns": {
+    "test_1790063629235_5qu0u": {
+      "id": "test_1790063629235_5qu0u",
+      "dataUrl": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+      "createdAt": "2026-09-22T07:53:49.235Z"
+    }
+  }
 }

@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { Auth3DCanvas } from './Auth3DCanvas';
-import { Auth3DCard } from './Auth3DCard';
 import { 
   X, 
   Lock, 
@@ -321,12 +319,8 @@ export const AuthModal: React.FC = () => {
       className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn overflow-y-auto"
       onClick={currentUser ? handleClose : undefined}
     >
-      {/* 3D Interactive WebGL Background */}
-      <Auth3DCanvas className="opacity-70" />
-
       <div className="relative w-full max-w-md my-8 z-10" onClick={(e) => e.stopPropagation()}>
-        <Auth3DCard maxTilt={8} glowColor="rgba(175, 16, 26, 0.35)">
-          <div className="relative w-full bg-[#1c1c1e] text-white rounded-3xl shadow-2xl border border-white/15 overflow-hidden transform-style-3d">
+        <div className="relative w-full bg-[#1c1c1e] text-white rounded-3xl shadow-2xl border border-white/15 overflow-hidden">
             {/* Top Header Background Banner with 3D Depth */}
             <div className="relative bg-gradient-to-br from-[#121214] via-[#240a0e] to-[#af101a] text-white p-6 sm:p-7 text-center translate-z-20 border-b border-white/10">
               {/* Close button: ONLY visible when already logged in */}
@@ -1106,7 +1100,6 @@ export const AuthModal: React.FC = () => {
           )}
         </div>
       </div>
-    </Auth3DCard>
   </div>
 </div>
 );

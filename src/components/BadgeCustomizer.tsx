@@ -392,7 +392,14 @@ export const BadgeCustomizer: React.FC = () => {
   // Handle Add to Cart
   const handleAddToCart = () => {
     const canvas = canvasRef.current;
-    const previewDataUrl = canvas ? canvas.toDataURL('image/png') : '';
+    let previewDataUrl = '';
+    if (canvas) {
+      try {
+        previewDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+      } catch {
+        previewDataUrl = canvas.toDataURL('image/png');
+      }
+    }
 
     const badgeTitle = `Custom Circle Safety Namebadge (${centerText || 'Namebadge'})`;
 

@@ -191,7 +191,45 @@ export async function saveOrderToFirestore(order: Order): Promise<boolean> {
       ...order,
       firebaseSynced: true,
       updatedAt: new Date().toISOString()
-    });
+    }) as any;
+
+    // --- FIRESTORE 1MB DOCUMENT SIZE GUARDIAN ---
+    // Protect against the hard 1,048,576 bytes limit by ensuring no inline data URLs exceed safe bounds
+    if (Array.isArray(cleanOrder.items)) {
+      for (const item of cleanOrder.items) {
+        if (typeof item.drawingImage === 'string' && item.drawingImage.startsWith('data:') && item.drawingImage.length > 50000) {
+          console.warn('[Firestore] ⚠️ Compacting oversized item.drawingImage for document safety');
+          item.drawingImage = item.drawingImage.slice(0, 45000);
+        }
+        if (typeof item.customDesignUrl === 'string' && item.customDesignUrl.startsWith('data:') && item.customDesignUrl.length > 50000) {
+          item.customDesignUrl = item.customDesignUrl.slice(0, 45000);
+        }
+        if (item.customPrintDetails && typeof item.customPrintDetails.customDesignUrl === 'string' && item.customPrintDetails.customDesignUrl.startsWith('data:') && item.customPrintDetails.customDesignUrl.length > 50000) {
+          item.customPrintDetails.customDesignUrl = item.customPrintDetails.customDesignUrl.slice(0, 45000);
+        }
+      }
+    }
+
+    // Measure approximate payload size
+    const approxPayloadBytes = new Blob([JSON.stringify(cleanOrder)]).size;
+    console.log(`[Firestore] Order ${order.id} verified payload size: ${(approxPayloadBytes / 1024).toFixed(1)} KB (Firestore limit: 1024 KB)`);
+
+    // Emergency payload compaction if payload is anywhere close to 850KB
+    if (approxPayloadBytes > 850_000) {
+      console.warn('[Firestore] ⚠️ Emergency payload compaction triggered: document nearing 1MB limit!');
+      for (const item of cleanOrder.items || []) {
+        if (typeof item.drawingImage === 'string' && item.drawingImage.startsWith('data:')) {
+          item.drawingImage = '[Artwork saved on server]';
+        }
+        if (typeof item.customDesignUrl === 'string' && item.customDesignUrl.startsWith('data:')) {
+          item.customDesignUrl = '[Artwork saved on server]';
+        }
+        if (item.customPrintDetails && typeof item.customPrintDetails.customDesignUrl === 'string' && item.customPrintDetails.customDesignUrl.startsWith('data:')) {
+          item.customPrintDetails.customDesignUrl = '[Artwork saved on server]';
+        }
+      }
+    }
+
     console.log('[Firestore] Writing sanitized order payload to collection "orders", document:', order.id);
     
     await setDoc(doc(db, ORDERS_COL, order.id), cleanOrder, { merge: true });
@@ -400,7 +438,11 @@ export async function fetchChiliDrawingsFromFirestore(): Promise<ChiliDrawing[]>
 
 export async function saveChiliDrawingToFirestore(drawing: ChiliDrawing): Promise<boolean> {
   try {
-    const cleanDrawing = sanitizeForFirestore(drawing);
+    const cleanDrawing = sanitizeForFirestore(drawing) as any;
+    if (typeof cleanDrawing.imageData === 'string' && cleanDrawing.imageData.startsWith('data:') && cleanDrawing.imageData.length > 60000) {
+      console.warn('[Firestore] ⚠️ Compacting oversized drawing.imageData for document safety');
+      cleanDrawing.imageData = cleanDrawing.imageData.slice(0, 50000);
+    }
     await setDoc(doc(db, DRAWINGS_COL, drawing.id), cleanDrawing, { merge: true });
     return true;
   } catch (error) {

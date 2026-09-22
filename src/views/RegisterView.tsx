@@ -3,8 +3,6 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { Circle, Chrome, Github, Eye, EyeOff, ArrowLeft, Box, Sparkles, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { auth } from '../lib/firebase';
-import { Auth3DCanvas } from '../components/Auth3DCanvas';
-import { Auth3DCard } from '../components/Auth3DCard';
 import { 
   createUserWithEmailAndPassword, 
   updateProfile, 
@@ -371,9 +369,6 @@ export const RegisterView: React.FC = () => {
 
   return (
     <div className="relative min-h-screen w-full bg-[#111113] selection:bg-[#AF101A]/30 p-2 lg:p-4 font-sans text-white flex flex-col lg:flex-row items-center justify-center overflow-x-hidden">
-      {/* 3D Interactive WebGL Background */}
-      <Auth3DCanvas className="opacity-70" />
-
       {/* Back to Landing Page */}
       <Link
         to="/"
@@ -448,10 +443,9 @@ export const RegisterView: React.FC = () => {
           </div>
         </div>
 
-        {/* RIGHT: 3D Perspective Registration Card */}
+        {/* RIGHT: Registration Card */}
         <div className="w-full lg:w-[54%] max-w-lg">
-          <Auth3DCard maxTilt={8} glowColor="rgba(175, 16, 26, 0.4)">
-            <div className="bg-[#111113]/95 backdrop-blur-2xl border border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 transform-style-3d">
+          <div className="bg-[#111113]/95 backdrop-blur-2xl border border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
               {/* Form Header */}
               <div className="space-y-1.5 text-left translate-z-20">
                 <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-red-950/80 text-[#FF4D5A] text-[10px] font-mono-code font-bold tracking-wide uppercase border border-red-800/80 mb-1">
@@ -611,7 +605,6 @@ export const RegisterView: React.FC = () => {
                 </p>
               </div>
             </div>
-          </Auth3DCard>
         </div>
       </div>
     </div>
